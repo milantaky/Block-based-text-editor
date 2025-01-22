@@ -1,0 +1,37 @@
+# macOS system files
+.DS_Store
+
+# Node.js dependencies
+node_modules/
+
+# Build output
+dist/
+
+# Environment variables
+.env
+.env.*     # In case you have multiple .env files (e.g., .env.development, .env.production)
+
+# Lock files (optional)
+package-lock.json
+yarn.lock
+pnpm-lock.yaml
+
+# Editor-specific files
+*.log      # Log files (general)
+.idea/     # JetBrains IDE (WebStorm, IntelliJ) settings
+.vscode/   # VSCode settings (optional, if you don't want to share workspace settings)
+*.swp      # Vim swap files
+*.sublime-project
+*.sublime-workspace
+
+# Temporary files
+vite.config.ts.timestamp-*
+*.tmp      # General temporary files
+*.bak      # Backup files
+
+# TypeScript cache
+*.tsbuildinfo
+
+# Build artifacts
+coverage/  # Code coverage output (if using a tool like Jest)
+out/       # Output folder for some build tools
