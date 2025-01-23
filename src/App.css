@@ -1,2 +1,12 @@
 #root {
 }
+
+body {
+    /* padding: 0;
+    margin: 0; */
+}
+
+.editable-area {
+    border: 1px solid black;
+    padding: 1em;
+}
