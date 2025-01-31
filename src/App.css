@@ -9,4 +9,11 @@ body {
 .editable-area {
     border: 1px solid black;
     padding: 1em;
+    /* margin-bottom: 2rem; */
+    display: flex;
+}
+
+.block {
+    border: 1px solid green;
+    padding: 0 1em;
 }
