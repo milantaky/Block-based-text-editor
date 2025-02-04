@@ -17,3 +17,12 @@ body {
     border: 1px solid green;
     padding: 0 1em;
 }
+
+.input-box {
+    padding: 0 1em;
+}
+
+.input-box:focus {
+    outline: 0;
+    box-shadow: none;
+}

@@ -1,87 +1,100 @@
-import { useState, useRef } from "react";
+import { useState, useRef, useEffect } from "react";
 import "./App.css";
 
 function App() {
-  // const [text, setText] = useState("");
-  const [textMode, setTextMode] = useState(true);
-  const [blocks, setBlocks] = useState([]);
-  const editorRef = useRef(null);
+  const [blocks, setBlocks] = useState<string[]>([]);
+  const [inputText, setInputText] = useState("");
+  const [inputIndex, setInputIndex] = useState(0);
+  const editorRef = useRef<HTMLDivElement>(null);
 
-  // Updates text in editor using ref
-  // function handleTextChange(e){
-  //   if (editorRef.current) {
-  //     // setText(editorRef.current.innerHTML);
-  //     // setBlocks(editorRef.current.innerText.split(' '));
-  //   }
-  // }
+  useEffect(() => {
+    editorRef.current?.focus();
+    editorRef.current!.textContent = "";
+  }, [inputIndex]);
+  
+  function handleKeyDown(e: React.KeyboardEvent<HTMLDivElement>) {
+    // TODO: make it a switch
+    // Space bar
+    if (e.key === " " && inputText.trim() !== "") {
+      e.preventDefault();
 
-  function Block({ content }){
-    return <span className="block">{content}</span>;
-  }
-
-  function setCaretPosition(position: number) {
-    const textNode = document.querySelector('.editable-area');
-    const range = document.createRange();
-    range.setStart(textNode, position);
-    range.setEnd(textNode, position);
-    const sel = window.getSelection();
-    sel.removeAllRanges();
-    sel.addRange(range);
-  }
-
-  function convertToBlock(){
-
-    const lastCaretPosition = window.getSelection()?.focusOffset;
-
-    if(editorRef.current){
-      let last = editorRef.current.innerText.split(' ').pop();
-      
-      editorRef.current.innerHTML += `<span class='block'>${last}</span>`;
-      
-      console.log(editorRef.current.innerText)
-
-      setCaretPosition(lastCaretPosition);
-    }
-  }
-
-  function handleKeyDown(e){
-    if(e.key === " "){
-      if(!textMode){
-        convertToBlock();
+      if (blocks.length === 0) {
+        setBlocks([inputText.trim()]);
+      } else {
+        setBlocks([...blocks, inputText.trim()]);
       }
+      
+      setInputText("");
+      setInputIndex(inputIndex + 1);
+
+    // Backspace
+    } else if (e.key === "Backspace" && inputText === "" && blocks.length > 0) {
+      e.preventDefault();
+      setInputText(blocks[blocks.length - 1]);
+      setBlocks(blocks.slice(0, -1));
+      setInputIndex(inputIndex - 1);
+
+    // Left Arrow Key
+    } else if (e.key === "ArrowLeft" && inputText === "" && inputIndex > 0) {
+      e.preventDefault();
+      setInputIndex(inputIndex - 1);
+
+    // Right Arrow Key
+    } else if (e.key === "ArrowRight" && inputText === "" && inputIndex < blocks.length) {
+      e.preventDefault();
+      setInputIndex(inputIndex + 1);
     }
   }
 
-  function handleButtonClick(){
-    setTextMode(!textMode);
+  function handleInput(e: React.FormEvent<HTMLDivElement>) {
+    setInputText(e.currentTarget.textContent || "");
   }
 
   return (
-    <>
-      <div className="editor">
-        <div 
-          className="editable-area"
+    <div className="editor">
+      <div className="editable-area">
+        {blocks.map((block, index) => (
+          (index === inputIndex) 
+          ?
+          <>
+            <div
+              ref={editorRef}
+              className="input-box"
+              contentEditable
+              suppressContentEditableWarning
+              onInput={handleInput}
+              onKeyDown={handleKeyDown}
+              />
+            <span 
+              key={index} 
+              className="block" 
+              contentEditable
+              suppressContentEditableWarning
+              >
+              {block}
+            </span>
+          </>
+          :
+            <span 
+              key={index} 
+              className="block" 
+              contentEditable
+              suppressContentEditableWarning
+            >
+              {block}
+            </span>
+        ))}
+        {(blocks.length === 0 || blocks.length === inputIndex) &&
+        <div
           ref={editorRef}
-          contentEditable="true" 
-          suppressContentEditableWarning={true}
-          // onInput={handleTextChange}
+          className="input-box"
+          contentEditable
+          suppressContentEditableWarning
+          onInput={handleInput}
           onKeyDown={handleKeyDown}
-          >
-            {/* This is where the text is */}
-        </div>
-        <div>
-          {/* {
-            blocks.map(block => {
-              return <span className="block">{block}</span>
-            })
-          } */}
-        </div>
-        <div>
-          <button onClick={handleButtonClick}>Switch Modes</button>
-          {(textMode) ? "text" : "blocks"}
-        </div>
+        />}
       </div>
-    </>
+    </div>
   );
 }
 
