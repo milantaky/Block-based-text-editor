@@ -9,8 +9,8 @@ function App() {
 
   useEffect(() => {
     editorRef.current?.focus();
-    editorRef.current!.textContent = "";
-  }, [inputIndex]);
+    editorRef.current!.textContent = inputText;
+  }, [inputIndex, inputText]);
   
   function handleKeyDown(e: React.KeyboardEvent<HTMLDivElement>) {
     // TODO: make it a switch
@@ -21,7 +21,16 @@ function App() {
       if (blocks.length === 0) {
         setBlocks([inputText.trim()]);
       } else {
-        setBlocks([...blocks, inputText.trim()]);
+
+        if(inputIndex !== blocks.length){
+          setBlocks(prevBlocks => [
+            ...prevBlocks.slice(0, inputIndex),
+            inputText.trim(),
+            ...prevBlocks.slice(inputIndex)
+          ]);
+        } else {
+          setBlocks([...blocks, inputText.trim()]);
+        }
       }
       
       setInputText("");
@@ -92,7 +101,8 @@ function App() {
           suppressContentEditableWarning
           onInput={handleInput}
           onKeyDown={handleKeyDown}
-        />}
+        />
+        }
       </div>
     </div>
   );
