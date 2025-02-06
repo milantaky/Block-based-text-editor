@@ -9,25 +9,29 @@ function App() {
 
   useEffect(() => {
     editorRef.current?.focus();
-    editorRef.current!.textContent = inputText;
+    // editorRef.current!.textContent = inputText;      // Not working well
   }, [inputIndex, inputText]);
   
   function handleKeyDown(e: React.KeyboardEvent<HTMLDivElement>) {
     // TODO: make it a switch
+
     // Space bar
     if (e.key === " " && inputText.trim() !== "") {
       e.preventDefault();
 
-      if (blocks.length === 0) {
+      // First Block
+      if (blocks.length === 0) {    
         setBlocks([inputText.trim()]);
       } else {
 
+        // Input not on end
         if(inputIndex !== blocks.length){
           setBlocks(prevBlocks => [
             ...prevBlocks.slice(0, inputIndex),
             inputText.trim(),
             ...prevBlocks.slice(inputIndex)
           ]);
+        // Input on end
         } else {
           setBlocks([...blocks, inputText.trim()]);
         }
@@ -39,6 +43,7 @@ function App() {
     // Backspace
     } else if (e.key === "Backspace" && inputText === "" && blocks.length > 0) {
       e.preventDefault();
+
       setInputText(blocks[blocks.length - 1]);
       setBlocks(blocks.slice(0, -1));
       setInputIndex(inputIndex - 1);
@@ -46,11 +51,13 @@ function App() {
     // Left Arrow Key
     } else if (e.key === "ArrowLeft" && inputText === "" && inputIndex > 0) {
       e.preventDefault();
+
       setInputIndex(inputIndex - 1);
 
     // Right Arrow Key
     } else if (e.key === "ArrowRight" && inputText === "" && inputIndex < blocks.length) {
       e.preventDefault();
+
       setInputIndex(inputIndex + 1);
     }
   }
