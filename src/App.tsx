@@ -6,12 +6,24 @@ function App() {
   const [inputText, setInputText] = useState("");
   const [inputIndex, setInputIndex] = useState(0);
   const editorRef = useRef<HTMLDivElement>(null);
+  const changeBlockRef = useRef(false);
 
   useEffect(() => {
     editorRef.current?.focus();
-    // editorRef.current!.textContent = inputText;      // Not working well
+    editorRef.current!.textContent = inputText;    
+
+    // Sets caret on the end when pressing backspace on block (editing)
+    if(changeBlockRef){
+      const range = document.createRange();
+      const sel = window.getSelection();
+      range.selectNodeContents(editorRef.current!);
+      range.collapse(false);
+      sel!.removeAllRanges();
+      sel!.addRange(range);
+    }
+
   }, [inputIndex, inputText]);
-  
+
   function handleKeyDown(e: React.KeyboardEvent<HTMLDivElement>) {
     // TODO: make it a switch
 
@@ -47,6 +59,8 @@ function App() {
       setInputText(blocks[blocks.length - 1]);
       setBlocks(blocks.slice(0, -1));
       setInputIndex(inputIndex - 1);
+
+      changeBlockRef.current = true;
 
     // Left Arrow Key
     } else if (e.key === "ArrowLeft" && inputText === "" && inputIndex > 0) {
