@@ -56,9 +56,18 @@ function App() {
     } else if (e.key === "Backspace" && inputText === "" && blocks.length > 0) {
       e.preventDefault();
 
-      setInputText(blocks[blocks.length - 1]);
-      setBlocks(blocks.slice(0, -1));
-      setInputIndex(inputIndex - 1);
+      // Input on end
+      if(inputIndex === blocks.length){
+        setInputText(blocks[blocks.length - 1]);
+        setInputIndex(inputIndex - 1);
+        setBlocks(blocks.slice(0, -1));
+      
+      // Input on start or in middle
+      } else {
+        setInputText(blocks[inputIndex - 1]);
+        setInputIndex(inputIndex - 1);
+        setBlocks(blocks.filter((_, index) => index !== inputIndex - 1));
+      }
 
       changeBlockRef.current = true;
 
