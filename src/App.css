@@ -6,11 +6,18 @@ body {
     margin: 0; */
 }
 
-.editable-area {
+.editor {
     border: 1px solid black;
     padding: 1em;
+    height: 300px; /* zatim */
+    width: 500px;
+}
+
+.editable-area {
     /* margin-bottom: 2rem; */
     display: flex;
+    flex-wrap: wrap;
+    gap: 0.5em;
 }
 
 .block {

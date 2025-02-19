@@ -83,15 +83,44 @@ function App() {
 
       setInputIndex(inputIndex + 1);
     }
+    // else if(e.key === "Enter"){
+    //   console.log("Enter");
+    // }
   }
 
   function handleInput(e: React.FormEvent<HTMLDivElement>) {
     setInputText(e.currentTarget.textContent || "");
   }
 
+  /*
+    Handles moving input to place of click.
+
+    If clicked between blocks or on the end, input get set to end
+    TODO: FIX CLICK BETWEEN BLOCKS
+  */
+  function handleClick(e: React.MouseEvent<HTMLDivElement>) {
+    const clickedElement = e.target as HTMLElement;
+    
+    // All blocks except "input-box"
+    const allBlocks = Array.from(document.querySelectorAll(".block"));
+  
+    const clickedIndex = allBlocks.indexOf(clickedElement);
+    console.log(clickedIndex)
+  
+    // If clicked outside, or between blocks, sets input to end
+    if (clickedIndex === -1) {
+      setInputIndex(blocks.length);
+    } else {
+      setInputIndex(clickedIndex + 1);
+    }
+  
+    setTimeout(() => editorRef.current?.focus(), 0);
+  }
+  
+   
   return (
     <div className="editor">
-      <div className="editable-area">
+      <div className="editable-area" onClick={handleClick}>
         {blocks.map((block, index) => (
           (index === inputIndex) 
           ?
@@ -107,7 +136,7 @@ function App() {
             <span 
               key={index} 
               className="block" 
-              contentEditable
+              // contentEditable
               suppressContentEditableWarning
               >
               {block}
@@ -117,7 +146,7 @@ function App() {
             <span 
               key={index} 
               className="block" 
-              contentEditable
+              // contentEditable
               suppressContentEditableWarning
             >
               {block}
