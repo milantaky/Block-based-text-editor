@@ -1,6 +1,11 @@
 import { useState, useRef, useEffect } from "react";
 import "./App.css";
 
+type BlockProps = {
+  index: number
+  content: string
+};
+
 function App() {
   const [blocks, setBlocks] = useState<string[]>([]);
   const [inputText, setInputText] = useState("");
@@ -83,9 +88,10 @@ function App() {
 
       setInputIndex(inputIndex + 1);
     }
-    // else if(e.key === "Enter"){
-    //   console.log("Enter");
-    // }
+    else if(e.key === "Enter"){
+      setBlocks([...blocks, '\n']);
+      console.log("Enter");
+    }
   }
 
   function handleInput(e: React.FormEvent<HTMLDivElement>) {
@@ -117,6 +123,27 @@ function App() {
     setTimeout(() => editorRef.current?.focus(), 0);
   }
   
+  function InputBox(){
+    return <div
+              ref={editorRef}
+              className="input-box"
+              contentEditable
+              suppressContentEditableWarning
+              onInput={handleInput}
+              onKeyDown={handleKeyDown}
+              />;
+  }
+
+  function Block({index, content}: BlockProps){
+    return <span 
+              key={index} 
+              className="block" 
+              // contentEditable
+              suppressContentEditableWarning
+              >
+              {content}
+            </span>;
+  }
    
   return (
     <div className="editor">
@@ -125,42 +152,14 @@ function App() {
           (index === inputIndex) 
           ?
           <>
-            <div
-              ref={editorRef}
-              className="input-box"
-              contentEditable
-              suppressContentEditableWarning
-              onInput={handleInput}
-              onKeyDown={handleKeyDown}
-              />
-            <span 
-              key={index} 
-              className="block" 
-              // contentEditable
-              suppressContentEditableWarning
-              >
-              {block}
-            </span>
+            <InputBox/>
+            <Block index={index} content={block}/>
           </>
           :
-            <span 
-              key={index} 
-              className="block" 
-              // contentEditable
-              suppressContentEditableWarning
-            >
-              {block}
-            </span>
+          <Block index={index} content={block}/>  
         ))}
         {(blocks.length === 0 || blocks.length === inputIndex) &&
-        <div
-          ref={editorRef}
-          className="input-box"
-          contentEditable
-          suppressContentEditableWarning
-          onInput={handleInput}
-          onKeyDown={handleKeyDown}
-        />
+        <InputBox/>
         }
       </div>
     </div>
