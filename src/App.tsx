@@ -6,28 +6,36 @@ type BlockProps = {
   content: string
 };
 
+//Teddddddddddd
+
 function App() {
   const [blocks, setBlocks] = useState<string[]>([]);
   const [inputText, setInputText] = useState("");
   const [inputIndex, setInputIndex] = useState(0);
+  const [inputLineIndex, setInputLineIndex] = useState(0);
   const editorRef = useRef<HTMLDivElement>(null);
   const changeBlockRef = useRef(false);
+  const lines = splitLines(blocks);
 
   useEffect(() => {
-    editorRef.current?.focus();
-    editorRef.current!.textContent = inputText;    
+    if (editorRef.current) {
+      editorRef.current.focus();
+      editorRef.current.textContent = inputText;
+      
+      // Sets caret on the end when pressing backspace on block (editing)
+      if(changeBlockRef){
+        const range = document.createRange();
+        const sel = window.getSelection();
+        range.selectNodeContents(editorRef.current!);
+        range.collapse(false);
+        sel!.removeAllRanges();
+        sel!.addRange(range);
+        
+        //! tady zmenit changleblockref zpatky????
+      }
+    }   
 
-    // Sets caret on the end when pressing backspace on block (editing)
-    if(changeBlockRef){
-      const range = document.createRange();
-      const sel = window.getSelection();
-      range.selectNodeContents(editorRef.current!);
-      range.collapse(false);
-      sel!.removeAllRanges();
-      sel!.addRange(range);
-    }
-
-  }, [inputIndex, inputText]);
+  }, [inputIndex, inputLineIndex, inputText]);
 
   function handleKeyDown(e: React.KeyboardEvent<HTMLDivElement>) {
     // TODO: make it a switch
@@ -42,7 +50,8 @@ function App() {
       } else {
 
         // Input not on end
-        if(inputIndex !== blocks.length){
+        // if(inputIndex !== blocks.length){
+        if(inputIndex !== lines[lines.length - 1].length && inputLineIndex !== lines.length){
           setBlocks(prevBlocks => [
             ...prevBlocks.slice(0, inputIndex),
             inputText.trim(),
@@ -62,7 +71,7 @@ function App() {
       e.preventDefault();
 
       // Input on end
-      if(inputIndex === blocks.length){
+      if(inputIndex === blocks.length && inputLineIndex === lines.length){
         setInputText(blocks[blocks.length - 1]);
         setInputIndex(inputIndex - 1);
         setBlocks(blocks.slice(0, -1));
@@ -79,19 +88,35 @@ function App() {
     // Left Arrow Key
     } else if (e.key === "ArrowLeft" && inputText === "" && inputIndex > 0) {
       e.preventDefault();
-
       setInputIndex(inputIndex - 1);
 
     // Right Arrow Key
     } else if (e.key === "ArrowRight" && inputText === "" && inputIndex < blocks.length) {
       e.preventDefault();
-
       setInputIndex(inputIndex + 1);
-    }
-    else if(e.key === "Enter"){
+
+    } else if(e.key === "Enter"){
       setBlocks([...blocks, '\n']);
-      console.log("Enter");
+      setInputLineIndex(inputLineIndex + 1);
+      setInputIndex(0);
     }
+  }
+
+  function splitLines(blockss: string[]): string[][] {
+    const lines: string[][] = [[]]; 
+    let index = 0;
+
+    blockss.forEach(block => {
+      // If \n add line, else add to previous
+      if (block === '\n') {
+        index++;
+        lines[index] = []; 
+      } else {
+        lines[index].push(block);
+      }
+    });
+  
+    return lines;
   }
 
   function handleInput(e: React.FormEvent<HTMLDivElement>) {
@@ -147,8 +172,11 @@ function App() {
    
   return (
     <div className="editor">
-      <div className="editable-area" onClick={handleClick}>
-        {blocks.map((block, index) => (
+      <div 
+        className="editable-area" 
+        // onClick={handleClick}
+        >
+        {/* {blocks.map((block, index) => (
           (index === inputIndex) 
           ?
           <>
@@ -157,10 +185,66 @@ function App() {
           </>
           :
           <Block index={index} content={block}/>  
-        ))}
-        {(blocks.length === 0 || blocks.length === inputIndex) &&
-        <InputBox/>
+        ))} */}
+
+        {
+          lines.map((line, lineIndex) => {
+            // No Blocks
+            if(lines.length === 1 && line.length === 0){
+              return (
+                <div key={lineIndex} className="line">  
+                  <InputBox/>
+                </div>
+              )
+            } else {
+              // Empty line
+              if (line.length === 0) {
+                return (
+                  <div key={lineIndex} className="line">  
+                    <InputBox/>
+                  </div>
+                )
+              }
+
+              // Lines and blocks
+              return (
+                <div key={lineIndex} className="line">
+                  {line.map((word, wordIndex) => {
+                    
+                    console.log("line index:", lineIndex, "inputLineIndex:", inputLineIndex, "wordIndex:", wordIndex, "inputIndex: ", inputIndex)
+                    console.log(lineIndex === inputLineIndex && (wordIndex === inputIndex - 1 || wordIndex === inputIndex + 1))
+
+                    // Line with input
+                    return (lineIndex === inputLineIndex && (wordIndex === inputIndex - 1 || wordIndex === inputIndex + 1 || inputIndex === 0))
+                    ?
+                      (wordIndex === inputIndex + 1 || inputIndex === 0)
+                      ?
+                        <>
+                          <InputBox/>
+                          <Block index={wordIndex} content={word}/>
+                          {console.log("ZDE")}
+                        </>
+                      :
+                        <>
+                          <Block index={wordIndex} content={word}/>
+                          <InputBox/>
+                          {console.log("ZDE@")}
+                        </>
+
+                    :
+                      <>
+                        <Block index={wordIndex} content={word}/>
+                        {console.log("TUUUU")}
+                      </>
+
+                  })}
+                </div>
+             );
+            }
+          })
         }
+        
+        
       </div>
     </div>
   );

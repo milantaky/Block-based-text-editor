@@ -13,11 +13,25 @@ body {
     width: 500px;
 }
 
-.editable-area {
+/* .editable-area {
     display: flex;
     flex-wrap: wrap;
     gap: 0.5em;
+} */
+
+.editable-area {
+    display: flex;
+    flex-direction: column;
 }
+
+.line {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5em;
+    width: 100%;
+}
+
+/*  */
 
 .block {
     border: 1px solid green;
