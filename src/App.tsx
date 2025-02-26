@@ -37,6 +37,19 @@ function App() {
 
   }, [inputIndex, inputLineIndex, inputText]);
 
+  // Gets index to insert to, from counting blocks before index
+  function countInsertIndex(){
+    let count = 0 
+
+    for (let i = 0; i < inputLineIndex; i++) {
+      count += lines[i].length + 1;
+    }
+  
+    count += inputIndex;
+  
+    return count;
+  }
+
   function handleKeyDown(e: React.KeyboardEvent<HTMLDivElement>) {
     // TODO: make it a switch
 
@@ -47,19 +60,22 @@ function App() {
       // First Block
       if (blocks.length === 0) {    
         setBlocks([inputText.trim()]);
+        console.log("tuu2")
       } else {
 
-        // Input not on end
-        // if(inputIndex !== blocks.length){
-        if(inputIndex !== lines[lines.length - 1].length && inputLineIndex !== lines.length){
-          setBlocks(prevBlocks => [
-            ...prevBlocks.slice(0, inputIndex),
-            inputText.trim(),
-            ...prevBlocks.slice(inputIndex)
-          ]);
         // Input on end
+        if(inputIndex === lines[inputLineIndex].length && inputLineIndex === lines.length - 1){
+            setBlocks([...blocks, inputText.trim()]);
+            console.log("tuu")
         } else {
-          setBlocks([...blocks, inputText.trim()]);
+          // Input not on end
+          const insertIndex = countInsertIndex(); 
+
+          setBlocks(prevBlocks => [
+            ...prevBlocks.slice(0, insertIndex),
+            inputText.trim(),
+            ...prevBlocks.slice(insertIndex)
+          ]);
         }
       }
       
@@ -116,7 +132,13 @@ function App() {
       } 
 
     } else if(e.key === "Enter"){
-      setBlocks([...blocks, '\n']);
+      if(inputText !== ""){
+        setBlocks([...blocks, inputText.trim(), '\n']);
+        setInputText("");
+      } else {
+        setBlocks([...blocks, '\n']);
+      }
+      
       setInputLineIndex(inputLineIndex + 1);
       setInputIndex(0);
     }
@@ -232,7 +254,7 @@ function App() {
                           <>
                              <InputBox/>
                              <Block index={wordIndex} content={word}/>
-                             {console.log("ZDE")}
+                             {/* {console.log("ZDE")} */}
                           </>
                         );
 
@@ -242,7 +264,7 @@ function App() {
                           <>
                             <Block index={wordIndex} content={word}/>
                             <InputBox/>
-                            {console.log("ZDE@")}
+                            {/* {console.log("ZDE@")} */}
                           </>
                         );
 
@@ -251,7 +273,7 @@ function App() {
                         return (
                           <>
                             <Block index={wordIndex} content={word}/>
-                            {console.log("TUUUU2")}
+                            {/* {console.log("TUUUU2")} */}
                           </>
                         );
                       }
@@ -261,7 +283,7 @@ function App() {
                       return (
                         <>
                           <Block index={wordIndex} content={word}/>
-                          {console.log("TUUUU")}
+                          {/* {console.log("TUUUU")} */}
                         </>
                       );
                     }
