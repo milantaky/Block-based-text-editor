@@ -112,7 +112,7 @@ function App() {
       e.preventDefault();
       setInputIndex(inputIndex + 1);
 
-    } else if(e.key === "ArrowUp" && inputLineIndex > 0){
+    } else if(e.key === "ArrowUp" && inputText === "" && inputLineIndex > 0){
       e.preventDefault();
       setInputLineIndex(inputLineIndex - 1);
       
@@ -121,7 +121,7 @@ function App() {
         setInputIndex(lines[inputLineIndex - 1].length);
       } 
       
-    } else if(e.key === "ArrowDown" && inputLineIndex < lines.length - 1){
+    } else if(e.key === "ArrowDown" && inputText === "" && inputLineIndex < lines.length - 1){
       e.preventDefault();
       setInputLineIndex(inputLineIndex + 1);
 
