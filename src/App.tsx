@@ -11,7 +11,7 @@ type BlockProps = {
 function App() {
   const [blocks, setBlocks] = useState<string[]>([]);
   const [inputText, setInputText] = useState("");
-  const [inputIndex, setInputIndex] = useState(0);
+  const [inputIndex, setInputIndex] = useState(0);      // This index says before which block the input is
   const [inputLineIndex, setInputLineIndex] = useState(0);
   const editorRef = useRef<HTMLDivElement>(null);
   const changeBlockRef = useRef(false);
@@ -94,6 +94,14 @@ function App() {
     } else if (e.key === "ArrowRight" && inputText === "" && inputIndex < blocks.length) {
       e.preventDefault();
       setInputIndex(inputIndex + 1);
+
+    } else if(e.key === "ArrowUp" && inputLineIndex > 0){
+      e.preventDefault();
+      setInputLineIndex(inputLineIndex - 1);
+
+    } else if(e.key === "ArrowDown" && inputLineIndex < lines.length - 1){
+      e.preventDefault();
+      setInputLineIndex(inputLineIndex + 1);
 
     } else if(e.key === "Enter"){
       setBlocks([...blocks, '\n']);
@@ -214,8 +222,43 @@ function App() {
                     console.log("line index:", lineIndex, "inputLineIndex:", inputLineIndex, "wordIndex:", wordIndex, "inputIndex: ", inputIndex)
                     console.log(lineIndex === inputLineIndex && (wordIndex === inputIndex - 1 || wordIndex === inputIndex + 1))
 
+                    if(lineIndex === inputLineIndex){
+                      if (inputIndex === 0 && wordIndex === 0){
+                        return (
+                          <>
+                             <InputBox/>
+                             <Block index={wordIndex} content={word}/>
+                             {console.log("ZDE")}
+                          </>
+                        );
+                      } else if (inputIndex - 1 === wordIndex){
+                        return (
+                          <>
+                            <Block index={wordIndex} content={word}/>
+                            <InputBox/>
+                            {console.log("ZDE@")}
+                          </>
+                        );
+                      } else {
+                        return (
+                          <>
+                            <Block index={wordIndex} content={word}/>
+                            {console.log("TUUUU2")}
+                          </>
+                        );
+                      }
+                    } else {
+                      return (
+                        <>
+                          <Block index={wordIndex} content={word}/>
+                          {console.log("TUUUU")}
+                        </>
+                      );
+                    }
+
+
                     // Line with input
-                    return (lineIndex === inputLineIndex && (wordIndex === inputIndex - 1 || wordIndex === inputIndex + 1 || inputIndex === 0))
+                    return (lineIndex === inputLineIndex && (wordIndex === inputIndex + 1 || inputIndex === 0))
                     ?
                       (wordIndex === inputIndex + 1 || inputIndex === 0)
                       ?
@@ -236,6 +279,28 @@ function App() {
                         <Block index={wordIndex} content={word}/>
                         {console.log("TUUUU")}
                       </>
+
+                    // return (lineIndex === inputLineIndex && (wordIndex === inputIndex - 1 || wordIndex === inputIndex + 1 || inputIndex === 0))
+                    // ?
+                    //   (wordIndex === inputIndex + 1 || inputIndex === 0)
+                    //   ?
+                    //     <>
+                    //       <InputBox/>
+                    //       <Block index={wordIndex} content={word}/>
+                    //       {console.log("ZDE")}
+                    //     </>
+                    //   :
+                    //     <>
+                    //       <Block index={wordIndex} content={word}/>
+                    //       <InputBox/>
+                    //       {console.log("ZDE@")}
+                    //     </>
+
+                    // :
+                    //   <>
+                    //     <Block index={wordIndex} content={word}/>
+                    //     {console.log("TUUUU")}
+                    //   </>
 
                   })}
                 </div>

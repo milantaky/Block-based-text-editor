@@ -22,6 +22,7 @@ body {
 .editable-area {
     display: flex;
     flex-direction: column;
+    gap: 0.5em;
 }
 
 .line {
@@ -40,6 +41,7 @@ body {
 
 .input-box {
     padding: 0 1em;
+    border: 1px solid blue;
 }
 
 .input-box:focus {
