@@ -227,7 +227,7 @@ function App() {
             } 
             else {
               // Empty line
-              if (line.length === 0) {
+              if (line.length === 0 && inputIndex === 0 && inputLineIndex === lineIndex) {
                 return (
                   <div key={lineIndex} className="line">  
                     <InputBox/>
@@ -271,7 +271,7 @@ function App() {
                     } 
                     // Input elsewhere
                     else {
-                      console.log("TUUUU2")
+                      // console.log("TUUUU2")
                       return <Block index={wordIndex} content={word}/>;
                     }
 
