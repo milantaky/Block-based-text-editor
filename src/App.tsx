@@ -85,19 +85,16 @@ function App() {
     // Backspace
     } else if (e.key === "Backspace" && inputText === "" && blocks.length > 0) {
       e.preventDefault();
-
-      // Input on end
-      if(inputIndex === blocks.length && inputLineIndex === lines.length){
-        setInputText(blocks[blocks.length - 1]);
-        setInputIndex(inputIndex - 1);
-        setBlocks(blocks.slice(0, -1));
+      const insertIndex = countInsertIndex(); 
       
-      // Input on start or in middle
-      } else {
-        setInputText(blocks[inputIndex - 1]);
-        setInputIndex(inputIndex - 1);
-        setBlocks(blocks.filter((_, index) => index !== inputIndex - 1));
-      }
+      setInputText(blocks[insertIndex - 1]);
+      setInputIndex(inputIndex - 1);
+
+      setBlocks(prevBlocks => 
+        inputIndex === prevBlocks.length && inputLineIndex === lines.length
+          ? prevBlocks.slice(0, -1)                                     // Input on end
+          : prevBlocks.filter((_, index) => index !== insertIndex - 1)  // Input elsewhere
+      );
 
       changeBlockRef.current = true;
 
@@ -107,7 +104,6 @@ function App() {
       setInputIndex(inputIndex - 1);
 
     // Right Arrow Key
-    // } else if (e.key === "ArrowRight" && inputText === "" && inputIndex < blocks.length) {
     } else if (e.key === "ArrowRight" && inputText === "" && inputIndex < lines[inputLineIndex].length) {
       e.preventDefault();
       setInputIndex(inputIndex + 1);
@@ -220,73 +216,65 @@ function App() {
         >
         {
           lines.map((line, lineIndex) => {
+
             // No Blocks
             if(lines.length === 1 && line.length === 0){
               return (
                 <div key={lineIndex} className="line">  
                   <InputBox/>
                 </div>
-              )
-            } else {
+              );
+            } 
+            else {
               // Empty line
               if (line.length === 0) {
                 return (
                   <div key={lineIndex} className="line">  
                     <InputBox/>
                   </div>
-                )
+                );
               }
 
               // Lines and blocks
               return (
                 <div key={lineIndex} className="line">
                   {line.map((word, wordIndex) => {
+
+                    // ========== Line without input
+                    if(lineIndex !== inputLineIndex){
+                      // console.log("TUUUU")
+                      return <Block index={wordIndex} content={word}/>;
+                    } 
                     
-                    // console.log("line index:", lineIndex, "inputLineIndex:", inputLineIndex, "wordIndex:", wordIndex, "inputIndex: ", inputIndex)
-                    // console.log(lineIndex === inputLineIndex && (wordIndex === inputIndex - 1 || wordIndex === inputIndex + 1))
+                    // ========== Line with input
+                    // Input on start of line
+                    if (inputIndex === 0 && wordIndex === 0){
+                      // console.log("ZDE")
+                      return (
+                        <>
+                           <InputBox/>
+                           <Block index={wordIndex} content={word}/>
+                        </>
+                      );
 
-                    // Is it line with input?
-                    if(lineIndex === inputLineIndex){
-
-                      // Input on start of line
-                      if (inputIndex === 0 && wordIndex === 0){
-                        return (
-                          <>
-                             <InputBox/>
-                             <Block index={wordIndex} content={word}/>
-                             {/* {console.log("ZDE")} */}
-                          </>
-                        );
-
-                      // Input after this block
-                      } else if (inputIndex - 1 === wordIndex){
-                        return (
-                          <>
-                            <Block index={wordIndex} content={word}/>
-                            <InputBox/>
-                            {/* {console.log("ZDE@")} */}
-                          </>
-                        );
-
-                      // Input elsewhere
-                      } else {
-                        return (
-                          <>
-                            <Block index={wordIndex} content={word}/>
-                            {/* {console.log("TUUUU2")} */}
-                          </>
-                        );
-                      }
-                    
-                    // Line without input
-                    } else {
+                    } 
+                    // Input after this block
+                    else if (inputIndex - 1 === wordIndex){
+                      // console.log("ZDE@")
                       return (
                         <>
                           <Block index={wordIndex} content={word}/>
-                          {/* {console.log("TUUUU")} */}
+                          <InputBox/>
                         </>
                       );
+
+                    } 
+                    // Input elsewhere
+                    else {
+                      console.log("TUUUU2")
+                      return <Block index={wordIndex} content={word}/>;
                     }
+
                   })}
                 </div>
              );
