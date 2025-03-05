@@ -6,8 +6,6 @@ type BlockProps = {
   content: string
 };
 
-//Teddddddddddd
-
 function App() {
   const [blocks, setBlocks] = useState<string[]>([]);
   const [inputText, setInputText] = useState("");
@@ -227,6 +225,7 @@ function App() {
             } 
             else {
               // Empty line
+              // Has to be here as well
               if (line.length === 0 && inputIndex === 0 && inputLineIndex === lineIndex) {
                 return (
                   <div key={lineIndex} className="line">  
