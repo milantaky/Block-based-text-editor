@@ -165,22 +165,36 @@ function App() {
     If clicked between blocks or on the end, input get set to end
     TODO: FIX CLICK BETWEEN BLOCKS
   */
-  function handleClick(e: React.MouseEvent<HTMLDivElement>) {
-    const clickedElement = e.target as HTMLElement;
+  // function handleClick(e: React.MouseEvent<HTMLDivElement>) {
+  //   const clickedElement = e.target as HTMLElement;
     
-    // All blocks except "input-box"
-    const allBlocks = Array.from(document.querySelectorAll(".block"));
+  //   // All blocks except "input-box"
+  //   const allBlocks = Array.from(document.querySelectorAll(".block"));
   
-    const clickedIndex = allBlocks.indexOf(clickedElement);
-    console.log(clickedIndex)
+  //   const clickedIndex = allBlocks.indexOf(clickedElement);
+  //   console.log(clickedIndex)
   
-    // If clicked outside, or between blocks, sets input to end
-    if (clickedIndex === -1) {
-      setInputIndex(blocks.length);
+  //   // If clicked outside, or between blocks, sets input to end
+  //   if (clickedIndex === -1) {
+  //     setInputIndex(blocks.length);
+  //   } else {
+  //     setInputIndex(clickedIndex + 1);
+  //   }
+  
+  //   setTimeout(() => editorRef.current?.focus(), 0);
+  // }
+  function handleClick(e: React.MouseEvent<HTMLDivElement>, lineIndex: number, blockIndex?: number) {
+    e.stopPropagation();
+
+    if (blockIndex !== undefined) {
+      setInputLineIndex(lineIndex);
+      setInputIndex(blockIndex + 1);
     } else {
-      setInputIndex(clickedIndex + 1);
+      // Kliknutí na prázdnou řádku → posune input na konec řádku
+      setInputLineIndex(lineIndex);
+      setInputIndex(lines[lineIndex]?.length || 0);
     }
-  
+
     setTimeout(() => editorRef.current?.focus(), 0);
   }
   
@@ -195,15 +209,19 @@ function App() {
               />;
   }
 
-  function Block({index, content}: BlockProps){
-    return <span 
+  // TED
+
+  function Block({index, content, lineIndex}: BlockProps & { lineIndex: number }){
+    // ! CHANGED FROM SPAN TO DIV
+    return <div 
               key={index} 
               className="block" 
               // contentEditable
               suppressContentEditableWarning
-              >
+              onClick={(e) => handleClick(e, lineIndex, index)}
+            >
               {content}
-            </span>;
+            </div>;
   }
    
   return (
@@ -218,7 +236,11 @@ function App() {
             // No Blocks
             if(lines.length === 1 && line.length === 0){
               return (
-                <div key={lineIndex} className="line">  
+                <div 
+                  key={lineIndex} 
+                  className="line"
+                  onClick={(e) => handleClick(e, lineIndex)}
+                >  
                   <InputBox/>
                 </div>
               );
@@ -228,7 +250,11 @@ function App() {
               // Has to be here as well
               if (line.length === 0 && inputIndex === 0 && inputLineIndex === lineIndex) {
                 return (
-                  <div key={lineIndex} className="line">  
+                  <div 
+                    key={lineIndex} 
+                    className="line"
+                    onClick={(e) => handleClick(e, lineIndex)}
+                  >  
                     <InputBox/>
                   </div>
                 );
@@ -236,13 +262,17 @@ function App() {
 
               // Lines and blocks
               return (
-                <div key={lineIndex} className="line">
+                <div 
+                  key={lineIndex} 
+                  className="line"
+                  onClick={(e) => handleClick(e, lineIndex)}
+                >
                   {line.map((word, wordIndex) => {
 
                     // ========== Line without input
                     if(lineIndex !== inputLineIndex){
                       // console.log("TUUUU")
-                      return <Block index={wordIndex} content={word}/>;
+                      return <Block key={wordIndex} index={wordIndex} content={word} lineIndex={lineIndex} />;
                     } 
                     
                     // ========== Line with input
@@ -252,7 +282,8 @@ function App() {
                       return (
                         <>
                            <InputBox/>
-                           <Block index={wordIndex} content={word}/>
+                           <Block key={wordIndex} index={wordIndex} content={word} lineIndex={lineIndex} />
+   
                         </>
                       );
 
@@ -262,7 +293,7 @@ function App() {
                       // console.log("ZDE@")
                       return (
                         <>
-                          <Block index={wordIndex} content={word}/>
+                          <Block key={wordIndex} index={wordIndex} content={word} lineIndex={lineIndex} />
                           <InputBox/>
                         </>
                       );
@@ -271,7 +302,7 @@ function App() {
                     // Input elsewhere
                     else {
                       // console.log("TUUUU2")
-                      return <Block index={wordIndex} content={word}/>;
+                      return <Block key={wordIndex} index={wordIndex} content={word} lineIndex={lineIndex} />;
                     }
 
                   })}
