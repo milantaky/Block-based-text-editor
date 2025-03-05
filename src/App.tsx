@@ -58,13 +58,11 @@ function App() {
       // First Block
       if (blocks.length === 0) {    
         setBlocks([inputText.trim()]);
-        console.log("tuu2")
       } else {
 
         // Input on end
         if(inputIndex === lines[inputLineIndex].length && inputLineIndex === lines.length - 1){
             setBlocks([...blocks, inputText.trim()]);
-            console.log("tuu")
         } else {
           // Input not on end
           const insertIndex = countInsertIndex(); 
@@ -159,40 +157,34 @@ function App() {
     setInputText(e.currentTarget.textContent || "");
   }
 
-  /*
-    Handles moving input to place of click.
-
-    If clicked between blocks or on the end, input get set to end
-    TODO: FIX CLICK BETWEEN BLOCKS
-  */
-  // function handleClick(e: React.MouseEvent<HTMLDivElement>) {
-  //   const clickedElement = e.target as HTMLElement;
-    
-  //   // All blocks except "input-box"
-  //   const allBlocks = Array.from(document.querySelectorAll(".block"));
-  
-  //   const clickedIndex = allBlocks.indexOf(clickedElement);
-  //   console.log(clickedIndex)
-  
-  //   // If clicked outside, or between blocks, sets input to end
-  //   if (clickedIndex === -1) {
-  //     setInputIndex(blocks.length);
-  //   } else {
-  //     setInputIndex(clickedIndex + 1);
-  //   }
-  
-  //   setTimeout(() => editorRef.current?.focus(), 0);
-  // }
+  // Handles moving input to place of click.
   function handleClick(e: React.MouseEvent<HTMLDivElement>, lineIndex: number, blockIndex?: number) {
     e.stopPropagation();
 
+    // Clicked on block
     if (blockIndex !== undefined) {
       setInputLineIndex(lineIndex);
       setInputIndex(blockIndex + 1);
-    } else {
-      // Kliknutí na prázdnou řádku → posune input na konec řádku
+    } 
+    // Clicked elsewhere
+    else {
       setInputLineIndex(lineIndex);
-      setInputIndex(lines[lineIndex]?.length || 0);
+
+      // All blocks in clicked line
+      const blocks = document.getElementsByClassName('line')[lineIndex].children;
+      const clickedPositionX = e.clientX;
+      
+      let insertIndex = lines[lineIndex]?.length || 0;
+      
+      for (let i = 0; i < blocks.length; i++){
+        const block = blocks[i] as HTMLElement;
+        if (block.offsetLeft > clickedPositionX){
+          insertIndex = i
+          break;
+        }
+      }
+
+      setInputIndex(insertIndex);
     }
 
     setTimeout(() => editorRef.current?.focus(), 0);
@@ -209,8 +201,6 @@ function App() {
               />;
   }
 
-  // TED
-
   function Block({index, content, lineIndex}: BlockProps & { lineIndex: number }){
     // ! CHANGED FROM SPAN TO DIV
     return <div 
@@ -226,10 +216,7 @@ function App() {
    
   return (
     <div className="editor">
-      <div 
-        className="editable-area" 
-        // onClick={handleClick}
-        >
+      <div className="editable-area">
         {
           lines.map((line, lineIndex) => {
 
