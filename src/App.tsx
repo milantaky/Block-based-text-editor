@@ -141,7 +141,7 @@ function App() {
     let index = 0;
 
     blockss.forEach(block => {
-      // If \n add line, else add to previous
+      // If \n add line, else add to previous line
       if (block === '\n') {
         index++;
         lines[index] = []; 
@@ -202,15 +202,14 @@ function App() {
   }
 
   function Block({index, content, lineIndex}: BlockProps & { lineIndex: number }){
-    // ! CHANGED FROM SPAN TO DIV
     return <div 
               key={index} 
               className="block" 
               // contentEditable
               suppressContentEditableWarning
               onClick={(e) => handleClick(e, lineIndex, index)}
-            >
-              {content}
+              >
+                {content}
             </div>;
   }
    
@@ -234,7 +233,6 @@ function App() {
             } 
             else {
               // Empty line
-              // Has to be here as well
               if (line.length === 0 && inputIndex === 0 && inputLineIndex === lineIndex) {
                 return (
                   <div 
@@ -258,26 +256,22 @@ function App() {
 
                     // ========== Line without input
                     if(lineIndex !== inputLineIndex){
-                      // console.log("TUUUU")
                       return <Block key={wordIndex} index={wordIndex} content={word} lineIndex={lineIndex} />;
                     } 
                     
                     // ========== Line with input
                     // Input on start of line
                     if (inputIndex === 0 && wordIndex === 0){
-                      // console.log("ZDE")
                       return (
                         <>
                            <InputBox/>
                            <Block key={wordIndex} index={wordIndex} content={word} lineIndex={lineIndex} />
-   
                         </>
                       );
 
                     } 
                     // Input after this block
                     else if (inputIndex - 1 === wordIndex){
-                      // console.log("ZDE@")
                       return (
                         <>
                           <Block key={wordIndex} index={wordIndex} content={word} lineIndex={lineIndex} />
@@ -288,7 +282,6 @@ function App() {
                     } 
                     // Input elsewhere
                     else {
-                      // console.log("TUUUU2")
                       return <Block key={wordIndex} index={wordIndex} content={word} lineIndex={lineIndex} />;
                     }
 
@@ -298,7 +291,6 @@ function App() {
             }
           })
         }
-        
         
       </div>
     </div>
