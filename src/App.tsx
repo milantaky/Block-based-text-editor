@@ -11,20 +11,21 @@ function App() {
   const [inputText, setInputText] = useState("");
   const [inputIndex, setInputIndex] = useState(0);            // This index says before which block the input is
   const [inputLineIndex, setInputLineIndex] = useState(0);    // Which line the input is on (0 = first line)
-  const editorRef = useRef<HTMLDivElement>(null);
+  const [editorMode, setEditorMode] = useState("Blocks");     // Text / Block mode 
+  const inputRef = useRef<HTMLDivElement>(null);
   const changeBlockRef = useRef(false);
   const lines = splitLines(blocks);
 
   useEffect(() => {
-    if (editorRef.current) {
-      editorRef.current.focus();
-      editorRef.current.textContent = inputText;
+    if (inputRef.current) {
+      inputRef.current.focus();
+      inputRef.current.textContent = inputText;
       
       // Sets caret on the end when pressing backspace on block (editing)
       if(changeBlockRef){
         const range = document.createRange();
         const sel = window.getSelection();
-        range.selectNodeContents(editorRef.current!);
+        range.selectNodeContents(inputRef.current!);
         range.collapse(false);
         sel!.removeAllRanges();
         sel!.addRange(range);
@@ -50,7 +51,7 @@ function App() {
 
   function handleKeyDown(e: React.KeyboardEvent<HTMLDivElement>) {
     // TODO: make it a switch
-
+    
     // Space bar
     if (e.key === " " && inputText.trim() !== "") {
       e.preventDefault();
@@ -58,13 +59,14 @@ function App() {
       // First Block
       if (blocks.length === 0) {    
         setBlocks([inputText.trim()]);
-      } else {
-
+      } 
+      else {
         // Input on end
         if(inputIndex === lines[inputLineIndex].length && inputLineIndex === lines.length - 1){
             setBlocks([...blocks, inputText.trim()]);
-        } else {
-          // Input not on end
+        } 
+        // Input not on end
+        else {
           const insertIndex = countInsertIndex(); 
 
           setBlocks(prevBlocks => [
@@ -136,11 +138,11 @@ function App() {
     }
   }
 
-  function splitLines(blockss: string[]): string[][] {
+  function splitLines(blocks: string[]): string[][] {
     const lines: string[][] = [[]]; 
     let index = 0;
-
-    blockss.forEach(block => {
+    
+    blocks.forEach(block => {
       // If \n add line, else add to previous line
       if (block === '\n') {
         index++;
@@ -157,7 +159,7 @@ function App() {
     setInputText(e.currentTarget.textContent || "");
   }
 
-  // Handles moving input to place of click.
+  // Moves input to place of click.
   function handleClick(e: React.MouseEvent<HTMLDivElement>, lineIndex: number, blockIndex?: number) {
     e.stopPropagation();
 
@@ -187,13 +189,23 @@ function App() {
       setInputIndex(insertIndex);
     }
 
-    setTimeout(() => editorRef.current?.focus(), 0);
+    setTimeout(() => inputRef.current?.focus(), 0);
+  }
+
+  function toggleEditorMode(){
+    if(editorMode === 'Text'){
+      setEditorMode('Blocks');
+    } else {
+      setEditorMode('Text');
+    }
   }
   
+  // Input component
+  // - If editor in text mode, apply no styling (class text-input)
   function InputBox(){
     return <div
-              ref={editorRef}
-              className="input-box"
+              ref={inputRef}
+              className={editorMode === "Blocks" ? "input-box": "text-input"}
               contentEditable
               suppressContentEditableWarning
               onInput={handleInput}
@@ -201,16 +213,18 @@ function App() {
               />;
   }
 
+  // Block component
+  // - If editor in text mode, apply no styling (class text)
   function Block({index, content, lineIndex}: BlockProps & { lineIndex: number }){
     return <div 
               key={index} 
-              className="block" 
-              // contentEditable
+              // className="block" 
+              className={editorMode === "Blocks" ? "block": "text"}
               suppressContentEditableWarning
               onClick={(e) => handleClick(e, lineIndex, index)}
               >
                 {content}
-            </div>;
+            </div>
   }
    
   return (
@@ -289,10 +303,16 @@ function App() {
                 </div>
              );
             }
+
           })
         }
         
       </div>
+
+      <button onClick={toggleEditorMode}>
+        Switch to {editorMode === 'Text' ? 'Blocks' : 'Text'}
+      </button>
+
     </div>
   );
 }
