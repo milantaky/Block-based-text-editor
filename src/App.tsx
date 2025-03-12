@@ -50,92 +50,106 @@ function App() {
   }
 
   function handleKeyDown(e: React.KeyboardEvent<HTMLDivElement>) {
-    // TODO: make it a switch
-    
-    // Space bar
-    if (e.key === " " && inputText.trim() !== "") {
-      e.preventDefault();
+    switch (e.key) {
+      case " ":
+        e.preventDefault();
+        if (inputText.trim() !== "") {
 
-      // First Block
-      if (blocks.length === 0) {    
-        setBlocks([inputText.trim()]);
-      } 
-      else {
-        // Input on end
-        if(inputIndex === lines[inputLineIndex].length && inputLineIndex === lines.length - 1){
-            setBlocks([...blocks, inputText.trim()]);
-        } 
-        // Input not on end
-        else {
-          const insertIndex = countInsertIndex(); 
-
-          setBlocks(prevBlocks => [
-            ...prevBlocks.slice(0, insertIndex),
-            inputText.trim(),
-            ...prevBlocks.slice(insertIndex)
-          ]);
+          // First Block
+          if (blocks.length === 0) {
+            setBlocks([inputText.trim()]);
+          } 
+          else {
+            // Input on end
+            if (inputIndex === lines[inputLineIndex].length && inputLineIndex === lines.length - 1) {
+              setBlocks([...blocks, inputText.trim()]);
+            }
+            // Input not on end
+            else {
+              const insertIndex = countInsertIndex();
+              setBlocks(prevBlocks => [
+                ...prevBlocks.slice(0, insertIndex),
+                inputText.trim(),
+                ...prevBlocks.slice(insertIndex)
+              ]);
+            }
+          }
+          setInputText("");
+          setInputIndex(inputIndex + 1);
         }
-      }
-      
-      setInputText("");
-      setInputIndex(inputIndex + 1);
-
-    // Backspace
-    } else if (e.key === "Backspace" && inputText === "" && blocks.length > 0) {
-      e.preventDefault();
-      const insertIndex = countInsertIndex(); 
-      
-      setInputText(blocks[insertIndex - 1]);
-      setInputIndex(inputIndex - 1);
-
-      setBlocks(prevBlocks => 
-        inputIndex === prevBlocks.length && inputLineIndex === lines.length
-          ? prevBlocks.slice(0, -1)                                     // Input on end
-          : prevBlocks.filter((_, index) => index !== insertIndex - 1)  // Input elsewhere
-      );
-
-      changeBlockRef.current = true;
-
-    // Left Arrow Key
-    } else if (e.key === "ArrowLeft" && inputText === "" && inputIndex > 0) {
-      e.preventDefault();
-      setInputIndex(inputIndex - 1);
-
-    // Right Arrow Key
-    } else if (e.key === "ArrowRight" && inputText === "" && inputIndex < lines[inputLineIndex].length) {
-      e.preventDefault();
-      setInputIndex(inputIndex + 1);
-
-    } else if(e.key === "ArrowUp" && inputText === "" && inputLineIndex > 0){
-      e.preventDefault();
-      setInputLineIndex(inputLineIndex - 1);
-      
-      // If lower line is longer, set input index to end of upper line
-      if(inputIndex > lines[inputLineIndex - 1].length){
-        setInputIndex(lines[inputLineIndex - 1].length);
-      } 
-      
-    } else if(e.key === "ArrowDown" && inputText === "" && inputLineIndex < lines.length - 1){
-      e.preventDefault();
-      setInputLineIndex(inputLineIndex + 1);
-
-      // If there is line below
-      // If upper line is longer, set input index to end of lower line
-      if(inputIndex > lines[inputLineIndex + 1].length){
-        setInputIndex(lines[inputLineIndex + 1].length);
-      } 
-
-    } else if(e.key === "Enter"){
-      if(inputText !== ""){
-        setBlocks([...blocks, inputText.trim(), '\n']);
-        setInputText("");
-      } else {
-        setBlocks([...blocks, '\n']);
-      }
-      
-      setInputLineIndex(inputLineIndex + 1);
-      setInputIndex(0);
+        break;
+  
+      case "Backspace":
+        e.preventDefault();
+        if (inputText === "" && blocks.length > 0) {
+          const insertIndex = countInsertIndex();
+          setInputText(blocks[insertIndex - 1]);
+          setInputIndex(inputIndex - 1);
+  
+          setBlocks(prevBlocks =>
+            inputIndex === prevBlocks.length && inputLineIndex === lines.length
+              ? prevBlocks.slice(0, -1) // Input on end
+              : prevBlocks.filter((_, index) => index !== insertIndex - 1) // Input elsewhere
+          );
+  
+          changeBlockRef.current = true;
+        }
+        break;
+  
+      case "ArrowLeft":
+        e.preventDefault();
+        if (inputText === "" && inputIndex > 0) {
+          setInputIndex(inputIndex - 1);
+        }
+        break;
+  
+      case "ArrowRight":
+        e.preventDefault();
+        if (inputText === "" && inputIndex < lines[inputLineIndex].length) {
+          setInputIndex(inputIndex + 1);
+        }
+        break;
+  
+      case "ArrowUp":
+        e.preventDefault();
+        if (inputText === "" && inputLineIndex > 0) {
+          setInputLineIndex(inputLineIndex - 1);
+  
+          // If lower line is longer, set input index to end of upper line
+          if (inputIndex > lines[inputLineIndex - 1].length) {
+            setInputIndex(lines[inputLineIndex - 1].length);
+          }
+        }
+        break;
+  
+      case "ArrowDown":
+        e.preventDefault();
+        if (inputText === "" && inputLineIndex < lines.length - 1) {
+          setInputLineIndex(inputLineIndex + 1);
+  
+          // If there is line below
+          // If upper line is longer, set input index to end of lower line
+          if (inputIndex > lines[inputLineIndex + 1].length) {
+            setInputIndex(lines[inputLineIndex + 1].length);
+          }
+        }
+        break;
+  
+      case "Enter":
+        if (inputText !== "") {
+          setBlocks([...blocks, inputText.trim(), '\n']);
+          setInputText("");
+        } else {
+          setBlocks([...blocks, '\n']);
+        }
+        setInputLineIndex(inputLineIndex + 1);
+        setInputIndex(0);
+        break;
+  
+      default:
+        break;
     }
+  
   }
 
   function splitLines(blocks: string[]): string[][] {
