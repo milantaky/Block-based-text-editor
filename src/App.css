@@ -41,3 +41,7 @@ body {
     outline: 0;
     box-shadow: none;
 }
+
+.text-input {
+    outline: 0;
+}
