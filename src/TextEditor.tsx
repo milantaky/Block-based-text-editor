@@ -26,10 +26,13 @@ export default function TextEditor(){
 
     return (
         <>
+        <div
+            className="textEditor-container"
+        >
             <div
                 className="highlighted-layer"
                 dangerouslySetInnerHTML={{ __html: highlightWords(text) + "<br />" }}
-            />
+                />
             <div
                 className="editor-layer"
                 contentEditable
@@ -37,6 +40,7 @@ export default function TextEditor(){
                 ref={editableRef}
                 >
             </div>
+        </div>
         </>
     );
 }
