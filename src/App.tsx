@@ -257,28 +257,14 @@ function App() {
   }
 
   // Block Mode
-  if(editorMode === "Blocks"){
-    return (
-      <div className="editor">
+  return (
+    <div className="editor">
         <div className="editable-area">
-          {
+          {editorMode === "Blocks" && 
             lines.map((line, lineIndex) => {
 
-              // No Blocks
-              if(lines.length === 1 && line.length === 0){
-                return (
-                  <div 
-                    key={lineIndex} 
-                    className="line"
-                    onClick={(e) => handleClick(e, lineIndex)}
-                  >  
-                    <InputBox/>
-                  </div>
-                );
-              } 
-              else {
-                // Empty line
-                if (line.length === 0 && inputIndex === 0 && inputLineIndex === lineIndex) {
+                // No Blocks
+                if(lines.length === 1 && line.length === 0){
                   return (
                     <div 
                       key={lineIndex} 
@@ -288,72 +274,74 @@ function App() {
                       <InputBox/>
                     </div>
                   );
+                } 
+                else {
+                  // Empty line
+                  if (line.length === 0 && inputIndex === 0 && inputLineIndex === lineIndex) {
+                    return (
+                      <div 
+                        key={lineIndex} 
+                        className="line"
+                        onClick={(e) => handleClick(e, lineIndex)}
+                      >  
+                        <InputBox/>
+                      </div>
+                    );
+                  }
+
+                  // Lines and blocks
+                  return (
+                    <div 
+                      key={lineIndex} 
+                      className="line"
+                      onClick={(e) => handleClick(e, lineIndex)}
+                    >
+                      {line.map((word, wordIndex) => {
+
+                        // ========== Line without input
+                        if(lineIndex !== inputLineIndex){
+                          return <Block key={wordIndex} index={wordIndex} content={word} lineIndex={lineIndex} />;
+                        } 
+                        
+                        // ========== Line with input
+                        // Input on start of line
+                        if (inputIndex === 0 && wordIndex === 0){
+                          return (
+                            <>
+                              <InputBox/>
+                              <Block key={wordIndex} index={wordIndex} content={word} lineIndex={lineIndex} />
+                            </>
+                          );
+
+                        } 
+                        // Input after this block
+                        else if (inputIndex - 1 === wordIndex){
+                          return (
+                            <>
+                              <Block key={wordIndex} index={wordIndex} content={word} lineIndex={lineIndex} />
+                              <InputBox/>
+                            </>
+                          );
+
+                        } 
+                        // Input elsewhere
+                        else {
+                          return <Block key={wordIndex} index={wordIndex} content={word} lineIndex={lineIndex} />;
+                        }
+
+                      })}
+                    </div>
+                );
                 }
 
-                // Lines and blocks
-                return (
-                  <div 
-                    key={lineIndex} 
-                    className="line"
-                    onClick={(e) => handleClick(e, lineIndex)}
-                  >
-                    {line.map((word, wordIndex) => {
+          })}
 
-                      // ========== Line without input
-                      if(lineIndex !== inputLineIndex){
-                        return <Block key={wordIndex} index={wordIndex} content={word} lineIndex={lineIndex} />;
-                      } 
-                      
-                      // ========== Line with input
-                      // Input on start of line
-                      if (inputIndex === 0 && wordIndex === 0){
-                        return (
-                          <>
-                            <InputBox/>
-                            <Block key={wordIndex} index={wordIndex} content={word} lineIndex={lineIndex} />
-                          </>
-                        );
-
-                      } 
-                      // Input after this block
-                      else if (inputIndex - 1 === wordIndex){
-                        return (
-                          <>
-                            <Block key={wordIndex} index={wordIndex} content={word} lineIndex={lineIndex} />
-                            <InputBox/>
-                          </>
-                        );
-
-                      } 
-                      // Input elsewhere
-                      else {
-                        return <Block key={wordIndex} index={wordIndex} content={word} lineIndex={lineIndex} />;
-                      }
-
-                    })}
-                  </div>
-              );
-              }
-
-            })
-          }
-          
+          {editorMode === "Text" && <TextEditor/>}
         </div>
 
-        <SwitchButton/>
-
-      </div>
-    );
-  } 
-  // Text Mode
-  else {
-    return (
-      <>
-        <TextEditor/>
-        <SwitchButton/>
-      </>
-    );
-  }
+      <SwitchButton/>
+    </div>
+  );
 }
 
 export default App;
