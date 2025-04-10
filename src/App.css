@@ -17,6 +17,8 @@ body {
     display: flex;
     flex-direction: column;
     gap: 1em;
+    height: 100%;
+    width: 100%;
 }
 
 .line {
@@ -40,4 +42,15 @@ body {
 .input-box:focus {
     outline: 0;
     box-shadow: none;
+}
+
+.text-input {
+    outline: 0;
+}
+
+.mode-switch-button {
+    position: absolute;
+    left: 0;
+    bottom: 0;
+    margin: 1em;
 }
