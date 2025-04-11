@@ -12,15 +12,12 @@ type mode = "Blocks" | "Text";
 function App() {
   const [blocks, setBlocks] = useState<string[]>([]);
   const [inputText, setInputText] = useState("");
-  const [inputIndex, setInputIndex] = useState(0);            // This index says before which block the input is
-  const [inputLineIndex, setInputLineIndex] = useState(0);    // Which line the input is on (0 = first line)
+  const [inputIndex, setInputIndex] = useState(0);                  // This index says before which block the input is
+  const [inputLineIndex, setInputLineIndex] = useState(0);          // Which line the input is on (0 = first line)
   const [editorMode, setEditorMode] = useState<mode>("Blocks");     // Text / Block mode 
   const inputRef = useRef<HTMLDivElement>(null);
   const changeBlockRef = useRef(false);
   const lines = splitLines(blocks);
-
-  const [test, setTest] = useState("");
-  const reff = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     if (inputRef.current) {
@@ -259,12 +256,6 @@ function App() {
     );
   }
 
-  function handleTest(){
-    // console.log("!!!")
-    // console.log(reff.current?.inner)
-    // console.log(reff)
-  }
-
   // Block Mode
   return (
     <div 
@@ -272,8 +263,6 @@ function App() {
     >
         <div 
           className="editable-area"
-          onInput={handleTest}
-          ref={reff}
         >
           {editorMode === "Blocks" && 
             lines.map((line, lineIndex) => {
