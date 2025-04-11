@@ -21,14 +21,7 @@ export default function BlockEditor({ text, blocksRef }) {
 
       // Sets caret on the end when pressing backspace on block (editing)
       if (changeBlockRef) {
-        const range = document.createRange();
-        const sel = window.getSelection();
-        range.selectNodeContents(inputRef.current!);
-        range.collapse(false);
-        sel!.removeAllRanges();
-        sel!.addRange(range);
-
-        //! tady zmenit changleblockref zpatky????
+        setCaretToEnd();
       }
     }
   }, [inputIndex, inputLineIndex, inputText]);
@@ -36,6 +29,16 @@ export default function BlockEditor({ text, blocksRef }) {
   useEffect(() => {
     blocksRef.current = blocks;
   }, [blocks]);
+
+  function setCaretToEnd(){
+    const range = document.createRange();
+    const sel = window.getSelection();
+    range.selectNodeContents(inputRef.current!);
+    range.collapse(false);
+    sel!.removeAllRanges();
+    sel!.addRange(range);
+    changeBlockRef.current = false;
+  }
 
   // Gets index to insert to, from counting blocks before index
   function countInsertIndex() {

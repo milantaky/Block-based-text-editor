@@ -32,10 +32,9 @@ function App() {
   return (
     <div className="editor">
       <div className="editable-area">
-        {editorMode === "Blocks" && (
+        {editorMode === "Blocks" ? (
           <BlockEditor text={textRef.current} blocksRef={blocksRef} />
-        )}
-        {editorMode === "Text" && (
+        ) : (
           <TextEditor blocks={blocksRef.current} textRef={textRef} />
         )}
       </div>
