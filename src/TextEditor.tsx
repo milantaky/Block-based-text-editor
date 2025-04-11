@@ -1,16 +1,27 @@
-import { useRef, useState } from "react";
+import { useRef, useState, useEffect } from "react";
 import "./TextEditor.css"
 
-export default function TextEditor(){
-    const [text, setText] = useState("");
+export default function TextEditor({ blocks }){
+    const [text, setText] = useState(convertToText(blocks));
     const editableRef = useRef<HTMLDivElement>(null);
+
+    // On first render -> transform BLOCKS to TEXT
+    // Has to be here, because otherwise, when you start writing, it gets deleted (empty ref)
+    useEffect(() => {
+        if (editableRef.current) {
+            editableRef.current.innerText = convertToText(blocks);
+        }
+      }, []);
 
     function handleInput(){
         if (editableRef.current) {
             const content = editableRef.current.innerText;
             setText(content);
         }
-        console.log(text)
+    }
+
+    function convertToText(blockArray){
+        return blockArray.join(" ")
     }
 
     const highlightWords = (text: string) => {
@@ -38,7 +49,7 @@ export default function TextEditor(){
                 contentEditable
                 onInput={handleInput}
                 ref={editableRef}
-                >
+            >
             </div>
         </div>
         </>

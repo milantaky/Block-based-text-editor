@@ -19,6 +19,9 @@ function App() {
   const changeBlockRef = useRef(false);
   const lines = splitLines(blocks);
 
+  const [test, setTest] = useState("");
+  const reff = useRef<HTMLDivElement>(null);
+
   useEffect(() => {
     if (inputRef.current) {
       inputRef.current.focus();
@@ -256,10 +259,22 @@ function App() {
     );
   }
 
+  function handleTest(){
+    // console.log("!!!")
+    // console.log(reff.current?.inner)
+    // console.log(reff)
+  }
+
   // Block Mode
   return (
-    <div className="editor">
-        <div className="editable-area">
+    <div 
+      className="editor"
+    >
+        <div 
+          className="editable-area"
+          onInput={handleTest}
+          ref={reff}
+        >
           {editorMode === "Blocks" && 
             lines.map((line, lineIndex) => {
 
@@ -336,8 +351,10 @@ function App() {
 
           })}
 
-          {editorMode === "Text" && <TextEditor/>}
+          {editorMode === "Text" && <TextEditor blocks={blocks}/>}
         </div>
+
+      {/* <TextEditor/> */}
 
       <SwitchButton/>
     </div>
