@@ -12,7 +12,13 @@ export default function BlockEditor({ text, blocksRef }) {
   const [inputLineIndex, setInputLineIndex] = useState(0); // Which line the input is on (0 = first line)
   const inputRef = useRef<HTMLDivElement>(null);
   const changeBlockRef = useRef(false);
-  const lines = splitLines(blocks);
+  const baseLineHeight = useRef(0);
+  const lines = splitLines(blocks)
+
+  // When first rendered, check for line height to compare others to
+  useEffect(() => {
+    baseLineHeight.current = document.getElementsByClassName('line')[0].scrollHeight;
+  }, []);
 
   useEffect(() => {
     if (inputRef.current) {
@@ -27,8 +33,52 @@ export default function BlockEditor({ text, blocksRef }) {
   }, [inputIndex, inputLineIndex, inputText]);
 
   useEffect(() => {
+    // Update ref for parent
     blocksRef.current = blocks;
+
   }, [blocks]);
+  
+  // Check for line-wrapping
+  useEffect(() => {
+    let changed = false;
+    
+    if(checkLineHeight(inputLineIndex)){
+        changed = true;
+        console.log("d")
+    }
+
+    if(!changed && inputLineIndex > 0 && checkLineHeight(inputLineIndex - 1)) {
+        changed = true;
+        console.log("o")
+    }
+    
+
+  }, [blocks, inputText]);
+
+  // Checks if line has wrapped
+  function checkLineHeight(line: number){
+    const domLines = document.getElementsByClassName('line');
+
+    if(domLines[line].scrollHeight > baseLineHeight.current){
+        const insertIndex = countInsertIndex();
+
+        // If there already is new line, do nothing
+        if (blocks[insertIndex - 1] === '\n') {
+            return false;
+        }
+
+        const newBlocks = [...blocks];
+        newBlocks.splice(countInsertIndex() - 1, 0, '\n');
+        
+        setInputIndex(0);
+
+        setBlocks(newBlocks)
+        setInputLineIndex(inputLineIndex + 1);
+        return true;
+    }
+
+    return false;
+  }
 
   function setCaretToEnd(){
     const range = document.createRange();
@@ -143,6 +193,7 @@ export default function BlockEditor({ text, blocksRef }) {
         break;
 
       case "Enter":
+        e.preventDefault();
         if (inputText !== "") {
           setBlocks([...blocks, inputText.trim(), "\n"]);
           setInputText("");
