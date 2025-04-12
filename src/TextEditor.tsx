@@ -1,7 +1,13 @@
 import { useRef, useState, useEffect } from "react";
 import "./TextEditor.css";
 
-export default function TextEditor({ blocks, textRef }: { blocks: string[], textRef: React.MutableRefObject<string> }) {
+export default function TextEditor({
+  blocks,
+  textRef,
+}: {
+  blocks: string[];
+  textRef: React.MutableRefObject<string>;
+}) {
   const [text, setText] = useState(convertToText(blocks));
   const editableRef = useRef<HTMLDivElement>(null);
 
@@ -13,6 +19,7 @@ export default function TextEditor({ blocks, textRef }: { blocks: string[], text
     }
   }, []);
 
+  // Sets current text to ref for parent (App) to see 
   useEffect(() => {
     textRef.current = text;
   }, [text]);
@@ -30,7 +37,6 @@ export default function TextEditor({ blocks, textRef }: { blocks: string[], text
 
   function highlightWords(text: string) {
     const words = text.split(/(\s+)/);
-    console.log(words);
 
     return words.map((word) => {
       // Is it \n\n\n...?
@@ -57,7 +63,7 @@ export default function TextEditor({ blocks, textRef }: { blocks: string[], text
         return <span className="word">{word}</span>;
       }
     });
-  };
+  }
 
   return (
     <>

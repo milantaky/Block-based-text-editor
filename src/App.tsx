@@ -1,21 +1,19 @@
 import { useState, useRef } from "react";
-import "./App.css";
 import TextEditor from "./TextEditor.tsx";
 import BlockEditor from "./BlockEditor.tsx";
+import "./App.css";
 
 type mode = "Blocks" | "Text";
 
-function App() {
-  const [editorMode, setEditorMode] = useState<mode>("Blocks"); // Text / Block mode
+export default function App() {
+  const [editorMode, setEditorMode] = useState<mode>("Blocks");
   const blocksRef = useRef<string[]>([]);
   const textRef = useRef<string>("");
 
   function toggleEditorMode() {
     if (editorMode === "Text") {
-      // console.log("TEXT TED:", textRef.current)
       setEditorMode("Blocks");
     } else {
-      // console.log("BLOCKS TED:", blocksRef.current)
       setEditorMode("Text");
     }
   }
@@ -28,7 +26,6 @@ function App() {
     );
   }
 
-  // Block Mode
   return (
     <div className="editor">
       <div className="editable-area">
@@ -43,5 +40,3 @@ function App() {
     </div>
   );
 }
-
-export default App;

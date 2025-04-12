@@ -19,15 +19,16 @@ export default function BlockEditor({
   const [inputLineIndex, setInputLineIndex] = useState(0); // Which line the input is on (0 = first line)
   const inputRef = useRef<HTMLDivElement>(null);
   const changeBlockRef = useRef(false);
-  const baseLineHeight = useRef(0);
-  const lines = splitLines(blocks);
+  const baseLineHeight = useRef(0); // Height of line on first render to compare if other lines have overflown
+  const lines = splitLines(blocks); // Blocks converted into lines of blocks based on \n
 
-  // When first rendered, check for line height to compare others to
+  // When first rendered, check for line height
   useEffect(() => {
     baseLineHeight.current =
       document.getElementsByClassName("line")[0].scrollHeight;
   }, []);
 
+  // Focuses editor, and sets caret on end of input when editing it
   useEffect(() => {
     if (inputRef.current) {
       inputRef.current.focus();
@@ -153,21 +154,23 @@ export default function BlockEditor({
         break;
 
       case "Backspace":
-        // e.preventDefault();
-        if (inputText === "" && blocks.length > 0) {
-          const insertIndex = countInsertIndex();
-          setInputText(blocks[insertIndex - 1]);
-          setInputIndex(inputIndex - 1);
+        if (inputText === "") {
+          e.preventDefault();
+          if (blocks.length > 0) {
+            const insertIndex = countInsertIndex();
+            setInputText(blocks[insertIndex - 1]);
+            setInputIndex(inputIndex - 1);
 
-          setBlocks(
-            (prevBlocks) =>
-              inputIndex === prevBlocks.length &&
-              inputLineIndex === lines.length
-                ? prevBlocks.slice(0, -1) // Input on end
-                : prevBlocks.filter((_, index) => index !== insertIndex - 1) // Input elsewhere
-          );
+            setBlocks(
+              (prevBlocks) =>
+                inputIndex === prevBlocks.length &&
+                inputLineIndex === lines.length
+                  ? prevBlocks.slice(0, -1) // Input on end
+                  : prevBlocks.filter((_, index) => index !== insertIndex - 1) // Input elsewhere
+            );
 
-          changeBlockRef.current = true;
+            changeBlockRef.current = true;
+          }
         }
         break;
 
@@ -312,7 +315,6 @@ export default function BlockEditor({
     return (
       <div
         key={index}
-        // className="block"
         className="block"
         contentEditable
         suppressContentEditableWarning
