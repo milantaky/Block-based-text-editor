@@ -6,10 +6,10 @@ export default function TextEditor({ blocks, textRef }) {
   const editableRef = useRef<HTMLDivElement>(null);
 
   // On first render -> transform BLOCKS to TEXT
-  // Has to be here, because otherwise, when you start writing, it gets deleted (empty ref)
   useEffect(() => {
     if (editableRef.current) {
       editableRef.current.innerText = convertToText(blocks);
+      editableRef.current.focus();
     }
   }, []);
 
@@ -28,22 +28,41 @@ export default function TextEditor({ blocks, textRef }) {
     return blockArray.join(" ");
   }
 
-  const highlightWords = (text: string) => {
-    const words = text.split(/(\s+)/); // rozdělí na slova + mezery
-    return words
-      .map((word) =>
-        word.trim() !== "" ? `<span class="word">${word}</span>` : word
-      )
-      .join("");
+  function highlightWords(text: string) {
+    const words = text.split(/(\s+)/);
+    console.log(words);
+
+    return words.map((word) => {
+      // Is it \n\n\n...?
+      if (/^(\n+)$/.test(word)) {
+        // Count it
+        const matches = word.match(/(\n+)/);
+        let count = matches ? matches[0].length : 0;
+
+        // Browser adds too many \n
+        count = (count - 1) / 2;
+
+        // Return empty lines
+        if (count > 0) {
+          return Array.from({ length: count }).map(() => (
+            <div>
+              <br />
+            </div>
+          ));
+        }
+
+        // No empty lines -> space
+        return word;
+      } else {
+        return <span className="word">{word}</span>;
+      }
+    });
   };
 
   return (
     <>
       <div className="textEditor-container">
-        <div
-          className="highlighted-layer"
-          dangerouslySetInnerHTML={{ __html: highlightWords(text) + "<br />" }}
-        />
+        <div className="highlighted-layer">{highlightWords(text)}</div>
         <div
           className="editor-layer"
           contentEditable
