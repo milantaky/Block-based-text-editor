@@ -44,12 +44,10 @@ export default function BlockEditor({ text, blocksRef }) {
 
     if (checkLineHeight(inputLineIndex)) {
       changed = true;
-      console.log("d");
     }
 
     if (!changed && inputLineIndex > 0 && checkLineHeight(inputLineIndex - 1)) {
       changed = true;
-      console.log("o");
     }
   }, [blocks, inputText]);
 
@@ -66,7 +64,7 @@ export default function BlockEditor({ text, blocksRef }) {
         return false;
       }
 
-      addNewLine(countInsertIndex() - 1);
+      addNewLine(countInsertIndex());
 
       setInputIndex(0);
       setInputLineIndex(inputLineIndex + 1);
