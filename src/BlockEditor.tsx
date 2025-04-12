@@ -5,7 +5,7 @@ type BlockProps = {
   content: string;
 };
 
-export default function BlockEditor({ text, blocksRef }) {
+export default function BlockEditor({ text, blocksRef }: { text: string, blocksRef: React.MutableRefObject<string[]> }) {
   const [blocks, setBlocks] = useState<string[]>([]);
   const [inputText, setInputText] = useState("");
   const [inputIndex, setInputIndex] = useState(0); // This index says before which block the input is

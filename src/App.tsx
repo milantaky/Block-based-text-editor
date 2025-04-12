@@ -1,4 +1,4 @@
-import { useState, useRef, useEffect } from "react";
+import { useState, useRef } from "react";
 import "./App.css";
 import TextEditor from "./TextEditor.tsx";
 import BlockEditor from "./BlockEditor.tsx";

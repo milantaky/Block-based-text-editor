@@ -1,7 +1,7 @@
 import { useRef, useState, useEffect } from "react";
 import "./TextEditor.css";
 
-export default function TextEditor({ blocks, textRef }) {
+export default function TextEditor({ blocks, textRef }: { blocks: string[], textRef: React.MutableRefObject<string> }) {
   const [text, setText] = useState(convertToText(blocks));
   const editableRef = useRef<HTMLDivElement>(null);
 
@@ -24,7 +24,7 @@ export default function TextEditor({ blocks, textRef }) {
     }
   }
 
-  function convertToText(blockArray) {
+  function convertToText(blockArray: string[]) {
     return blockArray.join(" ");
   }
 
