@@ -13,11 +13,12 @@ export default function BlockEditor({ text, blocksRef }) {
   const inputRef = useRef<HTMLDivElement>(null);
   const changeBlockRef = useRef(false);
   const baseLineHeight = useRef(0);
-  const lines = splitLines(blocks)
+  const lines = splitLines(blocks);
 
   // When first rendered, check for line height to compare others to
   useEffect(() => {
-    baseLineHeight.current = document.getElementsByClassName('line')[0].scrollHeight;
+    baseLineHeight.current =
+      document.getElementsByClassName("line")[0].scrollHeight;
   }, []);
 
   useEffect(() => {
@@ -35,52 +36,64 @@ export default function BlockEditor({ text, blocksRef }) {
   useEffect(() => {
     // Update ref for parent
     blocksRef.current = blocks;
-
   }, [blocks]);
-  
+
   // Check for line-wrapping
   useEffect(() => {
     let changed = false;
-    
-    if(checkLineHeight(inputLineIndex)){
-        changed = true;
-        console.log("d")
+
+    if (checkLineHeight(inputLineIndex)) {
+      changed = true;
+      console.log("d");
     }
 
-    if(!changed && inputLineIndex > 0 && checkLineHeight(inputLineIndex - 1)) {
-        changed = true;
-        console.log("o")
+    if (!changed && inputLineIndex > 0 && checkLineHeight(inputLineIndex - 1)) {
+      changed = true;
+      console.log("o");
     }
-    
-
   }, [blocks, inputText]);
 
   // Checks if line has wrapped
-  function checkLineHeight(line: number){
-    const domLines = document.getElementsByClassName('line');
+  function checkLineHeight(line: number) {
+    const domLines = document.getElementsByClassName("line");
 
-    if(domLines[line].scrollHeight > baseLineHeight.current){
-        const insertIndex = countInsertIndex();
+    // Is checked line higher than base line
+    if (domLines[line].scrollHeight > baseLineHeight.current) {
+      const insertIndex = countInsertIndex();
 
-        // If there already is new line, do nothing
-        if (blocks[insertIndex - 1] === '\n') {
-            return false;
-        }
+      // If there already is new line, do nothing
+      if (blocks[insertIndex - 1] === "\n") {
+        return false;
+      }
 
-        const newBlocks = [...blocks];
-        newBlocks.splice(countInsertIndex() - 1, 0, '\n');
-        
-        setInputIndex(0);
+      addNewLine(countInsertIndex() - 1);
 
-        setBlocks(newBlocks)
-        setInputLineIndex(inputLineIndex + 1);
-        return true;
+      setInputIndex(0);
+      setInputLineIndex(inputLineIndex + 1);
+      return true;
     }
 
     return false;
   }
 
-  function setCaretToEnd(){
+  // Adds new line to WHERE position
+  // - If inputAlso, it makes a new block, before adding line with inputText
+  // - Updates blocks state!
+  // - Possibly updates inputText state!
+  function addNewLine(where: number, inputAlso?: boolean) {
+    const newBlocks = [...blocks];
+
+    if (inputAlso) {
+      newBlocks.splice(where, 0, inputText.trim(), "\n");
+      setInputText("");
+    } else {
+      newBlocks.splice(where, 0, "\n");
+    }
+
+    setBlocks(newBlocks);
+  }
+
+  function setCaretToEnd() {
     const range = document.createRange();
     const sel = window.getSelection();
     range.selectNodeContents(inputRef.current!);
@@ -194,12 +207,13 @@ export default function BlockEditor({ text, blocksRef }) {
 
       case "Enter":
         e.preventDefault();
+        
         if (inputText !== "") {
-          setBlocks([...blocks, inputText.trim(), "\n"]);
-          setInputText("");
+          addNewLine(countInsertIndex(), true);
         } else {
-          setBlocks([...blocks, "\n"]);
+          addNewLine(countInsertIndex());
         }
+
         setInputLineIndex(inputLineIndex + 1);
         setInputIndex(0);
         break;
