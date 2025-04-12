@@ -6,7 +6,13 @@ type BlockProps = {
   content: string;
 };
 
-export default function BlockEditor({ text, blocksRef }: { text: string, blocksRef: React.MutableRefObject<string[]> }) {
+export default function BlockEditor({
+  text,
+  blocksRef,
+}: {
+  text: string;
+  blocksRef: React.MutableRefObject<string[]>;
+}) {
   const [blocks, setBlocks] = useState<string[]>([]);
   const [inputText, setInputText] = useState("");
   const [inputIndex, setInputIndex] = useState(0); // This index says before which block the input is
@@ -34,8 +40,8 @@ export default function BlockEditor({ text, blocksRef }: { text: string, blocksR
     }
   }, [inputIndex, inputLineIndex, inputText]);
 
+  // Update ref for parent
   useEffect(() => {
-    // Update ref for parent
     blocksRef.current = blocks;
   }, [blocks]);
 
@@ -206,7 +212,7 @@ export default function BlockEditor({ text, blocksRef }: { text: string, blocksR
 
       case "Enter":
         e.preventDefault();
-        
+
         if (inputText !== "") {
           addNewLine(countInsertIndex(), true);
         } else {
@@ -317,17 +323,25 @@ export default function BlockEditor({ text, blocksRef }: { text: string, blocksR
     );
   }
 
+  function Line({ children, lineIndex }) {
+    return (
+      <div
+        key={lineIndex}
+        className="line"
+        onClick={(e) => handleClick(e, lineIndex)}
+      >
+        {children}
+      </div>
+    );
+  }
+
   return lines.map((line, lineIndex) => {
     // No Blocks
     if (lines.length === 1 && line.length === 0) {
       return (
-        <div
-          key={lineIndex}
-          className="line"
-          onClick={(e) => handleClick(e, lineIndex)}
-        >
+        <Line lineIndex={lineIndex}>
           <InputBox />
-        </div>
+        </Line>
       );
     } else {
       // Empty line
@@ -337,23 +351,15 @@ export default function BlockEditor({ text, blocksRef }: { text: string, blocksR
         inputLineIndex === lineIndex
       ) {
         return (
-          <div
-            key={lineIndex}
-            className="line"
-            onClick={(e) => handleClick(e, lineIndex)}
-          >
+          <Line lineIndex={lineIndex}>
             <InputBox />
-          </div>
+          </Line>
         );
       }
 
       // Lines and blocks
       return (
-        <div
-          key={lineIndex}
-          className="line"
-          onClick={(e) => handleClick(e, lineIndex)}
-        >
+        <Line lineIndex={lineIndex}>
           {line.map((word, wordIndex) => {
             // ========== Line without input
             if (lineIndex !== inputLineIndex) {
@@ -408,7 +414,7 @@ export default function BlockEditor({ text, blocksRef }: { text: string, blocksR
               );
             }
           })}
-        </div>
+        </Line>
       );
     }
   });
