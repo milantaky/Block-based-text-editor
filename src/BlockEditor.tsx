@@ -1,4 +1,5 @@
 import { useState, useRef, useEffect } from "react";
+import "./BlockEditor.css";
 
 type BlockProps = {
   index: number;
