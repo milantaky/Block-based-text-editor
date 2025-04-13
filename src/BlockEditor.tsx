@@ -1,9 +1,11 @@
 import { useState, useRef, useEffect, ReactNode } from "react";
+// import languages from "./wordCategories.tsx";
 import "./BlockEditor.css";
 
-type BlockProps = {
+type blockProps = {
   index: number;
   content: string;
+  wordType: number;
 };
 
 export default function BlockEditor({
@@ -157,20 +159,30 @@ export default function BlockEditor({
       case "Backspace":
         if (inputText === "") {
           e.preventDefault();
+
           if (blocks.length > 0) {
-            const insertIndex = countInsertIndex();
-            setInputText(blocks[insertIndex - 1]);
-            setInputIndex(inputIndex - 1);
 
-            setBlocks(
-              (prevBlocks) =>
-                inputIndex === prevBlocks.length &&
-                inputLineIndex === lines.length
-                  ? prevBlocks.slice(0, -1) // Input on end
-                  : prevBlocks.filter((_, index) => index !== insertIndex - 1) // Input elsewhere
-            );
-
-            changeBlockRef.current = true;
+            // Input on start -> deleting line
+            if(inputIndex === 0 && inputLineIndex !== 0){
+                const insertIndex = countInsertIndex();
+                setBlocks(blocks.filter((_, index) => index !== insertIndex - 1))
+                setInputIndex(lines[inputLineIndex - 1].length);                
+                setInputLineIndex(inputLineIndex - 1)
+            } else {
+                const insertIndex = countInsertIndex();
+                setInputText(blocks[insertIndex - 1]);
+                setInputIndex(inputIndex - 1);
+    
+                setBlocks(
+                  (prevBlocks) =>
+                    inputIndex === prevBlocks.length &&
+                    inputLineIndex === lines.length
+                      ? prevBlocks.slice(0, -1) // Input on end
+                      : prevBlocks.filter((_, index) => index !== insertIndex - 1) // Input elsewhere
+                );
+    
+                changeBlockRef.current = true;
+            }
           }
         }
         break;
@@ -292,7 +304,6 @@ export default function BlockEditor({
   }
 
   // Input component
-  // - If editor in text mode, apply no styling (class text-input)
   function InputBox() {
     return (
       <div
@@ -307,12 +318,11 @@ export default function BlockEditor({
   }
 
   // Block component
-  // - If editor in text mode, apply no styling (class text)
   function Block({
     index,
     content,
     lineIndex,
-  }: BlockProps & { lineIndex: number }) {
+  }: blockProps & { lineIndex: number }) {
     return (
       <div
         key={index}
@@ -320,6 +330,7 @@ export default function BlockEditor({
         contentEditable
         suppressContentEditableWarning
         onClick={(e) => handleClick(e, lineIndex, index)}
+        // onDoubleClick={() => console.log("Dvojklik na blok!")}
       >
         {content}
       </div>
@@ -334,7 +345,7 @@ export default function BlockEditor({
     lineIndex: number;
   }) {
     // ! pak jak se oddelaji ramecky, upravit!!!
-    const minHeight = baseLineHeight.current - 16;      // Base line height - 16px top, bottom padding
+    const minHeight = baseLineHeight.current - 16; // Base line height - 16px top, bottom padding
 
     return (
       <div
