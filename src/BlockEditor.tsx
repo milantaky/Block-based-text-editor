@@ -48,11 +48,12 @@ export default function BlockEditor({
         setCaretToEnd();
       }
     }
-  }, [inputIndex, inputLineIndex, inputText]);
+  }, [blocks, inputIndex, inputLineIndex, inputText]);
 
   // Update ref for parent
   useEffect(() => {
     blocksRef.current = blocks;
+    // console.log(blocks)
   }, [blocks]);
 
   // Check for line-wrapping
@@ -74,40 +75,62 @@ export default function BlockEditor({
   }
 
   // Checks if line has wrapped
+  // When adding new line, \r get set as line divider, not \n!! 
+  // It is because there wouln't be a way to know if the line below is made to prevent wrapping or if it is a new line on purpose
   function checkLineHeight(line: number) {
     const domLines = document.getElementsByClassName("line");
 
     // Is checked line higher than base line
-    if (domLines[line].scrollHeight > baseLineHeight.current) {
-      const insertIndex = countInsertIndex();
-
-      // If there already is new line, do nothing
-      if (blocks[insertIndex - 1] === "\n") {
+    if (domLines[line].scrollHeight <= baseLineHeight.current) {
         return false;
-      }
-
-      addNewLine(countInsertIndex());
-
-      setInputIndex(0);
-      setInputLineIndex(inputLineIndex + 1);
-      return true;
     }
 
-    return false;
+    // If there already is new line, do nothing (prevents endless cycle of new lines)
+    const insertIndex = countInsertIndex();
+    if (blocks[insertIndex - 1] === "\n") {
+      return false;
+    }
+
+    // Input not on end -> move last block to next line
+    if(inputIndex !== lines[inputLineIndex].length){
+
+        // Is there already a wrapped line ("\r")? -> Swap "\r" with element before
+        const possibleWrapIndex = insertIndex - inputIndex + lines[inputLineIndex].length;
+        if (blocks[possibleWrapIndex] === "\r"){
+            const newBlocks = [...blocks];
+            [newBlocks[possibleWrapIndex], newBlocks[possibleWrapIndex - 1]] = [newBlocks[possibleWrapIndex - 1], newBlocks[possibleWrapIndex]];
+            setBlocks(newBlocks);
+            return true;
+        } else {
+            addNewLine(possibleWrapIndex - 1, false, true);
+            return true;
+        }
+    }   
+
+
+    addNewLine(countInsertIndex(), false, true);
+
+    setInputIndex(0);
+    setInputLineIndex(inputLineIndex + 1);
+    return true;
   }
 
   // Adds new line to WHERE position
   // - If inputAlso, it makes a new block, before adding line with inputText
   // - Updates blocks state!
   // - Possibly updates inputText state!
-  function addNewLine(where: number, inputAlso?: boolean) {
+  function addNewLine(where: number, inputAlso?: boolean, split?: boolean) {
     const newBlocks = [...blocks];
 
     if (inputAlso) {
       newBlocks.splice(where, 0, inputText.trim(), "\n");
       setInputText("");
     } else {
-      newBlocks.splice(where, 0, "\n");
+      if(split){
+        newBlocks.splice(where, 0, "\r");
+      } else {
+        newBlocks.splice(where, 0, "\n");
+      }
     }
 
     setBlocks(newBlocks);
@@ -167,7 +190,6 @@ export default function BlockEditor({
         }
         break;
 
-      // TODO: backspace na prazdnem radku
       case "Backspace":
         if (inputText === "") {
           e.preventDefault();
@@ -261,7 +283,7 @@ export default function BlockEditor({
 
     blocks.forEach((block) => {
       // If \n add line, else add to previous line
-      if (block === "\n") {
+      if (block === "\n" || block === "\r") {
         index++;
         lines[index] = [];
       } else {
@@ -314,7 +336,6 @@ export default function BlockEditor({
     setTimeout(() => inputRef.current?.focus(), 0);
   }
 
-  // Input component
   function InputBox() {
     return (
       <div
@@ -328,7 +349,6 @@ export default function BlockEditor({
     );
   }
 
-  // Block component
   function Block({
     index,
     content,
