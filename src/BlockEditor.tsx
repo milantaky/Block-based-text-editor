@@ -1,4 +1,4 @@
-import { useState, useRef, useEffect } from "react";
+import { useState, useRef, useEffect, ReactNode } from "react";
 import "./BlockEditor.css";
 
 type BlockProps = {
@@ -153,6 +153,7 @@ export default function BlockEditor({
         }
         break;
 
+      // TODO: backspace na prazdnem radku
       case "Backspace":
         if (inputText === "") {
           e.preventDefault();
@@ -205,8 +206,8 @@ export default function BlockEditor({
         if (inputText === "" && inputLineIndex < lines.length - 1) {
           setInputLineIndex(inputLineIndex + 1);
 
-          // If there is line below
-          // If upper line is longer, set input index to end of lower line
+          // Is there line below?
+          // Is upper line longer? -> set input index to end of lower line
           if (inputIndex > lines[inputLineIndex + 1].length) {
             setInputIndex(lines[inputLineIndex + 1].length);
           }
@@ -325,11 +326,21 @@ export default function BlockEditor({
     );
   }
 
-  function Line({ children, lineIndex }) {
+  function Line({
+    children,
+    lineIndex,
+  }: {
+    children: ReactNode;
+    lineIndex: number;
+  }) {
+    // ! pak jak se oddelaji ramecky, upravit!!!
+    const minHeight = baseLineHeight.current - 16;      // Base line height - 16px top, bottom padding
+
     return (
       <div
         key={lineIndex}
         className="line"
+        style={{ minHeight: `${minHeight}px` }}
         onClick={(e) => handleClick(e, lineIndex)}
       >
         {children}
