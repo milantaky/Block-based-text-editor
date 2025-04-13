@@ -5,7 +5,7 @@ import "./BlockEditor.css";
 type blockProps = {
   index: number;
   content: string;
-  wordType: number;
+  //   wordType: number;
 };
 
 export default function BlockEditor({
@@ -15,7 +15,7 @@ export default function BlockEditor({
   text: string;
   blocksRef: React.MutableRefObject<string[]>;
 }) {
-  const [blocks, setBlocks] = useState<string[]>([]);
+  const [blocks, setBlocks] = useState<string[]>(convertToBlocks(text));
   const [inputText, setInputText] = useState("");
   const [inputIndex, setInputIndex] = useState(0); // This index says before which block the input is
   const [inputLineIndex, setInputLineIndex] = useState(0); // Which line the input is on (0 = first line)
@@ -23,11 +23,18 @@ export default function BlockEditor({
   const changeBlockRef = useRef(false);
   const baseLineHeight = useRef(0); // Height of line on first render to compare if other lines have overflown
   const lines = splitLines(blocks); // Blocks converted into lines of blocks based on \n
+  const setFirstRef = useRef(false);
 
-  // When first rendered, check for line height
+  // When first rendered, check for line height and set input on end
   useEffect(() => {
     baseLineHeight.current =
       document.getElementsByClassName("line")[0].scrollHeight;
+
+    if (!setFirstRef.current) {
+      setInputIndex(lines[lines.length - 1].length);
+      setInputLineIndex(lines.length - 1);
+      setFirstRef.current = true;
+    }
   }, []);
 
   // Focuses editor, and sets caret on end of input when editing it
@@ -60,6 +67,11 @@ export default function BlockEditor({
       changed = true;
     }
   }, [blocks, inputText]);
+
+  function convertToBlocks(text: string) {
+    if (text === "") return [];
+    return text.split(" ");
+  }
 
   // Checks if line has wrapped
   function checkLineHeight(line: number) {
@@ -161,27 +173,26 @@ export default function BlockEditor({
           e.preventDefault();
 
           if (blocks.length > 0) {
-
             // Input on start -> deleting line
-            if(inputIndex === 0 && inputLineIndex !== 0){
-                const insertIndex = countInsertIndex();
-                setBlocks(blocks.filter((_, index) => index !== insertIndex - 1))
-                setInputIndex(lines[inputLineIndex - 1].length);                
-                setInputLineIndex(inputLineIndex - 1)
+            if (inputIndex === 0 && inputLineIndex !== 0) {
+              const insertIndex = countInsertIndex();
+              setBlocks(blocks.filter((_, index) => index !== insertIndex - 1));
+              setInputIndex(lines[inputLineIndex - 1].length);
+              setInputLineIndex(inputLineIndex - 1);
             } else {
-                const insertIndex = countInsertIndex();
-                setInputText(blocks[insertIndex - 1]);
-                setInputIndex(inputIndex - 1);
-    
-                setBlocks(
-                  (prevBlocks) =>
-                    inputIndex === prevBlocks.length &&
-                    inputLineIndex === lines.length
-                      ? prevBlocks.slice(0, -1) // Input on end
-                      : prevBlocks.filter((_, index) => index !== insertIndex - 1) // Input elsewhere
-                );
-    
-                changeBlockRef.current = true;
+              const insertIndex = countInsertIndex();
+              setInputText(blocks[insertIndex - 1]);
+              setInputIndex(inputIndex - 1);
+
+              setBlocks(
+                (prevBlocks) =>
+                  inputIndex === prevBlocks.length &&
+                  inputLineIndex === lines.length
+                    ? prevBlocks.slice(0, -1) // Input on end
+                    : prevBlocks.filter((_, index) => index !== insertIndex - 1) // Input elsewhere
+              );
+
+              changeBlockRef.current = true;
             }
           }
         }
