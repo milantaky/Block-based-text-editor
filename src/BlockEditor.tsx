@@ -291,7 +291,7 @@ export default function BlockEditor({
           setInputIndex(lines[inputLineIndex - 1].length);
         }
       }
-      
+
       return;
     }
 
@@ -316,12 +316,13 @@ export default function BlockEditor({
     }
   }
 
-  function findClosestIndex(values: number[], referenceValue: number) {
+  // Finds the smallest difference in block positions to input position
+  function findClosestIndex(values: number[], inputPosition: number) {
     let closestIndex = 0;
-    let minDiff = Math.abs(values[0] - referenceValue);
+    let minDiff = Math.abs(values[0] - inputPosition);
 
     for (let i = 0; i < values.length; i++) {
-      const currentDiff = Math.abs(values[i] - referenceValue);
+      const currentDiff = Math.abs(values[i] - inputPosition);
       if (currentDiff < minDiff) {
         minDiff = currentDiff;
         closestIndex = i;
@@ -331,6 +332,7 @@ export default function BlockEditor({
     return closestIndex;
   }
 
+  // Splits wrapped line into separate blocks (their position)
   // Returns offsetLeft array of blocks on lines and an index of line input is on, and index on the line
   function splitLineBlocks(
     blocks: HTMLCollection
@@ -373,13 +375,14 @@ export default function BlockEditor({
     return [returnArray, inputLine, inputIndexOnLine];
   }
 
+  // Splits blocks into separate lines
   function splitLines(blocks: string[]): string[][] {
     const lines: string[][] = [[]];
     let index = 0;
 
     blocks.forEach((block) => {
       // If \n add line, else add to previous line
-      if (block === "\n" || block === "\r") {
+      if (block === "\n") {
         index++;
         lines[index] = [];
       } else {
