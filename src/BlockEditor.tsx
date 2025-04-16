@@ -239,20 +239,6 @@ export default function BlockEditor({
       case "ArrowUp":
         e.preventDefault();
         moveInputUp();
-
-        // requestAnimationFrame(() => {
-        //   const block = document.getElementsByClassName("line")[inputLineIndex];
-        //   console.log(block.childNodes);
-        // });
-
-        // if (inputText === "" && inputLineIndex > 0) {
-        //   setInputLineIndex(inputLineIndex - 1);
-
-        //   // If lower line is longer, set input index to end of upper line
-        //   if (inputIndex > lines[inputLineIndex - 1].length) {
-        //     setInputIndex(lines[inputLineIndex - 1].length);
-        //   }
-        // }
         break;
 
       case "ArrowDown":
@@ -288,97 +274,103 @@ export default function BlockEditor({
 
   function moveInputUp() {
     const domLines = document.getElementsByClassName("line");
+    const lineItems = domLines[inputLineIndex].children;
 
-    // Line not wrapped
-    if (domLines[inputLineIndex].clientHeight === baseLineHeight.current) {
+    const currentLine = lineItems[inputIndex] as HTMLElement;
+    const [splitLine, inputLine, inputIndexOnLine] = splitLineBlocks(lineItems);
 
+    // Input on first line
+    if (inputLine === 0) {
+      // Move input up
       if (inputText === "" && inputLineIndex > 0) {
         setInputLineIndex(inputLineIndex - 1);
 
         // If lower line is longer, set input index to end of upper line
+        // TODO: vylepsit
         if (inputIndex > lines[inputLineIndex - 1].length) {
           setInputIndex(lines[inputLineIndex - 1].length);
         }
       }
-
-    } else {
-      // The line is wrapped -> find fit in line above, if input not in first line
-      const lineItems = domLines[inputLineIndex].children;
-        
-      const currentLine = lineItems[inputIndex] as HTMLElement;
-      const [splitLine, inputLine] = splitLineBlocks(lineItems);
       
-      // Input on first line
-      if (inputLine === 0) {
+      return;
+    }
 
-        // Move input up
-        if (inputText === "" && inputLineIndex > 0) {
-          setInputLineIndex(inputLineIndex - 1);
-          
-          if (inputIndex > lines[inputLineIndex - 1].length) {
-            setInputIndex(lines[inputLineIndex - 1].length);
-          }
+    // Line not wrapped
+    if (domLines[inputLineIndex].clientHeight !== baseLineHeight.current) {
+      // The line is wrapped -> find fit in line above
+      const inputOffset = currentLine.offsetLeft;
+
+      // Najit misto kde ma byt input
+      let targetIndex =
+        inputIndexOnLine > 0 && splitLine[inputIndexOnLine - 1].length > 0
+          ? findClosestIndex(splitLine[inputIndexOnLine - 1], inputOffset)
+          : 0;
+
+      if (inputIndexOnLine > 0) {
+        for (let i = 0; i < inputIndexOnLine - 1; i++) {
+          targetIndex += splitLine[i].length;
         }
-
-      } else {
-        // Input in wrapped part -> move one line up and find suitable spot
-        const inputOffset = currentLine.offsetLeft;
-
-        // Inp
-        if(inputLine === 0 && inputLineIndex > 0){
-            setInputLineIndex(inputLineIndex - 1);
-        }
-
-        // Najit misto kde ma byt input
-        let targetIndex = (inputLine > 0 && splitLine[inputLine - 1].length > 0) ? findClosestIndex(splitLine[inputLine - 1], inputOffset) : 0;
-        if(inputLine > 0){
-            for(let i = 0; i < inputLine - 1; i++){
-                targetIndex += splitLine[i].length;
-            }
-        }
-
-        setInputIndex(targetIndex);
       }
+
+      setInputIndex(targetIndex);
     }
   }
 
-  function findClosestIndex(values: number[], referenceValue: number){
+  function findClosestIndex(values: number[], referenceValue: number) {
     let closestIndex = 0;
     let minDiff = Math.abs(values[0] - referenceValue);
 
-    for(let i = 0; i < values.length; i++){
-        const currentDiff = Math.abs(values[i] - referenceValue);
-        if(currentDiff < minDiff){
-            minDiff = currentDiff;
-            closestIndex = i;
-        }
-    }
-
-    return closestIndex
-  }
-
-  // Returns offsetLeft array of blocks on lines and an index of line input is on
-  function splitLineBlocks(blocks: HTMLCollection): [number[][], number] {
-    let returnArray: number[][] = [[]];
-    let lastLineOffset = blocks[0].offsetTop;
-    let index = 0;
-    let inputLine = 0;
-
-    for (const block of blocks) {
-      if (lastLineOffset < block.offsetTop) {
-        index++;
-        lastLineOffset = block.offsetTop;
-        returnArray[index] = [];
-      } else {
-        if(block.className === "input-box"){
-            inputLine = index;
-        }
-        
-        returnArray[index].push(block.offsetLeft);
+    for (let i = 0; i < values.length; i++) {
+      const currentDiff = Math.abs(values[i] - referenceValue);
+      if (currentDiff < minDiff) {
+        minDiff = currentDiff;
+        closestIndex = i;
       }
     }
 
-    return [returnArray, inputLine];
+    return closestIndex;
+  }
+
+  // Returns offsetLeft array of blocks on lines and an index of line input is on, and index on the line
+  function splitLineBlocks(
+    blocks: HTMLCollection
+  ): [number[][], number, number] {
+    const returnArray: number[][] = [[]];
+    let lastLineOffset = blocks[0].offsetTop;
+    let lineNumber = 0; // Which line we are on in wrapped line
+    let inputLine = 0; // Which line the input is on
+    let inputIndexOnLine = 0; // Input index on line
+    let indexOnLine = 0;
+
+    for (const block of blocks) {
+      // New Line
+      if (lastLineOffset < block.offsetTop) {
+        lineNumber++;
+        indexOnLine = 0;
+        lastLineOffset = block.offsetTop;
+
+        if (block.className === "input-box") {
+          inputLine = lineNumber;
+          inputIndexOnLine = indexOnLine;
+          returnArray[lineNumber] = [];
+          continue; //! ????
+        }
+
+        returnArray[lineNumber] = [block.offsetLeft];
+        continue;
+      }
+
+      if (block.className === "input-box") {
+        inputLine = lineNumber;
+        inputIndexOnLine = indexOnLine;
+        continue; //! ????
+      }
+
+      indexOnLine++;
+      returnArray[lineNumber].push(block.offsetLeft);
+    }
+
+    return [returnArray, inputLine, inputIndexOnLine];
   }
 
   function splitLines(blocks: string[]): string[][] {
