@@ -243,15 +243,16 @@ export default function BlockEditor({
 
       case "ArrowDown":
         e.preventDefault();
-        if (inputText === "" && inputLineIndex < lines.length - 1) {
-          setInputLineIndex(inputLineIndex + 1);
+        moveInputDown();
+        // if (inputText === "" && inputLineIndex < lines.length - 1) {
+        //   setInputLineIndex(inputLineIndex + 1);
 
-          // Is there line below?
-          // Is upper line longer? -> set input index to end of lower line
-          if (inputIndex > lines[inputLineIndex + 1].length) {
-            setInputIndex(lines[inputLineIndex + 1].length);
-          }
-        }
+        //   // Is there line below?
+        //   // Is upper line longer? -> set input index to end of lower line
+        //   if (inputIndex > lines[inputLineIndex + 1].length) {
+        //     setInputIndex(lines[inputLineIndex + 1].length);
+        //   }
+        // }
         break;
 
       case "Enter":
@@ -276,7 +277,7 @@ export default function BlockEditor({
     const domLines = document.getElementsByClassName("line");
     const lineItems = domLines[inputLineIndex].children;
 
-    const currentLine = lineItems[inputIndex] as HTMLElement;
+    const currentLineInput = lineItems[inputIndex] as HTMLElement;
     const [splitLine, inputLine, inputIndexOnLine] = splitLineBlocks(lineItems);
 
     // Input on first line
@@ -295,19 +296,20 @@ export default function BlockEditor({
       return;
     }
 
-    // Line not wrapped
+    // Line wrapped
     if (domLines[inputLineIndex].clientHeight !== baseLineHeight.current) {
       // The line is wrapped -> find fit in line above
-      const inputOffset = currentLine.offsetLeft;
+      const inputOffset = currentLineInput.offsetLeft;
 
-      // Najit misto kde ma byt input
+      // Count the final index
       let targetIndex =
-        inputIndexOnLine > 0 && splitLine[inputIndexOnLine - 1].length > 0
-          ? findClosestIndex(splitLine[inputIndexOnLine - 1], inputOffset)
+        inputIndexOnLine > 0 && splitLine[inputLine - 1].length > 0
+          ? findClosestIndex(splitLine[inputLine - 1], inputOffset)
           : 0;
 
-      if (inputIndexOnLine > 0) {
-        for (let i = 0; i < inputIndexOnLine - 1; i++) {
+      // Count all blocks before
+      if (inputLine > 0) {
+        for (let i = 0; i < inputLine - 1; i++) {
           targetIndex += splitLine[i].length;
         }
       }
@@ -316,8 +318,55 @@ export default function BlockEditor({
     }
   }
 
+  function moveInputDown() {
+    const domLines = document.getElementsByClassName("line");
+    const lineItems = domLines[inputLineIndex].children;
+
+    const currentLineInput = lineItems[inputIndex] as HTMLElement;
+    const [splitLine, inputLine, inputIndexOnLine] = splitLineBlocks(lineItems);
+
+    // Line wrapped
+    if (domLines[inputLineIndex].clientHeight !== baseLineHeight.current) {
+      // The line is wrapped -> find fit in line above
+      const inputOffset = currentLineInput.offsetLeft;
+      // Count the final index
+      let targetIndex =
+        inputIndexOnLine > 0 && splitLine.length > inputLine
+          ? findClosestIndex(splitLine[inputLine + 1], inputOffset)
+          : 0;
+
+      // Count all blocks before
+      if (inputLine < splitLine.length - 1) {
+        for (let i = 0; i < inputLine + 1; i++) {
+          targetIndex += splitLine[i].length;
+        }
+      }
+      setInputIndex(targetIndex);
+      return;
+
+    } else {
+      // Move input down
+      if (inputText === "" && inputLineIndex < lines.length - 1) {
+        setInputLineIndex(inputLineIndex + 1);
+
+        // Is there line below?
+        // Is upper line longer? -> set input index to end of lower line
+        if (inputIndex > lines[inputLineIndex + 1].length) {
+          // setInputIndex(lines[inputLineIndex + 1].length);
+          // TODO: dat na spravne misto 
+          setInputIndex(0);
+        }
+      }
+      return;
+    }
+  }
+
   // Finds the smallest difference in block positions to input position
   function findClosestIndex(values: number[], inputPosition: number) {
+    // if(inputPosition > values[values.length - 1]){
+    //     return values.length
+    // }
+
     let closestIndex = 0;
     let minDiff = Math.abs(values[0] - inputPosition);
 
@@ -345,12 +394,13 @@ export default function BlockEditor({
     let indexOnLine = 0;
 
     for (const block of blocks) {
-      // New Line
+      // New Line? 
       if (lastLineOffset < block.offsetTop) {
         lineNumber++;
         indexOnLine = 0;
         lastLineOffset = block.offsetTop;
 
+        // Is it input?
         if (block.className === "input-box") {
           inputLine = lineNumber;
           inputIndexOnLine = indexOnLine;
@@ -358,8 +408,7 @@ export default function BlockEditor({
           continue; //! ????
         }
 
-        returnArray[lineNumber] = [block.offsetLeft];
-        continue;
+        returnArray[lineNumber] = [];
       }
 
       if (block.className === "input-box") {
