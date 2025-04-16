@@ -289,8 +289,9 @@ export default function BlockEditor({
   function moveInputUp() {
     const domLines = document.getElementsByClassName("line");
 
-    // Is the line wrapped?
+    // Line not wrapped
     if (domLines[inputLineIndex].clientHeight === baseLineHeight.current) {
+
       if (inputText === "" && inputLineIndex > 0) {
         setInputLineIndex(inputLineIndex - 1);
 
@@ -299,23 +300,34 @@ export default function BlockEditor({
           setInputIndex(lines[inputLineIndex - 1].length);
         }
       }
+
     } else {
       // The line is wrapped -> find fit in line above, if input not in first line
       const lineItems = domLines[inputLineIndex].children;
-
-      // Input on first line
+        
       const currentLine = lineItems[inputIndex] as HTMLElement;
-      if (currentLine.offsetTop < baseLineHeight.current) {
+      const [splitLine, inputLine] = splitLineBlocks(lineItems);
+      
+      // Input on first line
+      if (inputLine === 0) {
 
         // Move input up
         if (inputText === "" && inputLineIndex > 0) {
           setInputLineIndex(inputLineIndex - 1);
+          
+          if (inputIndex > lines[inputLineIndex - 1].length) {
+            setInputIndex(lines[inputLineIndex - 1].length);
+          }
         }
 
       } else {
         // Input in wrapped part -> move one line up and find suitable spot
         const inputOffset = currentLine.offsetLeft;
-        const [splitLine, inputLine] = splitLineBlocks(lineItems);
+
+        // Inp
+        if(inputLine === 0 && inputLineIndex > 0){
+            setInputLineIndex(inputLineIndex - 1);
+        }
 
         // Najit misto kde ma byt input
         let targetIndex = (inputLine > 0 && splitLine[inputLine - 1].length > 0) ? findClosestIndex(splitLine[inputLine - 1], inputOffset) : 0;
@@ -345,7 +357,7 @@ export default function BlockEditor({
     return closestIndex
   }
 
-  // Returns offset left array of blocks on lines
+  // Returns offsetLeft array of blocks on lines and an index of line input is on
   function splitLineBlocks(blocks: HTMLCollection): [number[][], number] {
     let returnArray: number[][] = [[]];
     let lastLineOffset = blocks[0].offsetTop;
@@ -353,7 +365,6 @@ export default function BlockEditor({
     let inputLine = 0;
 
     for (const block of blocks) {
-        // console.log(block)
       if (lastLineOffset < block.offsetTop) {
         index++;
         lastLineOffset = block.offsetTop;
