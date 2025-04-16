@@ -56,65 +56,9 @@ export default function BlockEditor({
     // console.log(blocks)
   }, [blocks]);
 
-  //   // Check for line-wrapping
-  //   useEffect(() => {
-  //     let changed = false;
-
-  //     if (checkLineHeight(inputLineIndex)) {
-  //       changed = true;
-  //     }
-
-  //     if (!changed && inputLineIndex > 0 && checkLineHeight(inputLineIndex - 1)) {
-  //       changed = true;
-  //     }
-  //   }, [blocks, inputText]);
-
   function convertToBlocks(text: string) {
     if (text === "") return [];
     return text.split(" ");
-  }
-
-  // Checks if line has wrapped
-  // When adding new line, \r get set as line divider, not \n!!
-  // It is because there wouln't be a way to know if the line below is made to prevent wrapping or if it is a new line on purpose
-  function checkLineHeight(line: number) {
-    const domLines = document.getElementsByClassName("line");
-
-    // Is checked line higher than base line
-    if (domLines[line].scrollHeight <= baseLineHeight.current) {
-      return false;
-    }
-
-    // If there already is new line, do nothing (prevents endless cycle of new lines)
-    const insertIndex = countInsertIndex();
-    if (blocks[insertIndex - 1] === "\n") {
-      return false;
-    }
-
-    // Input not on end -> move last block to next line
-    if (inputIndex !== lines[inputLineIndex].length) {
-      // Is there already a wrapped line ("\r")? -> Swap "\r" with element before
-      const possibleWrapIndex =
-        insertIndex - inputIndex + lines[inputLineIndex].length;
-      if (blocks[possibleWrapIndex] === "\r") {
-        const newBlocks = [...blocks];
-        [newBlocks[possibleWrapIndex], newBlocks[possibleWrapIndex - 1]] = [
-          newBlocks[possibleWrapIndex - 1],
-          newBlocks[possibleWrapIndex],
-        ];
-        setBlocks(newBlocks);
-        return true;
-      } else {
-        addNewLine(possibleWrapIndex - 1, false, true);
-        return true;
-      }
-    }
-
-    addNewLine(countInsertIndex(), false, true);
-
-    setInputIndex(0);
-    setInputLineIndex(inputLineIndex + 1);
-    return true;
   }
 
   // Adds new line to WHERE position
@@ -244,15 +188,6 @@ export default function BlockEditor({
       case "ArrowDown":
         e.preventDefault();
         moveInputDown();
-        // if (inputText === "" && inputLineIndex < lines.length - 1) {
-        //   setInputLineIndex(inputLineIndex + 1);
-
-        //   // Is there line below?
-        //   // Is upper line longer? -> set input index to end of lower line
-        //   if (inputIndex > lines[inputLineIndex + 1].length) {
-        //     setInputIndex(lines[inputLineIndex + 1].length);
-        //   }
-        // }
         break;
 
       case "Enter":
@@ -387,7 +322,7 @@ export default function BlockEditor({
     blocks: HTMLCollection
   ): [number[][], number, number] {
     const returnArray: number[][] = [[]];
-    let lastLineOffset = blocks[0].offsetTop;
+    let lastLineOffset = (blocks[0] as HTMLElement).offsetTop;
     let lineNumber = 0; // Which line we are on in wrapped line
     let inputLine = 0; // Which line the input is on
     let inputIndexOnLine = 0; // Input index on line
@@ -395,17 +330,17 @@ export default function BlockEditor({
 
     for (const block of blocks) {
       // New Line? 
-      if (lastLineOffset < block.offsetTop) {
+      if (lastLineOffset < (block as HTMLElement).offsetTop) {
         lineNumber++;
         indexOnLine = 0;
-        lastLineOffset = block.offsetTop;
+        lastLineOffset = (block as HTMLElement).offsetTop;
 
         // Is it input?
         if (block.className === "input-box") {
           inputLine = lineNumber;
           inputIndexOnLine = indexOnLine;
           returnArray[lineNumber] = [];
-          continue; //! ????
+          continue;
         }
 
         returnArray[lineNumber] = [];
@@ -414,11 +349,11 @@ export default function BlockEditor({
       if (block.className === "input-box") {
         inputLine = lineNumber;
         inputIndexOnLine = indexOnLine;
-        continue; //! ????
+        continue;
       }
 
       indexOnLine++;
-      returnArray[lineNumber].push(block.offsetLeft);
+      returnArray[lineNumber].push((block as HTMLElement).offsetLeft);
     }
 
     return [returnArray, inputLine, inputIndexOnLine];
