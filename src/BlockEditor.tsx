@@ -219,8 +219,17 @@ export default function BlockEditor({
     // Input on first line
     if (inputLine === 0) {
       if (inputText === "" && inputLineIndex > 0) {
+        //Empty line above
+        if (lines[inputLineIndex - 1].length === 0) {
+          setInputLineIndex(inputLineIndex - 1);
+          setInputIndex(0);
+          return;
+        }
+
         // Previous line blocks
-        const [splitLinePrevious] = splitLineBlocks(domLines[inputLineIndex - 1].children);
+        const [splitLinePrevious] = splitLineBlocks(
+          domLines[inputLineIndex - 1].children
+        );
         const targetLine = splitLinePrevious[splitLinePrevious.length - 1];
         let targetLineIndex = findClosestIndex(targetLine, inputOffset);
 
@@ -249,6 +258,7 @@ export default function BlockEditor({
     }
   }
 
+  // TODO: Clean this up and handle inputText?
   function moveInputDown() {
     const domLines = document.getElementsByClassName("line");
     const lineItems = domLines[inputLineIndex].children;
@@ -262,7 +272,12 @@ export default function BlockEditor({
     if (domLines[inputLineIndex].clientHeight !== baseLineHeight.current) {
       // Input on last line
       if (inputLine === splitLine.length - 1) {
-        if (inputLineIndex !== lines.length - 1) {
+        if (inputText === "" && inputLineIndex !== lines.length - 1) {
+          if (lines[inputLineIndex + 1].length === 0) {
+            setInputLineIndex(inputLineIndex + 1);
+            setInputIndex(0);
+            return;
+          }
           const [splitLineNext] = splitLineBlocks(
             domLines[inputLineIndex + 1].children
           );
@@ -286,6 +301,11 @@ export default function BlockEditor({
     } else {
       // Move input down
       if (inputText === "" && inputLineIndex !== lines.length - 1) {
+        if (lines[inputLineIndex + 1].length === 0) {
+          setInputLineIndex(inputLineIndex + 1);
+          setInputIndex(0);
+          return;
+        }
         const [splitLineNext] = splitLineBlocks(
           domLines[inputLineIndex + 1].children
         );
