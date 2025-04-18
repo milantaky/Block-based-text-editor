@@ -259,48 +259,65 @@ export default function BlockEditor({
     const currentLineInput = lineItems[inputIndex] as HTMLElement;
     const [splitLine, inputLine, inputIndexOnLine] = splitLineBlocks(lineItems);
 
+    const inputOffset = currentLineInput.offsetLeft;
+
     // Line wrapped
     if (domLines[inputLineIndex].clientHeight !== baseLineHeight.current) {
-      // The line is wrapped -> find fit in line above
-      const inputOffset = currentLineInput.offsetLeft;
-
       // Input on last line
       if (inputLine === splitLine.length - 1) {
-        setInputLineIndex(inputLineIndex + 1);
+        if (inputLineIndex !== lines.length - 1) {
+          const [splitLineNext] = splitLineBlocks(
+            domLines[inputLineIndex + 1].children
+          );
 
-        // ! TOHLE ZATIM - Najit kam se ma vlozit na novem uplne radku, setnout to a return
-        setInputIndex(0);
+          setInputIndex(findClosestIndex(splitLineNext[0], inputOffset));
+          setInputLineIndex(inputLineIndex + 1);
+        }
+
         return;
       }
 
-      // Target index on next line (wrapped)
-      let targetIndex = 0;
-      if (inputIndexOnLine > 0 && splitLine.length - 1 > inputLine) {
-        targetIndex = findClosestIndex(splitLine[inputLine + 1], inputOffset);
-      }
-
-      // Count all blocks before the target line and index
-      for (let i = 0; i <= inputLine; i++) {
-        targetIndex += splitLine[i].length;
-      }
+      const targetIndex = findTargetInputIndexDown(
+        inputIndexOnLine,
+        splitLine,
+        inputOffset,
+        inputLine
+      );
 
       setInputIndex(targetIndex);
       return;
     } else {
       // Move input down
-      if (inputText === "" && inputLineIndex < lines.length - 1) {
-        setInputLineIndex(inputLineIndex + 1);
+      if (inputText === "" && inputLineIndex !== lines.length - 1) {
+        const [splitLineNext] = splitLineBlocks(
+          domLines[inputLineIndex + 1].children
+        );
 
-        // Is there line below?
-        // Is upper line longer? -> set input index to end of lower line
-        if (inputIndex > lines[inputLineIndex + 1].length) {
-          // setInputIndex(lines[inputLineIndex + 1].length);
-          // TODO: dat na spravne misto
-          setInputIndex(lines[inputLineIndex + 1].length);
-        }
+        setInputIndex(findClosestIndex(splitLineNext[0], inputOffset));
+        setInputLineIndex(inputLineIndex + 1);
       }
       return;
     }
+  }
+
+  // Finds the target input in line below, and adds blocks before
+  function findTargetInputIndexDown(
+    inputIndexOnLine: number,
+    splitLine: number[][],
+    inputOffset: number,
+    inputLine: number
+  ) {
+    let targetIndex = 0;
+    if (inputIndexOnLine > 0 && splitLine.length - 1 > inputLine) {
+      targetIndex = findClosestIndex(splitLine[inputLine + 1], inputOffset);
+    }
+
+    // Count all blocks before the target line and index
+    for (let i = 0; i <= inputLine; i++) {
+      targetIndex += splitLine[i].length;
+    }
+
+    return targetIndex;
   }
 
   // Finds the smallest difference in block positions to input position
@@ -319,8 +336,6 @@ export default function BlockEditor({
         closestIndex = i;
       }
     }
-
-    console.log("tutuu", closestIndex);
 
     return closestIndex;
   }
