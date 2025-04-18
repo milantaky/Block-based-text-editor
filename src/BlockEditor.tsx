@@ -37,6 +37,11 @@ export default function BlockEditor({
     }
   }, []);
 
+  // Update ref for parent
+  useEffect(() => {
+    blocksRef.current = blocks;
+  }, [blocks]);
+
   // Focuses editor, and sets caret on end of input when editing it
   useEffect(() => {
     if (inputRef.current) {
@@ -49,12 +54,6 @@ export default function BlockEditor({
       }
     }
   }, [blocks, inputIndex, inputLineIndex, inputText]);
-
-  // Update ref for parent
-  useEffect(() => {
-    blocksRef.current = blocks;
-    // console.log(blocks)
-  }, [blocks]);
 
   function convertToBlocks(text: string) {
     if (text === "") return [];
@@ -264,21 +263,29 @@ export default function BlockEditor({
     if (domLines[inputLineIndex].clientHeight !== baseLineHeight.current) {
       // The line is wrapped -> find fit in line above
       const inputOffset = currentLineInput.offsetLeft;
-      // Count the final index
-      let targetIndex =
-        inputIndexOnLine > 0 && splitLine.length > inputLine
-          ? findClosestIndex(splitLine[inputLine + 1], inputOffset)
-          : 0;
 
-      // Count all blocks before
-      if (inputLine < splitLine.length - 1) {
-        for (let i = 0; i < inputLine + 1; i++) {
-          targetIndex += splitLine[i].length;
-        }
+      // Input on last line
+      if (inputLine === splitLine.length - 1) {
+        setInputLineIndex(inputLineIndex + 1);
+
+        // ! TOHLE ZATIM - Najit kam se ma vlozit na novem uplne radku, setnout to a return
+        setInputIndex(0);
+        return;
       }
+
+      // Target index on next line (wrapped)
+      let targetIndex = 0;
+      if (inputIndexOnLine > 0 && splitLine.length - 1 > inputLine) {
+        targetIndex = findClosestIndex(splitLine[inputLine + 1], inputOffset);
+      }
+
+      // Count all blocks before the target line and index
+      for (let i = 0; i <= inputLine; i++) {
+        targetIndex += splitLine[i].length;
+      }
+
       setInputIndex(targetIndex);
       return;
-
     } else {
       // Move input down
       if (inputText === "" && inputLineIndex < lines.length - 1) {
@@ -288,8 +295,8 @@ export default function BlockEditor({
         // Is upper line longer? -> set input index to end of lower line
         if (inputIndex > lines[inputLineIndex + 1].length) {
           // setInputIndex(lines[inputLineIndex + 1].length);
-          // TODO: dat na spravne misto 
-          setInputIndex(0);
+          // TODO: dat na spravne misto
+          setInputIndex(lines[inputLineIndex + 1].length);
         }
       }
       return;
@@ -313,6 +320,8 @@ export default function BlockEditor({
       }
     }
 
+    console.log("tutuu", closestIndex);
+
     return closestIndex;
   }
 
@@ -329,7 +338,7 @@ export default function BlockEditor({
     let indexOnLine = 0;
 
     for (const block of blocks) {
-      // New Line? 
+      // New Line?
       if (lastLineOffset < (block as HTMLElement).offsetTop) {
         lineNumber++;
         indexOnLine = 0;
