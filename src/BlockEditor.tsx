@@ -269,26 +269,10 @@ export default function BlockEditor({
     const inputOffset = currentLineInput.offsetLeft;
 
     // Line wrapped
-    if (domLines[inputLineIndex].clientHeight !== baseLineHeight.current) {
-      // Input on last line
-      if (inputLine === splitLine.length - 1) {
-        if (inputText === "" && inputLineIndex !== lines.length - 1) {
-          if (lines[inputLineIndex + 1].length === 0) {
-            setInputLineIndex(inputLineIndex + 1);
-            setInputIndex(0);
-            return;
-          }
-          const [splitLineNext] = splitLineBlocks(
-            domLines[inputLineIndex + 1].children
-          );
-
-          setInputIndex(findClosestIndex(splitLineNext[0], inputOffset));
-          setInputLineIndex(inputLineIndex + 1);
-        }
-
-        return;
-      }
-
+    if (
+      domLines[inputLineIndex].clientHeight !== baseLineHeight.current &&
+      inputLine !== splitLine.length - 1
+    ) {
       const targetIndex = findTargetInputIndexDown(
         inputIndexOnLine,
         splitLine,
@@ -297,7 +281,6 @@ export default function BlockEditor({
       );
 
       setInputIndex(targetIndex);
-      return;
     } else {
       // Move input down
       if (inputText === "" && inputLineIndex !== lines.length - 1) {
@@ -313,7 +296,6 @@ export default function BlockEditor({
         setInputIndex(findClosestIndex(splitLineNext[0], inputOffset));
         setInputLineIndex(inputLineIndex + 1);
       }
-      return;
     }
   }
 
@@ -362,8 +344,8 @@ export default function BlockEditor({
 
   // Finds the smallest difference in block positions to input position
   function findClosestIndex(values: number[], inputPosition: number) {
-    if(inputPosition > values[values.length - 1]){
-        return values.length
+    if (inputPosition > values[values.length - 1]) {
+      return values.length;
     }
 
     let closestIndex = 0;
