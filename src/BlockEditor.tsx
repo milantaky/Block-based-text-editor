@@ -214,17 +214,23 @@ export default function BlockEditor({
     const currentLineInput = lineItems[inputIndex] as HTMLElement;
     const [splitLine, inputLine, inputIndexOnLine] = splitLineBlocks(lineItems);
 
+    const inputOffset = currentLineInput.offsetLeft;
+
     // Input on first line
     if (inputLine === 0) {
-      // Move input up
       if (inputText === "" && inputLineIndex > 0) {
-        setInputLineIndex(inputLineIndex - 1);
+        // Previous line blocks
+        const [splitLinePrevious] = splitLineBlocks(domLines[inputLineIndex - 1].children);
+        const targetLine = splitLinePrevious[splitLinePrevious.length - 1];
+        let targetLineIndex = findClosestIndex(targetLine, inputOffset);
 
-        // If lower line is longer, set input index to end of upper line
-        // TODO: vylepsit
-        if (inputIndex > lines[inputLineIndex - 1].length) {
-          setInputIndex(lines[inputLineIndex - 1].length);
+        // Add all blocks before
+        for (let i = 0; i < splitLinePrevious.length - 1; i++) {
+          targetLineIndex += splitLinePrevious[i].length;
         }
+
+        setInputIndex(targetLineIndex);
+        setInputLineIndex(inputLineIndex - 1);
       }
 
       return;
@@ -232,21 +238,12 @@ export default function BlockEditor({
 
     // Line wrapped
     if (domLines[inputLineIndex].clientHeight !== baseLineHeight.current) {
-      // The line is wrapped -> find fit in line above
-      const inputOffset = currentLineInput.offsetLeft;
-
-      // Count the final index
-      let targetIndex =
-        inputIndexOnLine > 0 && splitLine[inputLine - 1].length > 0
-          ? findClosestIndex(splitLine[inputLine - 1], inputOffset)
-          : 0;
-
-      // Count all blocks before
-      if (inputLine > 0) {
-        for (let i = 0; i < inputLine - 1; i++) {
-          targetIndex += splitLine[i].length;
-        }
-      }
+      const targetIndex = findTargetInputIndexUp(
+        inputIndexOnLine,
+        splitLine,
+        inputOffset,
+        inputLine
+      );
 
       setInputIndex(targetIndex);
     }
@@ -315,6 +312,29 @@ export default function BlockEditor({
     // Count all blocks before the target line and index
     for (let i = 0; i <= inputLine; i++) {
       targetIndex += splitLine[i].length;
+    }
+
+    return targetIndex;
+  }
+
+  // Finds the target input in line above, and adds blocks before
+  function findTargetInputIndexUp(
+    inputIndexOnLine: number,
+    splitLine: number[][],
+    inputOffset: number,
+    inputLine: number
+  ) {
+    // Count the final index
+    let targetIndex =
+      inputIndexOnLine > 0 && splitLine[inputLine - 1].length > 0
+        ? findClosestIndex(splitLine[inputLine - 1], inputOffset)
+        : 0;
+
+    // Count all blocks before
+    if (inputLine > 0) {
+      for (let i = 0; i < inputLine - 1; i++) {
+        targetIndex += splitLine[i].length;
+      }
     }
 
     return targetIndex;
