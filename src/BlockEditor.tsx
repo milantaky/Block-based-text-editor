@@ -362,9 +362,9 @@ export default function BlockEditor({
 
   // Finds the smallest difference in block positions to input position
   function findClosestIndex(values: number[], inputPosition: number) {
-    // if(inputPosition > values[values.length - 1]){
-    //     return values.length
-    // }
+    if(inputPosition > values[values.length - 1]){
+        return values.length
+    }
 
     let closestIndex = 0;
     let minDiff = Math.abs(values[0] - inputPosition);
