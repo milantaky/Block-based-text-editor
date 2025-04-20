@@ -59,13 +59,15 @@ export default function BlockEditor({
   // Splits text into blocks of words, gives them index, and category (wordType)
   // Runs when the block editor is first rendered
   function convertToBlocks(text: string) {
-    // if (text === "") return [];
-    // return text.split(" ");
-
     if (text === "") return [];
 
     const newBlocks: blockProps[] = [];
-    const splitBlocks = text.split(" ");
+    const splitBlocks = text.split(" ").flatMap((item) => {
+      const parts = item.split("\n");
+      return parts.flatMap((part, index) => {
+        return index < parts.length - 1 ? [part, "\n"] : [part];
+      });
+    });
 
     // Go through each word, make a block, and add it to blocks
     splitBlocks.map((block, index) => {

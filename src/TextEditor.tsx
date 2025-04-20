@@ -39,6 +39,7 @@ export default function TextEditor({
 
   function convertToText(blockArray: blockProps[]) {
     return blockArray.map(block => block.content).join(" ");
+    // return blockArray.map(block => block.content).filter(word => word !== "\n").join(" ");
   }
 
   function highlightWords(text: string) {
