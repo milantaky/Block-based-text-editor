@@ -5,9 +5,15 @@ import "./App.css";
 
 type mode = "Blocks" | "Text";
 
+type blockProps = {
+  index: number;
+  content: string;
+  wordType: number;
+};
+
 export default function App() {
   const [editorMode, setEditorMode] = useState<mode>("Blocks");
-  const blocksRef = useRef<string[]>([]);
+  const blocksRef = useRef<blockProps[]>([]);
   const textRef = useRef<string>("");
 
   function toggleEditorMode() {

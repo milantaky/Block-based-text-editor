@@ -1,11 +1,17 @@
 import { useRef, useState, useEffect } from "react";
 import "./TextEditor.css";
 
+type blockProps = {
+  index: number;
+  content: string;
+  wordType: number;
+};
+
 export default function TextEditor({
   blocks,
   textRef,
 }: {
-  blocks: string[];
+  blocks: blockProps[];
   textRef: React.MutableRefObject<string>;
 }) {
   const [text, setText] = useState(convertToText(blocks));
@@ -31,8 +37,8 @@ export default function TextEditor({
     }
   }
 
-  function convertToText(blockArray: string[]) {
-    return blockArray.join(" ");
+  function convertToText(blockArray: blockProps[]) {
+    return blockArray.map(block => block.content).join(" ");
   }
 
   function highlightWords(text: string) {

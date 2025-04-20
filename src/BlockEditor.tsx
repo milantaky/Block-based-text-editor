@@ -5,7 +5,7 @@ import "./BlockEditor.css";
 type blockProps = {
   index: number;
   content: string;
-  //   wordType: number;
+  wordType: number;
 };
 
 export default function BlockEditor({
@@ -13,9 +13,10 @@ export default function BlockEditor({
   blocksRef,
 }: {
   text: string;
-  blocksRef: React.MutableRefObject<string[]>;
+  blocksRef: React.MutableRefObject<blockProps[]>;
 }) {
-  const [blocks, setBlocks] = useState<string[]>(convertToBlocks(text));
+  const [blocks, setBlocks] = useState<blockProps[]>(convertToBlocks(text));
+  const [nextBlockIndex, setNextBlockIndex] = useState(text.split("").length);
   const [inputText, setInputText] = useState("");
   const [inputIndex, setInputIndex] = useState(0); // This index says before which block the input is
   const [inputLineIndex, setInputLineIndex] = useState(0); // Which line the input is on (0 = first line)
@@ -55,27 +56,53 @@ export default function BlockEditor({
     }
   }, [blocks, inputIndex, inputLineIndex, inputText]);
 
+  // Splits text into blocks of words, gives them index, and category (wordType)
+  // Runs when the block editor is first rendered
   function convertToBlocks(text: string) {
+    // if (text === "") return [];
+    // return text.split(" ");
+
     if (text === "") return [];
-    return text.split(" ");
+
+    const newBlocks: blockProps[] = [];
+    const splitBlocks = text.split(" ");
+
+    // Go through each word, make a block, and add it to blocks
+    splitBlocks.map((block, index) => {
+      const newBlock = {
+        index: index,
+        content: block,
+        wordType: getWordType(block),
+      };
+
+      newBlocks[index] = newBlock;
+    });
+
+    return newBlocks;
+  }
+
+  // TODO
+  // Gets word type
+  function getWordType(word: string) {
+    return 0;
   }
 
   // Adds new line to WHERE position
   // - If inputAlso, it makes a new block, before adding line with inputText
   // - Updates blocks state!
   // - Possibly updates inputText state!
-  function addNewLine(where: number, inputAlso?: boolean, split?: boolean) {
+  function addNewLine(where: number, inputAlso?: boolean) {
     const newBlocks = [...blocks];
 
     if (inputAlso) {
-      newBlocks.splice(where, 0, inputText.trim(), "\n");
+      newBlocks.splice(where, 0, makeBlock(inputText.trim()), {
+        index: -1,
+        content: "\n",
+        wordType: 0,
+      });
       setInputText("");
     } else {
-      if (split) {
-        newBlocks.splice(where, 0, "\r");
-      } else {
-        newBlocks.splice(where, 0, "\n");
-      }
+      newBlocks.splice(where, 0, { index: -1, content: "\n", wordType: 0 });
     }
 
     setBlocks(newBlocks);
@@ -111,27 +138,28 @@ export default function BlockEditor({
         if (inputText.trim() !== "") {
           // First Block
           if (blocks.length === 0) {
-            setBlocks([inputText.trim()]);
+            setBlocks([makeBlock(inputText.trim())]);
           } else {
             // Input on end
             if (
               inputIndex === lines[inputLineIndex].length &&
               inputLineIndex === lines.length - 1
             ) {
-              setBlocks([...blocks, inputText.trim()]);
+              setBlocks((prev) => [...prev, makeBlock(inputText.trim())]);
             }
             // Input not on end
             else {
               const insertIndex = countInsertIndex();
               setBlocks((prevBlocks) => [
                 ...prevBlocks.slice(0, insertIndex),
-                inputText.trim(),
+                makeBlock(inputText.trim()),
                 ...prevBlocks.slice(insertIndex),
               ]);
             }
           }
           setInputText("");
           setInputIndex(inputIndex + 1);
+          //   setNextBlockIndex(nextBlockIndex + 1);
         }
         break;
 
@@ -148,7 +176,7 @@ export default function BlockEditor({
               setInputLineIndex(inputLineIndex - 1);
             } else {
               const insertIndex = countInsertIndex();
-              setInputText(blocks[insertIndex - 1]);
+              setInputText(blocks[insertIndex - 1].content);
               setInputIndex(inputIndex - 1);
 
               setBlocks(
@@ -207,6 +235,17 @@ export default function BlockEditor({
     }
   }
 
+  function makeBlock(text: string) {
+    const newBlock: blockProps = {
+      index: nextBlockIndex,
+      content: text,
+      wordType: getWordType(text),
+    };
+
+    setNextBlockIndex(nextBlockIndex + 1);
+    return newBlock;
+  }
+
   function moveInputUp() {
     const domLines = document.getElementsByClassName("line");
     const lineItems = domLines[inputLineIndex].children;
@@ -258,7 +297,7 @@ export default function BlockEditor({
     }
   }
 
-  // TODO: Clean this up and handle inputText?
+  // TODO: handle inputText?
   function moveInputDown() {
     const domLines = document.getElementsByClassName("line");
     const lineItems = domLines[inputLineIndex].children;
@@ -406,13 +445,13 @@ export default function BlockEditor({
   }
 
   // Splits blocks into separate lines
-  function splitLines(blocks: string[]): string[][] {
-    const lines: string[][] = [[]];
+  function splitLines(blocks: blockProps[]): blockProps[][] {
+    const lines: blockProps[][] = [[]];
     let index = 0;
 
     blocks.forEach((block) => {
       // If \n add line, else add to previous line
-      if (block === "\n") {
+      if (block.content === "\n") {
         index++;
         lines[index] = [];
       } else {
@@ -481,6 +520,7 @@ export default function BlockEditor({
   function Block({
     index,
     content,
+    wordType,
     lineIndex,
   }: blockProps & { lineIndex: number }) {
     return (
@@ -544,14 +584,15 @@ export default function BlockEditor({
       // Lines and blocks
       return (
         <Line lineIndex={lineIndex}>
-          {line.map((word, wordIndex) => {
+          {line.map((block, wordIndex) => {
             // ========== Line without input
             if (lineIndex !== inputLineIndex) {
               return (
                 <Block
-                  key={wordIndex}
-                  index={wordIndex}
-                  content={word}
+                  key={block.index}
+                  index={block.index}
+                  content={block.content}
+                  wordType={block.wordType}
                   lineIndex={lineIndex}
                 />
               );
@@ -564,9 +605,10 @@ export default function BlockEditor({
                 <>
                   <InputBox />
                   <Block
-                    key={wordIndex}
-                    index={wordIndex}
-                    content={word}
+                    key={block.index}
+                    index={block.index}
+                    content={block.content}
+                    wordType={block.wordType}
                     lineIndex={lineIndex}
                   />
                 </>
@@ -577,9 +619,10 @@ export default function BlockEditor({
               return (
                 <>
                   <Block
-                    key={wordIndex}
-                    index={wordIndex}
-                    content={word}
+                    key={block.index}
+                    index={block.index}
+                    content={block.content}
+                    wordType={block.wordType}
                     lineIndex={lineIndex}
                   />
                   <InputBox />
@@ -590,9 +633,10 @@ export default function BlockEditor({
             else {
               return (
                 <Block
-                  key={wordIndex}
-                  index={wordIndex}
-                  content={word}
+                  key={block.index}
+                  index={block.index}
+                  content={block.content}
+                  wordType={block.wordType}
                   lineIndex={lineIndex}
                 />
               );
