@@ -1,11 +1,17 @@
 import { useRef, useState, useEffect } from "react";
 import "./TextEditor.css";
 
+type blockProps = {
+  index: number;
+  content: string;
+  wordType: number;
+};
+
 export default function TextEditor({
   blocks,
   textRef,
 }: {
-  blocks: string[];
+  blocks: blockProps[];
   textRef: React.MutableRefObject<string>;
 }) {
   const [text, setText] = useState(convertToText(blocks));
@@ -19,7 +25,7 @@ export default function TextEditor({
     }
   }, []);
 
-  // Sets current text to ref for parent (App) to see 
+  // Sets current text to ref for parent (App) to see
   useEffect(() => {
     textRef.current = text;
   }, [text]);
@@ -31,8 +37,23 @@ export default function TextEditor({
     }
   }
 
-  function convertToText(blockArray: string[]) {
-    return blockArray.join(" ");
+  // Converts blocks to text -> leaves spaces around '\n'
+  function convertToText(blockArray: blockProps[]) {
+    let result = "";
+    let prevWasNewline = false;
+
+    for (const block of blockArray) {
+      const isNewline = block.content === "\n";
+
+      if (!isNewline && result && !prevWasNewline) {
+        result += " ";
+      }
+
+      result += block.content;
+      prevWasNewline = isNewline;
+    }
+
+    return result;
   }
 
   function highlightWords(text: string) {
