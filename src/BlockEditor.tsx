@@ -1,12 +1,7 @@
 import { useState, useRef, useEffect, ReactNode } from "react";
+import type { blockProps } from "./types";
 // import languages from "./wordCategories.tsx";
 import "./BlockEditor.css";
-
-type blockProps = {
-  index: number;
-  content: string;
-  wordType: number;
-};
 
 export default function BlockEditor({
   text,

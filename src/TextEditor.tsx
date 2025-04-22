@@ -1,11 +1,6 @@
 import { useRef, useState, useEffect } from "react";
+import type { blockProps } from "./types";
 import "./TextEditor.css";
-
-type blockProps = {
-  index: number;
-  content: string;
-  wordType: number;
-};
 
 export default function TextEditor({
   blocks,
