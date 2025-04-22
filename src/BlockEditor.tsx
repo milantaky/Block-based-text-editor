@@ -105,7 +105,11 @@ export default function BlockEditor({
       });
       setInputText("");
     } else {
-      newBlocks.splice(where, 0, { index: nextBlockIndex + 1, content: "\n", wordType: 0 });
+      newBlocks.splice(where, 0, {
+        index: nextBlockIndex + 1,
+        content: "\n",
+        wordType: 0,
+      });
     }
 
     setBlocks(newBlocks);
@@ -563,12 +567,11 @@ export default function BlockEditor({
   }
 
   return lines.map((line, lineIndex) => {
-    console.log(blocks);
     // No Blocks
     if (lines.length === 1 && line.length === 0) {
       return (
         <Line key={lineIndex} lineIndex={lineIndex}>
-          <InputBox key={nextBlockIndex}/>
+          <InputBox key={nextBlockIndex} />
         </Line>
       );
     } else {
@@ -580,7 +583,7 @@ export default function BlockEditor({
       ) {
         return (
           <Line key={lineIndex} lineIndex={lineIndex}>
-            <InputBox key={0}/>
+            <InputBox key={0} />
           </Line>
         );
       }
@@ -607,7 +610,7 @@ export default function BlockEditor({
             if (inputIndex === 0 && wordIndex === 0) {
               return (
                 <>
-                  <InputBox key={nextBlockIndex}/>
+                  <InputBox key={nextBlockIndex} />
                   <Block
                     key={block.index}
                     index={block.index}
@@ -629,7 +632,7 @@ export default function BlockEditor({
                     wordType={block.wordType}
                     lineIndex={lineIndex}
                   />
-                  <InputBox key={nextBlockIndex}/>
+                  <InputBox key={nextBlockIndex} />
                 </>
               );
             }
