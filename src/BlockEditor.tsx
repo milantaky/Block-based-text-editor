@@ -93,21 +93,23 @@ export default function BlockEditor({
   // - If inputAlso, it makes a new block, before adding line with inputText
   // - Updates blocks state!
   // - Possibly updates inputText state!
+  // Maybe adds one more index, but that's not a problem
   function addNewLine(where: number, inputAlso?: boolean) {
     const newBlocks = [...blocks];
 
     if (inputAlso) {
       newBlocks.splice(where, 0, makeBlock(inputText.trim()), {
-        index: -1,
+        index: nextBlockIndex + 1,
         content: "\n",
         wordType: 0,
       });
       setInputText("");
     } else {
-      newBlocks.splice(where, 0, { index: -1, content: "\n", wordType: 0 });
+      newBlocks.splice(where, 0, { index: nextBlockIndex + 1, content: "\n", wordType: 0 });
     }
 
     setBlocks(newBlocks);
+    setNextBlockIndex(nextBlockIndex + 2);
   }
 
   function setCaretToEnd() {
@@ -527,7 +529,6 @@ export default function BlockEditor({
   }: blockProps & { lineIndex: number }) {
     return (
       <div
-        key={index}
         className="block"
         contentEditable
         suppressContentEditableWarning
@@ -562,11 +563,12 @@ export default function BlockEditor({
   }
 
   return lines.map((line, lineIndex) => {
+    console.log(blocks);
     // No Blocks
     if (lines.length === 1 && line.length === 0) {
       return (
-        <Line lineIndex={lineIndex}>
-          <InputBox />
+        <Line key={lineIndex} lineIndex={lineIndex}>
+          <InputBox key={nextBlockIndex}/>
         </Line>
       );
     } else {
@@ -577,15 +579,15 @@ export default function BlockEditor({
         inputLineIndex === lineIndex
       ) {
         return (
-          <Line lineIndex={lineIndex}>
-            <InputBox />
+          <Line key={lineIndex} lineIndex={lineIndex}>
+            <InputBox key={0}/>
           </Line>
         );
       }
 
       // Lines and blocks
       return (
-        <Line lineIndex={lineIndex}>
+        <Line key={lineIndex} lineIndex={lineIndex}>
           {line.map((block, wordIndex) => {
             // ========== Line without input
             if (lineIndex !== inputLineIndex) {
@@ -605,7 +607,7 @@ export default function BlockEditor({
             if (inputIndex === 0 && wordIndex === 0) {
               return (
                 <>
-                  <InputBox />
+                  <InputBox key={nextBlockIndex}/>
                   <Block
                     key={block.index}
                     index={block.index}
@@ -627,7 +629,7 @@ export default function BlockEditor({
                     wordType={block.wordType}
                     lineIndex={lineIndex}
                   />
-                  <InputBox />
+                  <InputBox key={nextBlockIndex}/>
                 </>
               );
             }

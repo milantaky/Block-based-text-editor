@@ -25,7 +25,7 @@ export default function TextEditor({
     }
   }, []);
 
-  // Sets current text to ref for parent (App) to see 
+  // Sets current text to ref for parent (App) to see
   useEffect(() => {
     textRef.current = text;
   }, [text]);
@@ -37,9 +37,23 @@ export default function TextEditor({
     }
   }
 
+  // Converts blocks to text -> leaves spaces around '\n'
   function convertToText(blockArray: blockProps[]) {
-    return blockArray.map(block => block.content).join(" ");
-    // return blockArray.map(block => block.content).filter(word => word !== "\n").join(" ");
+    let result = "";
+    let prevWasNewline = false;
+
+    for (const block of blockArray) {
+      const isNewline = block.content === "\n";
+
+      if (!isNewline && result && !prevWasNewline) {
+        result += " ";
+      }
+
+      result += block.content;
+      prevWasNewline = isNewline;
+    }
+
+    return result;
   }
 
   function highlightWords(text: string) {
