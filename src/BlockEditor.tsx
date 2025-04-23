@@ -53,7 +53,7 @@ export default function BlockEditor({
 
   // Splits text into blocks of words, gives them index, and category (wordType)
   // Runs when the block editor is first rendered
-  function convertToBlocks(text: string) {
+  function convertToBlocks(text: string, addIndex: number = 0) {
     if (text === "") return [];
 
     const newBlocks: blockProps[] = [];
@@ -67,7 +67,7 @@ export default function BlockEditor({
     // Go through each word, make a block, and add it to blocks
     splitBlocks.map((block, index) => {
       const newBlock = {
-        index: index,
+        index: index + addIndex,
         content: block,
         wordType: getWordType(block),
       };
@@ -100,7 +100,11 @@ export default function BlockEditor({
       });
       setInputText("");
     } else {
-      newBlocks.splice(where, 0, { index: nextBlockIndex + 1, content: "\n", wordType: 0 });
+      newBlocks.splice(where, 0, {
+        index: nextBlockIndex + 1,
+        content: "\n",
+        wordType: 0,
+      });
     }
 
     setBlocks(newBlocks);
@@ -465,6 +469,28 @@ export default function BlockEditor({
     setInputText(e.currentTarget.textContent || "");
   }
 
+  // Handles pasting of text through Crtl/Cmd + v -> splits the text into blocks and adds them into state
+  function handlePaste(e: React.ClipboardEvent<HTMLDivElement>) {
+    e.preventDefault();
+
+    // Gets text from clipboard and converts it to blocks with correct indices
+    const pastedText = e.clipboardData.getData("text");
+    let newBlocks = convertToBlocks(pastedText, nextBlockIndex);
+    
+    // Removes empty blocks (spaces)
+    newBlocks = newBlocks.filter(block => block.content !== "");
+
+    // Inserts pasted blocks into blocks state
+    const insertIndex = countInsertIndex();
+    setBlocks((prevBlocks) => [
+      ...prevBlocks.slice(0, insertIndex),
+      ...newBlocks,
+      ...prevBlocks.slice(insertIndex),
+    ]);
+
+    setInputIndex(inputIndex + newBlocks.length);
+  }
+
   // Moves input to place of click.
   function handleClick(
     e: React.MouseEvent<HTMLDivElement>,
@@ -557,92 +583,95 @@ export default function BlockEditor({
     );
   }
 
-  return lines.map((line, lineIndex) => {
-    console.log(blocks);
-    // No Blocks
-    if (lines.length === 1 && line.length === 0) {
-      return (
-        <Line key={lineIndex} lineIndex={lineIndex}>
-          <InputBox key={nextBlockIndex}/>
-        </Line>
-      );
-    } else {
-      // Empty line
-      if (
-        line.length === 0 &&
-        inputIndex === 0 &&
-        inputLineIndex === lineIndex
-      ) {
-        return (
-          <Line key={lineIndex} lineIndex={lineIndex}>
-            <InputBox key={0}/>
-          </Line>
-        );
-      }
+  return (
+    <div className="blockEditor-container" onPaste={(e) => handlePaste(e)}>
+      {lines.map((line, lineIndex) => {
+        // No Blocks
+        if (lines.length === 1 && line.length === 0) {
+          return (
+            <Line key={lineIndex} lineIndex={lineIndex}>
+              <InputBox key={nextBlockIndex} />
+            </Line>
+          );
+        } else {
+          // Empty line
+          if (
+            line.length === 0 &&
+            inputIndex === 0 &&
+            inputLineIndex === lineIndex
+          ) {
+            return (
+              <Line key={lineIndex} lineIndex={lineIndex}>
+                <InputBox key={0} />
+              </Line>
+            );
+          }
 
-      // Lines and blocks
-      return (
-        <Line key={lineIndex} lineIndex={lineIndex}>
-          {line.map((block, wordIndex) => {
-            // ========== Line without input
-            if (lineIndex !== inputLineIndex) {
-              return (
-                <Block
-                  key={block.index}
-                  index={block.index}
-                  content={block.content}
-                  wordType={block.wordType}
-                  lineIndex={lineIndex}
-                />
-              );
-            }
+          // Lines and blocks
+          return (
+            <Line key={lineIndex} lineIndex={lineIndex}>
+              {line.map((block, wordIndex) => {
+                // ========== Line without input
+                if (lineIndex !== inputLineIndex) {
+                  return (
+                    <Block
+                      key={block.index}
+                      index={block.index}
+                      content={block.content}
+                      wordType={block.wordType}
+                      lineIndex={lineIndex}
+                    />
+                  );
+                }
 
-            // ========== Line with input
-            // Input on start of line
-            if (inputIndex === 0 && wordIndex === 0) {
-              return (
-                <>
-                  <InputBox key={nextBlockIndex}/>
-                  <Block
-                    key={block.index}
-                    index={block.index}
-                    content={block.content}
-                    wordType={block.wordType}
-                    lineIndex={lineIndex}
-                  />
-                </>
-              );
-            }
-            // Input after this block
-            else if (inputIndex - 1 === wordIndex) {
-              return (
-                <>
-                  <Block
-                    key={block.index}
-                    index={block.index}
-                    content={block.content}
-                    wordType={block.wordType}
-                    lineIndex={lineIndex}
-                  />
-                  <InputBox key={nextBlockIndex}/>
-                </>
-              );
-            }
-            // Input elsewhere
-            else {
-              return (
-                <Block
-                  key={block.index}
-                  index={block.index}
-                  content={block.content}
-                  wordType={block.wordType}
-                  lineIndex={lineIndex}
-                />
-              );
-            }
-          })}
-        </Line>
-      );
-    }
-  });
+                // ========== Line with input
+                // Input on start of line
+                if (inputIndex === 0 && wordIndex === 0) {
+                  return (
+                    <>
+                      <InputBox key={nextBlockIndex} />
+                      <Block
+                        key={block.index}
+                        index={block.index}
+                        content={block.content}
+                        wordType={block.wordType}
+                        lineIndex={lineIndex}
+                      />
+                    </>
+                  );
+                }
+                // Input after this block
+                else if (inputIndex - 1 === wordIndex) {
+                  return (
+                    <>
+                      <Block
+                        key={block.index}
+                        index={block.index}
+                        content={block.content}
+                        wordType={block.wordType}
+                        lineIndex={lineIndex}
+                      />
+                      <InputBox key={nextBlockIndex} />
+                    </>
+                  );
+                }
+                // Input elsewhere
+                else {
+                  return (
+                    <Block
+                      key={block.index}
+                      index={block.index}
+                      content={block.content}
+                      wordType={block.wordType}
+                      lineIndex={lineIndex}
+                    />
+                  );
+                }
+              })}
+            </Line>
+          );
+        }
+      })}
+    </div>
+  );
 }

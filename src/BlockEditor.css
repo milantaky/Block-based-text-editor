@@ -16,6 +16,12 @@
     border: 1px solid blue;
 }
 
+.blockEditor-container{
+    display: flex;
+    flex-direction: column;
+    gap: 1em;
+}
+
 .input-box:focus {
     outline: 0;
     box-shadow: none;
