@@ -497,44 +497,6 @@ export default function BlockEditor({
     setNextBlockIndex(nextBlockIndex + newBlocks.length);
   }
 
-  // Moves input to place of click.
-  function handleClick(
-    e: React.MouseEvent<HTMLDivElement>,
-    lineIndex: number,
-    blockIndex?: number
-  ) {
-    e.stopPropagation();
-
-    // Clicked on block
-    if (blockIndex !== undefined) {
-      setInputLineIndex(lineIndex);
-      setInputIndex(blockIndex + 1);
-    }
-    // Clicked elsewhere
-    else {
-      setInputLineIndex(lineIndex);
-
-      // All blocks in clicked line
-      const blocks =
-        document.getElementsByClassName("line")[lineIndex].children;
-      const clickedPositionX = e.clientX;
-
-      let insertIndex = lines[lineIndex]?.length || 0;
-
-      for (let i = 0; i < blocks.length; i++) {
-        const block = blocks[i] as HTMLElement;
-        if (block.offsetLeft > clickedPositionX) {
-          insertIndex = i;
-          break;
-        }
-      }
-
-      setInputIndex(insertIndex);
-    }
-
-    setTimeout(() => inputRef.current?.focus(), 0);
-  }
-
   function InputBox() {
     return (
       <div
@@ -650,8 +612,8 @@ export default function BlockEditor({
       const targetIndex = findPositionOfClickOnLine(
         e.clientX,
         e.clientY,
-        e.target.clientHeight,
-        e.target.children
+        (e.target as HTMLElement).clientHeight,
+        (e.target as HTMLElement).children
       );
 
       setInputIndex(targetIndex);
