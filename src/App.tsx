@@ -1,12 +1,12 @@
 import { useState, useRef } from "react";
 import TextEditor from "./TextEditor.tsx";
 import BlockEditor from "./BlockEditor.tsx";
-import type { blockProps, editorMode } from "./types";
+import type { BlockType, editorMode } from "./types";
 import "./App.css";
 
 export default function App() {
   const [editorMode, setEditorMode] = useState<editorMode>("Blocks");
-  const blocksRef = useRef<blockProps[]>([]);
+  const blocksRef = useRef<BlockType[]>([]);
   const textRef = useRef<string>("");
 
   function toggleEditorMode() {

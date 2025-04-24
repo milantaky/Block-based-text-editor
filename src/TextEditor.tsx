@@ -1,12 +1,12 @@
 import { useRef, useState, useEffect } from "react";
-import type { blockProps } from "./types";
+import type { BlockType } from "./types";
 import "./TextEditor.css";
 
 export default function TextEditor({
   blocks,
   textRef,
 }: {
-  blocks: blockProps[];
+  blocks: BlockType[];
   textRef: React.MutableRefObject<string>;
 }) {
   const [text, setText] = useState(convertToText(blocks));
@@ -33,7 +33,7 @@ export default function TextEditor({
   }
 
   // Converts blocks to text -> leaves spaces around '\n'
-  function convertToText(blockArray: blockProps[]) {
+  function convertToText(blockArray: BlockType[]) {
     let result = "";
     let prevWasNewline = false;
 
