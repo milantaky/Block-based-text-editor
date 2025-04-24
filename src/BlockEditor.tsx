@@ -1,15 +1,12 @@
+import "./BlockEditor.css";
 import { useState, useRef, useEffect, ReactNode } from "react";
-// import { DndContext, useDraggable, useDroppable } from "@dnd-kit/core";
+import type { BlockType, blockProps } from "./types";
+// import { DndContext, useDraggable, useDroppable, closestCorners } from "@dnd-kit/core";
 // import {
 //   SortableContext,
 //   horizontalListSortingStrategy,
 // } from "@dnd-kit/sortable";
-import type { BlockType, blockProps } from "./types";
 // import languages from "./wordCategories.tsx";
-import "./BlockEditor.css";
-// import { closestCorners } from "@dnd-kit/core";
-
-// import Block from "./Block.tsx";
 
 export default function BlockEditor({
   text,
@@ -621,9 +618,6 @@ export default function BlockEditor({
                       <Block
                         key={block.index}
                         block={block}
-                        //   index={block.index}
-                        //   content={block.content}
-                        //   wordType={block.wordType}
                         lineIndex={lineIndex}
                       />
                     );
@@ -635,19 +629,9 @@ export default function BlockEditor({
                     return (
                       <>
                         <InputBox key={nextBlockIndex} />
-                        {/* <Block
-                            key={block.index}
-                            index={block.index}
-                            content={block.content}
-                            wordType={block.wordType}
-                            lineIndex={lineIndex}
-                          /> */}
                         <Block
                           key={block.index}
                           block={block}
-                          //   index={block.index}
-                          //   content={block.content}
-                          //   wordType={block.wordType}
                           lineIndex={lineIndex}
                         />
                       </>
@@ -657,19 +641,9 @@ export default function BlockEditor({
                   else if (inputIndex - 1 === wordIndex) {
                     return (
                       <>
-                        {/* <Block
-                            key={block.index}
-                            index={block.index}
-                            content={block.content}
-                            wordType={block.wordType}
-                            lineIndex={lineIndex}
-                          /> */}
                         <Block
                           key={block.index}
                           block={block}
-                          //   index={block.index}
-                          //   content={block.content}
-                          //   wordType={block.wordType}
                           lineIndex={lineIndex}
                         />
                         <InputBox key={nextBlockIndex} />
@@ -679,19 +653,9 @@ export default function BlockEditor({
                   // Input elsewhere
                   else {
                     return (
-                      // <Block
-                      //   key={block.index}
-                      //   index={block.index}
-                      //   content={block.content}
-                      //   wordType={block.wordType}
-                      //   lineIndex={lineIndex}
-                      // />
                       <Block
                         key={block.index}
                         block={block}
-                        //   index={block.index}
-                        //   content={block.content}
-                        //   wordType={block.wordType}
                         lineIndex={lineIndex}
                       />
                     );
