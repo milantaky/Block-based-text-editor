@@ -1,10 +1,12 @@
-const ears = {
+export const ears = {
   keywords: {
     color: "#FFB400",
+    type: 1,
     items: ["while", "when", "where", "if", "shall", "then"],
   },
   relationalOperators: {
     color: "#FF6B6B",
+    type: 2,
     items: [
       "is",
       "and",
@@ -20,29 +22,35 @@ const ears = {
   },
   objects: {
     color: "#4ECDC4",
+    type: 3,
     items: [],
   },
   states: {
     color: "#1A535C",
+    type: 4,
     items: [],
   },
   actors: {
     color: "#F7FFF7",
+    type: 5,
     items: [],
   },
   other: {
     color: "#A9A9A9",
+    type: 0,
     items: [",", ".", "the", "second", "seconds"],
   },
 };
 
-const earsTest = {
+export const earsTest = {
   keywords: {
     color: "#FFB400",
-    items: ["while", "then", "shall", "if"],
+    type: 1,
+    items: ["while", "when", "where", "if", "shall", "then"],
   },
   relationalOperators: {
     color: "#FF6B6B",
+    type: 2,
     items: [
       "is",
       "and",
@@ -56,6 +64,7 @@ const earsTest = {
   },
   objects: {
     color: "#4ECDC4",
+    type: 3,
     items: [
       "left gear state",
       "aircraft speed",
@@ -67,6 +76,7 @@ const earsTest = {
   },
   states: {
     color: "#1A535C",
+    type: 4,
     items: [
       "becomes hazardous",
       "stops being hazardous",
@@ -81,13 +91,12 @@ const earsTest = {
   },
   actors: {
     color: "#F7FFF7",
+    type: 5,
     items: ["LGS Warning System"],
   },
   other: {
     color: "#A9A9A9",
+    type: 0,
     items: [",", ".", "the", "second", "seconds", "previous"],
   },
 };
-
-
-export const languages = [ears, earsTest];

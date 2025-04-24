@@ -1,5 +1,5 @@
 import "./BlockEditor.css";
-// import languages from "./wordCategories.tsx";
+import { earsTest } from "./wordCategories.tsx";
 
 import { useState, useRef, useEffect, ReactNode } from "react";
 import type { BlockType } from "./types";
@@ -10,6 +10,8 @@ import {
   SortableContext,
   horizontalListSortingStrategy,
 } from "@dnd-kit/sortable";
+
+const language = earsTest;
 
 export default function BlockEditor({
   text,
@@ -89,6 +91,14 @@ export default function BlockEditor({
   // TODO
   // Gets word type
   function getWordType(word: string) {
+    for (const [category, data] of Object.entries(language)) {
+      if (data.items.includes(word)) {
+        console.log(`"${word}" is in category "${category}" with color ${data.color}`);
+        return data.type;
+      }
+    }
+
+    console.log(`"${word}" not found in any category.`);
     return 0;
   }
 
@@ -456,10 +466,12 @@ export default function BlockEditor({
             const insertIndex = countInsertIndex();
 
             // Shift -> delete block
-            if(e.shiftKey && inputIndex !== 0){
-                setInputIndex(inputIndex - 1);
-                setBlocks(blocks.filter(block => block.index !== insertIndex - 1));
-                return;
+            if (e.shiftKey && inputIndex !== 0) {
+              setInputIndex(inputIndex - 1);
+              setBlocks(
+                blocks.filter((block) => block.index !== insertIndex - 1)
+              );
+              return;
             }
 
             // Input on start -> deleting line

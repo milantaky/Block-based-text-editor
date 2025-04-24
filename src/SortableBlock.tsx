@@ -20,7 +20,7 @@ export default function SortableBlock({
   return (
     <div
       ref={setNodeRef}
-      className="block"
+      className={`block type-${block.wordType}`}
       data-lineindex={lineIndex}
       data-index={block.index}
       style={style}
@@ -34,22 +34,3 @@ export default function SortableBlock({
     </div>
   );
 }
-
-
-// export default function Block({
-//   block,
-//   lineIndex,
-// }: blockProps & { lineIndex: number }) {
-//   return (
-//     <div
-//       className="block"
-//       data-index={block.index}
-//       data-lineindex={lineIndex}
-//       // contentEditable
-//       // suppressContentEditableWarning
-//       // onDoubleClick={() => console.log("akjscnkasncj")}
-//     >
-//       {block.content}
-//     </div>
-//   );
-// }
