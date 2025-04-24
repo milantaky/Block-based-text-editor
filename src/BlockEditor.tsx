@@ -593,31 +593,33 @@ export default function BlockEditor({
   ) {
     // Line not wrapped
     if (lineHeight <= baseLineHeight.current) {
-      console.log("tu");
-      return;
+      const offsetArray = Array.from(items).map(
+        (item) => (item as HTMLElement).offsetLeft
+      );
+      return findClosestIndex(offsetArray, clickX);
     } else {
       const blockOffsetArray: number[] = [];
       let blocksBefore = 0;
       let reference = -1;
 
       for (let i = 0; i < items.length; i++) {
-        const currentBlockOffset = items[i].offsetTop + items[i].offsetHeight;
+        const currentBlockOffset =
+          (items[i] as HTMLElement).offsetTop +
+          (items[i] as HTMLElement).offsetHeight;
 
         // While not on correct line
         if (clickY > currentBlockOffset) {
-          console.log("skip");
           blocksBefore++;
           continue;
         } else {
+          // Correct line, find place to fit input based on offsetLeft
           if (reference === -1) {
             reference = currentBlockOffset;
           }
-          // Correct line, find place to fit input based on offsetLeft
 
           // Did we move to next line? Return last index (clicked on end of line)
           if (currentBlockOffset === reference) {
-            console.log("tuuu");
-            blockOffsetArray.push(items[i].offsetLeft);
+            blockOffsetArray.push((items[i] as HTMLElement).offsetLeft);
           } else {
             break;
           }
@@ -630,8 +632,7 @@ export default function BlockEditor({
 
   function handleEditorClick(e: React.MouseEvent) {
     const clicked = e.target as HTMLElement;
-    //clicked.children
-    console.log(e);
+
     // If clicked on block
     if (clicked.classList.contains("block")) {
       // Get indices from data attributes and convert them to number
@@ -640,10 +641,10 @@ export default function BlockEditor({
 
       setInputIndex(blockIndex + 1);
       setInputLineIndex(lineIndex);
+      setTimeout(() => inputRef.current?.focus(), 0);
       return;
     } else if (clicked.classList.contains("line")) {
       const lineIndex = parseInt(clicked.dataset.index!, 10);
-      console.log("LI", lineIndex);
 
       // Find closest space between blocks in place of click
       const targetIndex = findPositionOfClickOnLine(
@@ -652,13 +653,18 @@ export default function BlockEditor({
         e.target.clientHeight,
         e.target.children
       );
-      console.log("TI:", targetIndex);
+
       setInputIndex(targetIndex);
       setInputLineIndex(lineIndex);
+      setTimeout(() => inputRef.current?.focus(), 0);
       return;
     } else {
-      console.log("Kliknuto mimo bloky");
+      // Set input to end
+      setInputIndex(lines[lines.length - 1].length);
+      setInputLineIndex(lines.length - 1);
+      setTimeout(() => inputRef.current?.focus(), 0);
     }
+
   }
 
   function renderLine(line: BlockType[], lineIndex: number) {
