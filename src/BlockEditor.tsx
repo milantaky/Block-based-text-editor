@@ -315,11 +315,11 @@ export default function BlockEditor({
 
     const inputOffset = currentLineInput.offsetLeft;
 
-    // Line wrapped
-    if (
+    const lineWrapped =
       domLines[inputLineIndex].clientHeight !== baseLineHeight.current &&
-      inputLine !== splitLine.length - 1
-    ) {
+      inputLine !== splitLine.length - 1;
+
+    if (lineWrapped) {
       const targetIndex = findTargetInputIndexDown(
         inputIndexOnLine,
         splitLine,
@@ -556,6 +556,7 @@ export default function BlockEditor({
         data-lineindex={lineIndex}
         // contentEditable
         // suppressContentEditableWarning
+        // onDoubleClick={() => console.log("akjscnkasncj")}
       >
         {block.content}
       </div>
@@ -589,14 +590,18 @@ export default function BlockEditor({
 
     // If clicked on block
     if (clicked.classList.contains("block")) {
-      console.log("Kliknuto na block:", clicked);
-      const blockIndex = clicked.dataset.index;
-      const lineIndex = clicked.dataset.lineindex;
-      console.log("Index bloku:", blockIndex, "Line:", lineIndex);
+      // Get indices from data attributes and convert them to number
+      const blockIndex = parseInt(clicked.dataset.index!, 10);
+      const lineIndex = parseInt(clicked.dataset.lineindex!, 10);
+
+      setInputIndex(blockIndex + 1);
+      setInputLineIndex(lineIndex);
       return;
     } else if (clicked.classList.contains("line")) {
-      const lineIndex = clicked.dataset.lineIndex;
+    
+      const lineIndex = clicked.dataset.index;
       console.log("Kliknuto na line:", lineIndex);
+
       return;
     } else {
       console.log("Kliknuto mimo bloky");
