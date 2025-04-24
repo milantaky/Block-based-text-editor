@@ -494,6 +494,7 @@ export default function BlockEditor({
     ]);
 
     setInputIndex(inputIndex + newBlocks.length);
+    setNextBlockIndex(nextBlockIndex + newBlocks.length);
   }
 
   // Moves input to place of click.
@@ -552,7 +553,7 @@ export default function BlockEditor({
       <div
         className="block"
         data-index={block.index}
-        data-lineIndex={lineIndex}
+        data-lineindex={lineIndex}
         // contentEditable
         // suppressContentEditableWarning
       >
@@ -590,7 +591,7 @@ export default function BlockEditor({
     if (clicked.classList.contains("block")) {
       console.log("Kliknuto na block:", clicked);
       const blockIndex = clicked.dataset.index;
-      const lineIndex = clicked.dataset.lineIndex;
+      const lineIndex = clicked.dataset.lineindex;
       console.log("Index bloku:", blockIndex, "Line:", lineIndex);
       return;
     } else if (clicked.classList.contains("line")) {
@@ -603,6 +604,7 @@ export default function BlockEditor({
   }
 
   function renderLine(line: BlockType[], lineIndex: number) {
+    // No Blocks
     if (lines.length === 1 && line.length === 0) {
       return (
         <Line key={lineIndex} lineIndex={lineIndex}>
@@ -611,6 +613,7 @@ export default function BlockEditor({
       );
     }
 
+    // Empty line
     if (line.length === 0 && inputIndex === 0 && inputLineIndex === lineIndex) {
       return (
         <Line key={lineIndex} lineIndex={lineIndex}>
@@ -629,10 +632,12 @@ export default function BlockEditor({
   }
 
   function renderBlock(block: BlockType, wordIndex: number, lineIndex: number) {
+    // Line without input
     if (lineIndex !== inputLineIndex) {
       return <Block key={block.index} block={block} lineIndex={lineIndex} />;
     }
 
+    // Input on start of line
     if (inputIndex === 0 && wordIndex === 0) {
       return (
         <>
@@ -642,6 +647,7 @@ export default function BlockEditor({
       );
     }
 
+    // Input after this block
     if (inputIndex - 1 === wordIndex) {
       return (
         <>
@@ -651,6 +657,7 @@ export default function BlockEditor({
       );
     }
 
+    // Input elsewhere
     return <Block key={block.index} block={block} lineIndex={lineIndex} />;
   }
 
