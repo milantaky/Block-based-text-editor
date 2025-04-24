@@ -1,12 +1,20 @@
 import "./BlockEditor.css";
+// import languages from "./wordCategories.tsx";
+
 import { useState, useRef, useEffect, ReactNode } from "react";
 import type { BlockType, blockProps } from "./types";
-// import { DndContext, useDraggable, useDroppable, closestCorners } from "@dnd-kit/core";
+import Block from "./Block";
+
+// import {
+//   DndContext,
+//   useDraggable,
+//   useDroppable,
+//   closestCorners,
+// } from "@dnd-kit/core";
 // import {
 //   SortableContext,
 //   horizontalListSortingStrategy,
 // } from "@dnd-kit/sortable";
-// import languages from "./wordCategories.tsx";
 
 export default function BlockEditor({
   text,
@@ -510,21 +518,6 @@ export default function BlockEditor({
     );
   }
 
-  function Block({ block, lineIndex }: blockProps & { lineIndex: number }) {
-    return (
-      <div
-        className="block"
-        data-index={block.index}
-        data-lineindex={lineIndex}
-        // contentEditable
-        // suppressContentEditableWarning
-        // onDoubleClick={() => console.log("akjscnkasncj")}
-      >
-        {block.content}
-      </div>
-    );
-  }
-
   function Line({
     children,
     lineIndex,
@@ -626,7 +619,6 @@ export default function BlockEditor({
       setInputLineIndex(lines.length - 1);
       setTimeout(() => inputRef.current?.focus(), 0);
     }
-
   }
 
   function renderLine(line: BlockType[], lineIndex: number) {
