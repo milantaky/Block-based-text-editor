@@ -551,10 +551,10 @@ export default function BlockEditor({
     return (
       <div
         className="block"
-        contentEditable
-        suppressContentEditableWarning
-        onClick={(e) => handleClick(e, lineIndex, block.index)}
-        // onDoubleClick={() => console.log("Dvojklik na blok!")}
+        data-index={block.index}
+        data-lineIndex={lineIndex}
+        // contentEditable
+        // suppressContentEditableWarning
       >
         {block.content}
       </div>
@@ -574,97 +574,95 @@ export default function BlockEditor({
     return (
       <div
         className="line"
+        data-index={lineIndex}
         style={{ minHeight: `${minHeight}px` }}
-        onClick={(e) => handleClick(e, lineIndex)}
       >
         {children}
       </div>
     );
   }
 
+  function handleEditorClick(e: React.MouseEvent) {
+    const clicked = e.target as HTMLElement;
+    //clicked.children
+
+    // If clicked on block
+    if (clicked.classList.contains("block")) {
+      console.log("Kliknuto na block:", clicked);
+      const blockIndex = clicked.dataset.index;
+      const lineIndex = clicked.dataset.lineIndex;
+      console.log("Index bloku:", blockIndex, "Line:", lineIndex);
+      return;
+    } else if (clicked.classList.contains("line")) {
+      const lineIndex = clicked.dataset.lineIndex;
+      console.log("Kliknuto na line:", lineIndex);
+      return;
+    } else {
+      console.log("Kliknuto mimo bloky");
+    }
+  }
+
+  function renderLine(line: BlockType[], lineIndex: number) {
+    if (lines.length === 1 && line.length === 0) {
+      return (
+        <Line key={lineIndex} lineIndex={lineIndex}>
+          <InputBox key={0} />
+        </Line>
+      );
+    }
+
+    if (line.length === 0 && inputIndex === 0 && inputLineIndex === lineIndex) {
+      return (
+        <Line key={lineIndex} lineIndex={lineIndex}>
+          <InputBox key={0} />
+        </Line>
+      );
+    }
+
+    return (
+      <Line key={lineIndex} lineIndex={lineIndex}>
+        {line.map((block, wordIndex) =>
+          renderBlock(block, wordIndex, lineIndex)
+        )}
+      </Line>
+    );
+  }
+
+  function renderBlock(block: BlockType, wordIndex: number, lineIndex: number) {
+    if (lineIndex !== inputLineIndex) {
+      return <Block key={block.index} block={block} lineIndex={lineIndex} />;
+    }
+
+    if (inputIndex === 0 && wordIndex === 0) {
+      return (
+        <>
+          <InputBox key={nextBlockIndex} />
+          <Block key={block.index} block={block} lineIndex={lineIndex} />
+        </>
+      );
+    }
+
+    if (inputIndex - 1 === wordIndex) {
+      return (
+        <>
+          <Block key={block.index} block={block} lineIndex={lineIndex} />
+          <InputBox key={nextBlockIndex} />
+        </>
+      );
+    }
+
+    return <Block key={block.index} block={block} lineIndex={lineIndex} />;
+  }
+
   return (
     <>
-      <div className="blockEditor-container" onPaste={(e) => handlePaste(e)}>
+      <div
+        className="blockEditor-container"
+        onPaste={(e) => handlePaste(e)}
+        onMouseDown={(e) => handleEditorClick(e)}
+      >
         {/* <DndContext collisionDetection={closestCorners}> */}
-        {lines.map((line, lineIndex) => {
-          // No Blocks
-          if (lines.length === 1 && line.length === 0) {
-            return (
-              <Line key={lineIndex} lineIndex={lineIndex}>
-                <InputBox key={nextBlockIndex} />
-              </Line>
-            );
-          } else {
-            // Empty line
-            if (
-              line.length === 0 &&
-              inputIndex === 0 &&
-              inputLineIndex === lineIndex
-            ) {
-              return (
-                <Line key={lineIndex} lineIndex={lineIndex}>
-                  <InputBox key={0} />
-                </Line>
-              );
-            }
-
-            // Lines and blocks
-            return (
-              <Line key={lineIndex} lineIndex={lineIndex}>
-                {line.map((block, wordIndex) => {
-                  // ========== Line without input
-                  if (lineIndex !== inputLineIndex) {
-                    return (
-                      <Block
-                        key={block.index}
-                        block={block}
-                        lineIndex={lineIndex}
-                      />
-                    );
-                  }
-
-                  // ========== Line with input
-                  // Input on start of line
-                  if (inputIndex === 0 && wordIndex === 0) {
-                    return (
-                      <>
-                        <InputBox key={nextBlockIndex} />
-                        <Block
-                          key={block.index}
-                          block={block}
-                          lineIndex={lineIndex}
-                        />
-                      </>
-                    );
-                  }
-                  // Input after this block
-                  else if (inputIndex - 1 === wordIndex) {
-                    return (
-                      <>
-                        <Block
-                          key={block.index}
-                          block={block}
-                          lineIndex={lineIndex}
-                        />
-                        <InputBox key={nextBlockIndex} />
-                      </>
-                    );
-                  }
-                  // Input elsewhere
-                  else {
-                    return (
-                      <Block
-                        key={block.index}
-                        block={block}
-                        lineIndex={lineIndex}
-                      />
-                    );
-                  }
-                })}
-              </Line>
-            );
-          }
-        })}
+        {lines.map((line, lineIndex) => renderLine(line, lineIndex))}
         {/* </DndContext> */}
       </div>
     </>
