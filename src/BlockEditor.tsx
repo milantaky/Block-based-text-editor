@@ -2,19 +2,21 @@ import "./BlockEditor.css";
 // import languages from "./wordCategories.tsx";
 
 import { useState, useRef, useEffect, ReactNode } from "react";
-import type { BlockType, blockProps } from "./types";
+import type { BlockType } from "./types";
 import Block from "./Block";
 
-// import {
-//   DndContext,
-//   useDraggable,
-//   useDroppable,
-//   closestCorners,
-// } from "@dnd-kit/core";
-// import {
-//   SortableContext,
-//   horizontalListSortingStrategy,
-// } from "@dnd-kit/sortable";
+import {
+  DndContext,
+  useDraggable,
+  useDroppable,
+  closestCorners,
+} from "@dnd-kit/core";
+import {
+  SortableContext,
+  horizontalListSortingStrategy,
+  useSortable,
+} from "@dnd-kit/sortable";
+import { CSS } from "@dnd-kit/utilities";
 
 export default function BlockEditor({
   text,
@@ -621,74 +623,183 @@ export default function BlockEditor({
     }
   }
 
-  function renderLine(line: BlockType[], lineIndex: number) {
-    // No Blocks
-    if (lines.length === 1 && line.length === 0) {
-      return (
-        <Line key={lineIndex} lineIndex={lineIndex}>
-          <InputBox key={0} />
-        </Line>
-      );
-    }
+  //   function renderLine(line: BlockType[], lineIndex: number) {
+  //     // No Blocks
+  //     if (lines.length === 1 && line.length === 0) {
+  //       return (
+  //         <Line key={lineIndex} lineIndex={lineIndex}>
+  //           <InputBox key={0} />
+  //         </Line>
+  //       );
+  //     }
 
-    // Empty line
-    if (line.length === 0 && inputIndex === 0 && inputLineIndex === lineIndex) {
-      return (
-        <Line key={lineIndex} lineIndex={lineIndex}>
-          <InputBox key={0} />
-        </Line>
-      );
-    }
+  //     // Empty line
+  //     if (line.length === 0 && inputIndex === 0 && inputLineIndex === lineIndex) {
+  //       return (
+  //         <Line key={lineIndex} lineIndex={lineIndex}>
+  //           <InputBox key={0} />
+  //         </Line>
+  //       );
+  //     }
+
+  //     return (
+  //       <Line key={lineIndex} lineIndex={lineIndex}>
+  //         {line.map((block, wordIndex) =>
+  //           renderBlock(block, wordIndex, lineIndex)
+  //         )}
+  //       </Line>
+  //     );
+  //   }
+
+  function renderLine(line: BlockType[], lineIndex: number) {
+    const blockIds = line.map((block) => block.index);
 
     return (
       <Line key={lineIndex} lineIndex={lineIndex}>
-        {line.map((block, wordIndex) =>
-          renderBlock(block, wordIndex, lineIndex)
-        )}
+        <SortableContext
+          items={blockIds}
+          strategy={horizontalListSortingStrategy}
+        >
+          {line.map((block, wordIndex) => {
+            const isInputHere =
+              inputLineIndex === lineIndex && inputIndex === wordIndex;
+
+            return (
+              <>
+                {isInputHere && <InputBox />}
+                <SortableBlock block={block} lineIndex={lineIndex} />
+              </>
+            );
+          })}
+
+          {/* Input on end */}
+          {inputLineIndex === lineIndex && inputIndex === line.length && (
+            <InputBox />
+          )}
+        </SortableContext>
       </Line>
     );
   }
 
-  function renderBlock(block: BlockType, wordIndex: number, lineIndex: number) {
-    // Line without input
-    if (lineIndex !== inputLineIndex) {
-      return <Block key={block.index} block={block} lineIndex={lineIndex} />;
-    }
+  function SortableBlock({
+    block,
+    lineIndex,
+  }: {
+    block: BlockType;
+    lineIndex: number;
+  }) {
+    const { attributes, listeners, setNodeRef, transform, transition } =
+      useSortable({ id: block.index });
 
-    // Input on start of line
-    if (inputIndex === 0 && wordIndex === 0) {
-      return (
-        <>
-          <InputBox key={nextBlockIndex} />
-          <Block key={block.index} block={block} lineIndex={lineIndex} />
-        </>
-      );
-    }
+    const style = {
+      transform: CSS.Transform.toString(transform),
+      transition,
+    };
 
-    // Input after this block
-    if (inputIndex - 1 === wordIndex) {
-      return (
-        <>
-          <Block key={block.index} block={block} lineIndex={lineIndex} />
-          <InputBox key={nextBlockIndex} />
-        </>
-      );
-    }
+    return (
+      <div
+        ref={setNodeRef}
+        style={style}
+        {...attributes}
+        {...listeners}
+        className="block"
+        data-lineindex={lineIndex}
+        data-index={block.index}
+      >
+        {block.content}
+      </div>
+    );
+  }
 
-    // Input elsewhere
-    return <Block key={block.index} block={block} lineIndex={lineIndex} />;
+//   function renderBlock(block: BlockType, wordIndex: number, lineIndex: number) {
+//     // Line without input
+//     if (lineIndex !== inputLineIndex) {
+//       return <Block key={block.index} block={block} lineIndex={lineIndex} />;
+//     }
+
+//     // Input on start of line
+//     if (inputIndex === 0 && wordIndex === 0) {
+//       return (
+//         <>
+//           <InputBox key={nextBlockIndex} />
+//           <Block key={block.index} block={block} lineIndex={lineIndex} />
+//         </>
+//       );
+//     }
+
+//     // Input after this block
+//     if (inputIndex - 1 === wordIndex) {
+//       return (
+//         <>
+//           <Block key={block.index} block={block} lineIndex={lineIndex} />
+//           <InputBox key={nextBlockIndex} />
+//         </>
+//       );
+//     }
+
+//     // Input elsewhere
+//     return <Block key={block.index} block={block} lineIndex={lineIndex} />;
+//   }
+
+  function handleDragEnd(event) {
+    const { active, over } = event;
+
+    // Not dragged over anything or itself
+    if (!over || active.id === over.id) return;
+
+    const activeId = active.id;
+    const overId = over.id;
+
+    let sourceLineIndex = -1;
+    let targetLineIndex = -1;
+    let activeBlock: BlockType | undefined;
+
+    // Find which line the block is from 
+    lines.forEach((line, lineIndex) => {
+      const found = line.find((block) => block.index === activeId);
+      if (found) {
+        sourceLineIndex = lineIndex;
+        activeBlock = found;
+      }
+
+      const isInTarget = line.some((block) => block.index === overId);
+      if (isInTarget) targetLineIndex = lineIndex;
+    });
+
+    // If not found 
+    if (sourceLineIndex === -1 || targetLineIndex === -1 || !activeBlock)
+      return;
+
+    // Remove from original line and move to new place
+    let newBlocks = [...blocks];
+    newBlocks = newBlocks.filter(
+      (block) => block.index !== activeId
+    );
+
+    // 
+    const targetIndex = newBlocks.findIndex(
+      (block) => block.index === overId
+    );
+
+    newBlocks.splice(targetIndex, 0, activeBlock);
+
+    setBlocks(newBlocks);
   }
 
   return (
     <>
       <div
         className="blockEditor-container"
-        onPaste={(e) => handlePaste(e)}
-        onMouseDown={(e) => handleEditorClick(e)}
+        onPaste={e => handlePaste(e)}
+        onMouseDown={e => handleEditorClick(e)}
       >
-        {/* <DndContext collisionDetection={closestCorners}> */}
-        {lines.map((line, lineIndex) => renderLine(line, lineIndex))}
-        {/* </DndContext> */}
+        {console.log(blocks)}
+        <DndContext
+          onDragEnd={e => handleDragEnd(e)}
+          collisionDetection={closestCorners}
+        >
+          {lines.map((line, lineIndex) => renderLine(line, lineIndex))}
+        </DndContext>
       </div>
     </>
   );
