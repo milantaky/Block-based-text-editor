@@ -6,7 +6,10 @@ import type { BlockType } from "./types";
 import SortableBlock from "./SortableBlock";
 
 import { DndContext, closestCorners, DragEndEvent } from "@dnd-kit/core";
-import { SortableContext, horizontalListSortingStrategy } from "@dnd-kit/sortable";
+import {
+  SortableContext,
+  horizontalListSortingStrategy,
+} from "@dnd-kit/sortable";
 
 export default function BlockEditor({
   text,
@@ -137,110 +140,6 @@ export default function BlockEditor({
     count += inputIndex;
 
     return count;
-  }
-
-  function handleKeyDown(e: React.KeyboardEvent<HTMLDivElement>) {
-    switch (e.key) {
-      case " ":
-        e.preventDefault();
-        if (inputText.trim() !== "") {
-          // First Block
-          if (blocks.length === 0) {
-            setBlocks([makeBlock(inputText.trim())]);
-          } else {
-            // Input on end
-            if (
-              inputIndex === lines[inputLineIndex].length &&
-              inputLineIndex === lines.length - 1
-            ) {
-              setBlocks((prev) => [...prev, makeBlock(inputText.trim())]);
-            }
-            // Input not on end
-            else {
-              const insertIndex = countInsertIndex();
-              setBlocks((prevBlocks) => [
-                ...prevBlocks.slice(0, insertIndex),
-                makeBlock(inputText.trim()),
-                ...prevBlocks.slice(insertIndex),
-              ]);
-            }
-          }
-          setInputText("");
-          setInputIndex(inputIndex + 1);
-          //   setNextBlockIndex(nextBlockIndex + 1);
-        }
-        break;
-
-      case "Backspace":
-        if (inputText === "") {
-          e.preventDefault();
-
-          if (blocks.length > 0) {
-            // Input on start -> deleting line
-            if (inputIndex === 0 && inputLineIndex !== 0) {
-              const insertIndex = countInsertIndex();
-              setBlocks(blocks.filter((_, index) => index !== insertIndex - 1));
-              setInputIndex(lines[inputLineIndex - 1].length);
-              setInputLineIndex(inputLineIndex - 1);
-            } else {
-              const insertIndex = countInsertIndex();
-              setInputText(blocks[insertIndex - 1].content);
-              setInputIndex(inputIndex - 1);
-
-              setBlocks(
-                (prevBlocks) =>
-                  inputIndex === prevBlocks.length &&
-                  inputLineIndex === lines.length
-                    ? prevBlocks.slice(0, -1) // Input on end
-                    : prevBlocks.filter((_, index) => index !== insertIndex - 1) // Input elsewhere
-              );
-
-              changeBlockRef.current = true;
-            }
-          }
-        }
-        break;
-
-      case "ArrowLeft":
-        e.preventDefault();
-        if (inputText === "" && inputIndex > 0) {
-          setInputIndex(inputIndex - 1);
-        }
-        break;
-
-      case "ArrowRight":
-        e.preventDefault();
-        if (inputText === "" && inputIndex < lines[inputLineIndex].length) {
-          setInputIndex(inputIndex + 1);
-        }
-        break;
-
-      case "ArrowUp":
-        e.preventDefault();
-        moveInputUp();
-        break;
-
-      case "ArrowDown":
-        e.preventDefault();
-        moveInputDown();
-        break;
-
-      case "Enter":
-        e.preventDefault();
-
-        if (inputText !== "") {
-          addNewLine(countInsertIndex(), true);
-        } else {
-          addNewLine(countInsertIndex());
-        }
-
-        setInputLineIndex(inputLineIndex + 1);
-        setInputIndex(0);
-        break;
-
-      default:
-        break;
-    }
   }
 
   function makeBlock(text: string) {
@@ -409,6 +308,52 @@ export default function BlockEditor({
     return closestIndex;
   }
 
+  // Todo vyresit inputtext?
+  function findPositionOfClickOnLine(
+    clickX: number,
+    clickY: number,
+    lineHeight: number,
+    items: HTMLCollection
+  ) {
+    // Line not wrapped
+    if (lineHeight <= baseLineHeight.current) {
+      const offsetArray = Array.from(items).map(
+        (item) => (item as HTMLElement).offsetLeft
+      );
+      return findClosestIndex(offsetArray, clickX);
+    } else {
+      const blockOffsetArray: number[] = [];
+      let blocksBefore = 0;
+      let reference = -1;
+
+      for (let i = 0; i < items.length; i++) {
+        const currentBlockOffset =
+          (items[i] as HTMLElement).offsetTop +
+          (items[i] as HTMLElement).offsetHeight;
+
+        // While not on correct line
+        if (clickY > currentBlockOffset) {
+          blocksBefore++;
+          continue;
+        } else {
+          // Correct line, find place to fit input based on offsetLeft
+          if (reference === -1) {
+            reference = currentBlockOffset;
+          }
+
+          // Did we move to next line? Return last index (clicked on end of line)
+          if (currentBlockOffset === reference) {
+            blockOffsetArray.push((items[i] as HTMLElement).offsetLeft);
+          } else {
+            break;
+          }
+        }
+      }
+
+      return findClosestIndex(blockOffsetArray, clickX) + blocksBefore;
+    }
+  }
+
   // Splits wrapped line into separate blocks (their position)
   // Returns offsetLeft array of blocks on lines and an index of line input is on, and index on the line
   function splitLineBlocks(
@@ -470,8 +415,116 @@ export default function BlockEditor({
     return lines;
   }
 
-  function handleInput(e: React.FormEvent<HTMLDivElement>) {
-    setInputText(e.currentTarget.textContent || "");
+  function handleKeyDown(e: React.KeyboardEvent<HTMLDivElement>) {
+    switch (e.key) {
+      case " ":
+        e.preventDefault();
+        if (inputText.trim() !== "") {
+          // First Block
+          if (blocks.length === 0) {
+            setBlocks([makeBlock(inputText.trim())]);
+          } else {
+            // Input on end
+            if (
+              inputIndex === lines[inputLineIndex].length &&
+              inputLineIndex === lines.length - 1
+            ) {
+              setBlocks((prev) => [...prev, makeBlock(inputText.trim())]);
+            }
+            // Input not on end
+            else {
+              const insertIndex = countInsertIndex();
+              setBlocks((prevBlocks) => [
+                ...prevBlocks.slice(0, insertIndex),
+                makeBlock(inputText.trim()),
+                ...prevBlocks.slice(insertIndex),
+              ]);
+            }
+          }
+          setInputText("");
+          setInputIndex(inputIndex + 1);
+          //   setNextBlockIndex(nextBlockIndex + 1);
+        }
+        break;
+
+      // With shift key -> deletes block
+      case "Backspace":
+        if (inputText === "") {
+          e.preventDefault();
+
+          if (blocks.length > 0) {
+            const insertIndex = countInsertIndex();
+
+            // Shift -> delete block
+            if(e.shiftKey && inputIndex !== 0){
+                setInputIndex(inputIndex - 1);
+                setBlocks(blocks.filter(block => block.index !== insertIndex - 1));
+                return;
+            }
+
+            // Input on start -> deleting line
+            if (inputIndex === 0 && inputLineIndex !== 0) {
+              setBlocks(blocks.filter((_, index) => index !== insertIndex - 1));
+              setInputIndex(lines[inputLineIndex - 1].length);
+              setInputLineIndex(inputLineIndex - 1);
+            } else {
+              setInputText(blocks[insertIndex - 1].content);
+              setInputIndex(inputIndex - 1 >= 0 ? inputIndex - 1 : 0);
+
+              setBlocks(
+                (prevBlocks) =>
+                  inputIndex === prevBlocks.length &&
+                  inputLineIndex === lines.length
+                    ? prevBlocks.slice(0, -1) // Input on end
+                    : prevBlocks.filter((_, index) => index !== insertIndex - 1) // Input elsewhere
+              );
+
+              changeBlockRef.current = true;
+            }
+          }
+        }
+        break;
+
+      case "ArrowLeft":
+        e.preventDefault();
+        if (inputText === "" && inputIndex > 0) {
+          setInputIndex(inputIndex - 1);
+        }
+        break;
+
+      case "ArrowRight":
+        e.preventDefault();
+        if (inputText === "" && inputIndex < lines[inputLineIndex].length) {
+          setInputIndex(inputIndex + 1);
+        }
+        break;
+
+      case "ArrowUp":
+        e.preventDefault();
+        moveInputUp();
+        break;
+
+      case "ArrowDown":
+        e.preventDefault();
+        moveInputDown();
+        break;
+
+      case "Enter":
+        e.preventDefault();
+
+        if (inputText !== "") {
+          addNewLine(countInsertIndex(), true);
+        } else {
+          addNewLine(countInsertIndex());
+        }
+
+        setInputLineIndex(inputLineIndex + 1);
+        setInputIndex(0);
+        break;
+
+      default:
+        break;
+    }
   }
 
   // Handles pasting of text through Crtl/Cmd + v -> splits the text into blocks and adds them into state
@@ -497,89 +550,9 @@ export default function BlockEditor({
     setNextBlockIndex(nextBlockIndex + newBlocks.length);
   }
 
-  function InputBox() {
-    return (
-      <div
-        ref={inputRef}
-        className="input-box"
-        contentEditable
-        suppressContentEditableWarning
-        onInput={handleInput}
-        onKeyDown={handleKeyDown}
-      />
-    );
-  }
-
-  function Line({
-    children,
-    lineIndex,
-  }: {
-    children: ReactNode;
-    lineIndex: number;
-  }) {
-    // ! pak jak se oddelaji ramecky, upravit!!!
-    const minHeight = baseLineHeight.current - 16; // Base line height - 16px top, bottom padding
-
-    return (
-      <div
-        className="line"
-        data-index={lineIndex}
-        style={{ minHeight: `${minHeight}px` }}
-      >
-        {children}
-      </div>
-    );
-  }
-
-  // Todo vyresit inputtext?
-  function findPositionOfClickOnLine(
-    clickX: number,
-    clickY: number,
-    lineHeight: number,
-    items: HTMLCollection
-  ) {
-    // Line not wrapped
-    if (lineHeight <= baseLineHeight.current) {
-      const offsetArray = Array.from(items).map(
-        (item) => (item as HTMLElement).offsetLeft
-      );
-      return findClosestIndex(offsetArray, clickX);
-    } else {
-      const blockOffsetArray: number[] = [];
-      let blocksBefore = 0;
-      let reference = -1;
-
-      for (let i = 0; i < items.length; i++) {
-        const currentBlockOffset =
-          (items[i] as HTMLElement).offsetTop +
-          (items[i] as HTMLElement).offsetHeight;
-
-        // While not on correct line
-        if (clickY > currentBlockOffset) {
-          blocksBefore++;
-          continue;
-        } else {
-          // Correct line, find place to fit input based on offsetLeft
-          if (reference === -1) {
-            reference = currentBlockOffset;
-          }
-
-          // Did we move to next line? Return last index (clicked on end of line)
-          if (currentBlockOffset === reference) {
-            blockOffsetArray.push((items[i] as HTMLElement).offsetLeft);
-          } else {
-            break;
-          }
-        }
-      }
-
-      return findClosestIndex(blockOffsetArray, clickX) + blocksBefore;
-    }
-  }
-
   // Handles mouse click in editor
   function handleEditorClick(e: React.MouseEvent) {
-    console.log("tu")
+    console.log("tu");
     const clicked = e.target as HTMLElement;
 
     // If clicked on block
@@ -615,35 +588,8 @@ export default function BlockEditor({
     }
   }
 
-  // Rendering function
-  function renderLine(line: BlockType[], lineIndex: number) {
-    const blockIds = line.map((block) => block.index);
-
-    return (
-      <Line key={lineIndex} lineIndex={lineIndex}>
-        <SortableContext
-          items={blockIds}
-          strategy={horizontalListSortingStrategy}
-        >
-          {line.map((block, wordIndex) => {
-            const isInputHere =
-              inputLineIndex === lineIndex && inputIndex === wordIndex;
-
-            return (
-              <>
-                {isInputHere && <InputBox />}
-                <SortableBlock block={block} lineIndex={lineIndex} />
-              </>
-            );
-          })}
-
-          {/* Input on end */}
-          {inputLineIndex === lineIndex && inputIndex === line.length && (
-            <InputBox />
-          )}
-        </SortableContext>
-      </Line>
-    );
+  function handleInput(e: React.FormEvent<HTMLDivElement>) {
+    setInputText(e.currentTarget.textContent || "");
   }
 
   // Handle function for Drag and Drop
@@ -685,6 +631,71 @@ export default function BlockEditor({
     // console.log("TI:", targetIndex)
     newBlocks.splice(targetIndex, 0, activeBlock);
     setBlocks(newBlocks);
+  }
+
+  // Rendering function
+  function renderLine(line: BlockType[], lineIndex: number) {
+    const blockIds = line.map((block) => block.index);
+
+    return (
+      <Line key={lineIndex} lineIndex={lineIndex}>
+        <SortableContext
+          items={blockIds}
+          strategy={horizontalListSortingStrategy}
+        >
+          {line.map((block, wordIndex) => {
+            const isInputHere =
+              inputLineIndex === lineIndex && inputIndex === wordIndex;
+
+            return (
+              <>
+                {isInputHere && <InputBox />}
+                <SortableBlock block={block} lineIndex={lineIndex} />
+              </>
+            );
+          })}
+
+          {/* Input on end */}
+          {inputLineIndex === lineIndex && inputIndex === line.length && (
+            <InputBox />
+          )}
+        </SortableContext>
+      </Line>
+    );
+  }
+
+  function InputBox() {
+    return (
+      <div
+        ref={inputRef}
+        className="input-box"
+        contentEditable
+        suppressContentEditableWarning
+        onInput={handleInput}
+        onKeyDown={handleKeyDown}
+      />
+    );
+  }
+
+  function Line({
+    children,
+    lineIndex,
+  }: {
+    children: ReactNode;
+    lineIndex: number;
+  }) {
+    // ! pak jak se oddelaji ramecky, upravit!!!
+    const minHeight = baseLineHeight.current - 16; // Base line height - 16px top, bottom padding
+
+    return (
+      <div
+        className="line"
+        data-index={lineIndex}
+        style={{ minHeight: `${minHeight}px` }}
+      >
+        {children}
+      </div>
+    );
   }
 
   return (
