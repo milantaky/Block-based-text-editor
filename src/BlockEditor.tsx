@@ -584,10 +584,54 @@ export default function BlockEditor({
     );
   }
 
+  // Todo vyresit inputtext?
+  function findPositionOfClickOnLine(
+    clickX: number,
+    clickY: number,
+    lineHeight: number,
+    items: HTMLCollection
+  ) {
+    // Line not wrapped
+    if (lineHeight <= baseLineHeight.current) {
+      console.log("tu");
+      return;
+    } else {
+      const blockOffsetArray: number[] = [];
+      let blocksBefore = 0;
+      let reference = -1;
+
+      for (let i = 0; i < items.length; i++) {
+        const currentBlockOffset = items[i].offsetTop + items[i].offsetHeight;
+
+        // While not on correct line
+        if (clickY > currentBlockOffset) {
+          console.log("skip");
+          blocksBefore++;
+          continue;
+        } else {
+          if (reference === -1) {
+            reference = currentBlockOffset;
+          }
+          // Correct line, find place to fit input based on offsetLeft
+
+          // Did we move to next line? Return last index (clicked on end of line)
+          if (currentBlockOffset === reference) {
+            console.log("tuuu");
+            blockOffsetArray.push(items[i].offsetLeft);
+          } else {
+            break;
+          }
+        }
+      }
+
+      return findClosestIndex(blockOffsetArray, clickX) + blocksBefore;
+    }
+  }
+
   function handleEditorClick(e: React.MouseEvent) {
     const clicked = e.target as HTMLElement;
     //clicked.children
-
+    console.log(e);
     // If clicked on block
     if (clicked.classList.contains("block")) {
       // Get indices from data attributes and convert them to number
@@ -598,10 +642,19 @@ export default function BlockEditor({
       setInputLineIndex(lineIndex);
       return;
     } else if (clicked.classList.contains("line")) {
-    
-      const lineIndex = clicked.dataset.index;
-      console.log("Kliknuto na line:", lineIndex);
+      const lineIndex = parseInt(clicked.dataset.index!, 10);
+      console.log("LI", lineIndex);
 
+      // Find closest space between blocks in place of click
+      const targetIndex = findPositionOfClickOnLine(
+        e.clientX,
+        e.clientY,
+        e.target.clientHeight,
+        e.target.children
+      );
+      console.log("TI:", targetIndex);
+      setInputIndex(targetIndex);
+      setInputLineIndex(lineIndex);
       return;
     } else {
       console.log("Kliknuto mimo bloky");
