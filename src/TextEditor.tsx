@@ -12,12 +12,14 @@ export default function TextEditor({
   const [text, setText] = useState(convertToText(blocks));
   const editableRef = useRef<HTMLDivElement>(null);
 
-  // On first render -> transform BLOCKS to TEXT
+  // On first render -> transform BLOCKS to TEXT, set caret to end
   useEffect(() => {
     if (editableRef.current) {
       editableRef.current.innerText = convertToText(blocks);
       editableRef.current.focus();
     }
+
+    setCaretToEnd();
   }, []);
 
   // Sets current text to ref for parent (App) to see
@@ -30,6 +32,15 @@ export default function TextEditor({
       const content = editableRef.current.innerText;
       setText(content);
     }
+  }
+
+  function setCaretToEnd() {
+    const range = document.createRange();
+    const sel = window.getSelection();
+    range.selectNodeContents(editableRef.current!);
+    range.collapse(false);
+    sel!.removeAllRanges();
+    sel!.addRange(range);
   }
 
   // Converts blocks to text -> leaves spaces around '\n'

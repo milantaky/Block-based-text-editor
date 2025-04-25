@@ -8,7 +8,7 @@ export default function App() {
   const [editorMode, setEditorMode] = useState<editorMode>("Blocks");
   const textRef = useRef<string>("");
   const blocksRef = useRef<BlockType[]>([]);
-  const baseLineHeight = useRef<number>(0);
+  const baseLineHeight = useRef<number>(0); // Height of line on first render to compare if other lines have overflown
   const blhSet = useRef<boolean>(false);
 
   function toggleEditorMode() {

@@ -31,7 +31,6 @@ export default function BlockEditor({
   const [inputLineIndex, setInputLineIndex] = useState(0); // Which line the input is on (0 = first line)
   const inputRef = useRef<HTMLDivElement>(null);
   const changeBlockRef = useRef(false);
-  //   const baseLineHeight = useRef(0); // Height of line on first render to compare if other lines have overflown
   const lines = splitLines(blocks); // Blocks converted into lines of blocks based on \n
   const setFirstRef = useRef(false);
 
@@ -98,16 +97,16 @@ export default function BlockEditor({
   // TODO
   // Gets word type
   function getWordType(word: string) {
-    for (const [category, data] of Object.entries(language)) {
-      if (data.items.includes(word)) {
-        console.log(
-          `"${word}" is in category "${category}" with color ${data.color}`
-        );
-        return data.type;
-      }
-    }
+    // for (const [category, data] of Object.entries(language)) {
+    //   if (data.items.includes(word)) {
+    //     console.log(
+    //       `"${word}" is in category "${category}" with color ${data.color}`
+    //     );
+    //     return data.type;
+    //   }
+    // }
 
-    console.log(`"${word}" not found in any category.`);
+    // console.log(`"${word}" not found in any category.`);
     return 0;
   }
 
