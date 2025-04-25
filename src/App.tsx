@@ -6,8 +6,10 @@ import "./App.css";
 
 export default function App() {
   const [editorMode, setEditorMode] = useState<editorMode>("Blocks");
-  const blocksRef = useRef<BlockType[]>([]);
   const textRef = useRef<string>("");
+  const blocksRef = useRef<BlockType[]>([]);
+  const baseLineHeight = useRef<number>(0);
+  const blhSet = useRef<boolean>(false);
 
   function toggleEditorMode() {
     if (editorMode === "Text") {
@@ -29,7 +31,7 @@ export default function App() {
     <div className="editor">
       <div className="editable-area">
         {editorMode === "Blocks" ? (
-          <BlockEditor text={textRef.current} blocksRef={blocksRef} />
+          <BlockEditor text={textRef.current} blocksRef={blocksRef} baseLineHeight={baseLineHeight} blhSet={blhSet}/>
         ) : (
           <TextEditor blocks={blocksRef.current} textRef={textRef} />
         )}

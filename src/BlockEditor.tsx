@@ -16,9 +16,13 @@ const language = earsTest;
 export default function BlockEditor({
   text,
   blocksRef,
+  baseLineHeight,
+  blhSet,
 }: {
   text: string;
   blocksRef: React.MutableRefObject<BlockType[]>;
+  baseLineHeight: React.MutableRefObject<number>;
+  blhSet: React.MutableRefObject<boolean>;
 }) {
   const [blocks, setBlocks] = useState<BlockType[]>(convertToBlocks(text));
   const [nextBlockIndex, setNextBlockIndex] = useState(text.split("").length);
@@ -27,14 +31,17 @@ export default function BlockEditor({
   const [inputLineIndex, setInputLineIndex] = useState(0); // Which line the input is on (0 = first line)
   const inputRef = useRef<HTMLDivElement>(null);
   const changeBlockRef = useRef(false);
-  const baseLineHeight = useRef(0); // Height of line on first render to compare if other lines have overflown
+  //   const baseLineHeight = useRef(0); // Height of line on first render to compare if other lines have overflown
   const lines = splitLines(blocks); // Blocks converted into lines of blocks based on \n
   const setFirstRef = useRef(false);
 
   // When first rendered, check for line height and set input on end
   useEffect(() => {
-    baseLineHeight.current =
-      document.getElementsByClassName("line")[0].scrollHeight;
+    if (!blhSet.current) {
+      baseLineHeight.current =
+        document.getElementsByClassName("line")[0].scrollHeight;
+      blhSet.current = true;
+    } 
 
     if (!setFirstRef.current) {
       setInputIndex(lines[lines.length - 1].length);
@@ -93,7 +100,9 @@ export default function BlockEditor({
   function getWordType(word: string) {
     for (const [category, data] of Object.entries(language)) {
       if (data.items.includes(word)) {
-        console.log(`"${word}" is in category "${category}" with color ${data.color}`);
+        console.log(
+          `"${word}" is in category "${category}" with color ${data.color}`
+        );
         return data.type;
       }
     }
