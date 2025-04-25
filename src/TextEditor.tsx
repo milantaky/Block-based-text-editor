@@ -19,8 +19,6 @@ export default function TextEditor({
       editableRef.current.focus();
     }
 
-    console.log("puvodni",blocks)
-
     setCaretToEnd();
   }, []);
 
@@ -64,6 +62,7 @@ export default function TextEditor({
     return result;
   }
 
+  //todo rozlisit jestli je to prvni, nebo ne
   function highlightWords(text: string) {
     const words = text.split(/(\s+)/);
 

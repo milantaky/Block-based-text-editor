@@ -40,7 +40,7 @@ export default function BlockEditor({
       baseLineHeight.current =
         document.getElementsByClassName("line")[0].scrollHeight;
       blhSet.current = true;
-    } 
+    }
 
     if (!setFirstRef.current) {
       setInputIndex(lines[lines.length - 1].length);
@@ -73,11 +73,40 @@ export default function BlockEditor({
     if (text === "") return [];
 
     const newBlocks: BlockType[] = [];
-    const splitBlocks = text.split(" ").flatMap((item) => {
-      const parts = item.split("\n");
-      return parts.flatMap((part, index) => {
-        return index < parts.length - 1 ? [part, "\n"] : [part];
-      });
+
+    // Splits by lines -> excludes extra lines added -> filters empty blocks
+    let prevAdded = false;
+    const splitLines = text
+      .split("\n")
+      .flatMap((block) => {
+        if (block === "") {
+          if (!prevAdded) {
+            prevAdded = true;
+            return "\n";
+          }
+          prevAdded = false;
+          return [];
+        }
+        return block;
+      })
+      .filter((block) => block !== "");
+
+    // Add lines
+    const splitBlocksss = splitLines.flatMap((block, index) => {
+      if (index + 1 !== splitLines.length) {
+        if (splitLines[index + 1] !== "\n") {
+          return [block, "\n"];
+        }
+      }
+      return block;
+    });
+
+    // Split blocks on lines
+    const splitBlocks = splitBlocksss.flatMap((block) => {
+      if (block.includes(" ")) {
+        return block.split(" ");
+      }
+      return block;
     });
 
     // Go through each word, make a block, and add it to blocks
@@ -707,15 +736,11 @@ export default function BlockEditor({
     // ! pak jak se oddelaji ramecky, upravit!!!
     const minHeight = baseLineHeight.current - 16; // Base line height - 16px top, bottom padding
 
-    const isEmpty = children!.props.children[0].length === 0
+    const isEmpty = children!.props.children[0].length === 0;
     const style = isEmpty ? { minHeight: `${minHeight}px` } : undefined;
 
     return (
-      <div
-        className="line"
-        data-index={lineIndex}
-        style={style}
-      >
+      <div className="line" data-index={lineIndex} style={style}>
         {children}
       </div>
     );
