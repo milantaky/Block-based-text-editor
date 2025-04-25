@@ -707,11 +707,14 @@ export default function BlockEditor({
     // ! pak jak se oddelaji ramecky, upravit!!!
     const minHeight = baseLineHeight.current - 16; // Base line height - 16px top, bottom padding
 
+    const isEmpty = children!.props.children[0].length === 0
+    const style = isEmpty ? { minHeight: `${minHeight}px` } : undefined;
+
     return (
       <div
         className="line"
         data-index={lineIndex}
-        style={{ minHeight: `${minHeight}px` }}
+        style={style}
       >
         {children}
       </div>
