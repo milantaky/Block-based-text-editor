@@ -19,6 +19,8 @@ export default function TextEditor({
       editableRef.current.focus();
     }
 
+    console.log("puvodni",blocks)
+
     setCaretToEnd();
   }, []);
 
@@ -43,7 +45,7 @@ export default function TextEditor({
     sel!.addRange(range);
   }
 
-  // Converts blocks to text -> leaves spaces around '\n'
+  // Converts blocks to text -> leaves spaces around '\n' 
   function convertToText(blockArray: BlockType[]) {
     let result = "";
     let prevWasNewline = false;
@@ -73,7 +75,7 @@ export default function TextEditor({
         let count = matches ? matches[0].length : 0;
 
         // Browser adds too many \n
-        count = (count - 1) / 2;
+        count = (count - 1);
 
         // Return empty lines
         if (count > 0) {
