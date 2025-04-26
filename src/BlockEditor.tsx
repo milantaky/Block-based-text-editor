@@ -11,7 +11,6 @@ import {
   closestCorners,
   DragEndEvent,
   DragStartEvent,
-  DragCancelEvent,
   DragOverlay
 } from "@dnd-kit/core";
 import {

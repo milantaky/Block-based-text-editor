@@ -11,12 +11,13 @@ export default function TextEditor({
 }) {
   const [text, setText] = useState(convertToText(blocks));
   const editableRef = useRef<HTMLDivElement>(null);
+  const firstRender = useRef(true);
   const highlightedWords = highlightWords(text);
 
   // On first render -> transform BLOCKS to TEXT, set caret to end
   useEffect(() => {
     if (editableRef.current) {
-      editableRef.current.innerText = text;
+      editableRef.current.innerHTML = convertForRef(blocks);
       editableRef.current.focus();
     }
 
@@ -25,13 +26,12 @@ export default function TextEditor({
 
   // Sets current text to ref for parent (App) to see
   useEffect(() => {
-    textRef.current = text;
+    textRef.current = editableRef.current!.innerText;
   }, [text]);
 
   function handleInput() {
     if (editableRef.current) {
       const content = editableRef.current.innerText;
-      console.log(content.split('\n'))
       setText(content);
     }
   }
@@ -45,46 +45,48 @@ export default function TextEditor({
     sel!.addRange(range);
   }
 
+  // For first render
+  function convertForRef(blockArray: BlockType[]) {
+    let result = "";
+    let firstLine = true;
+    let index = 0;
+
+    for (const block of blockArray) {
+      if (firstLine) {
+        if (block.content === "\n") {
+          firstLine = false;
+          index++;
+          continue;
+        }
+
+        if (result === "") {
+          result += block.content;
+        } else {
+          result += " " + block.content;
+        }
+
+        index++;
+      } else {
+        if (block.content === "\n") {
+          if (
+            index + 1 < blockArray.length &&
+            blockArray[index + 1].content === "\n"
+          ) {
+            result += `<div><br></div>`;
+          }
+        } else {
+          result += `<div>${block.content}</div>`;
+        }
+
+        index++;
+      }
+    }
+
+    return result;
+  }
+
   // Converts blocks to text
   function convertToText(blockArray: BlockType[]) {
-
-    // Add necessary \n
-    // let index = 0;
-    // const newBlocks: string[] = [];
-    // for (const block of blockArray) {
-    //   newBlocks.push(block.content);
-
-    //   // Is new line?
-    //   if (block.content === "\n") {
-    //     // Is next block new line? Add one more \n
-    //     if (
-    //       index + 1 < blockArray.length &&
-    //       blockArray[index + 1].content === "\n"
-    //     ) {
-    //       newBlocks.push("\n");
-    //     }
-    //   }
-    //   index++;
-    // }
-
-    // // Join the blocks (leave spaces around '\n')
-    // let result = "";
-    // let prevWasNewline = false;
-
-    // for (const block of newBlocks) {
-    //   const isNewline = block === "\n";
-
-    //   if (!isNewline && result && !prevWasNewline) {
-    //     result += " ";
-    //   }
-
-    //   result += block;
-    //   prevWasNewline = isNewline;
-    // }
-
-    // return result;
-
-
     // Join the blocks (leave spaces around '\n')
     let result = "";
     let prevWasNewline = false;
@@ -99,13 +101,19 @@ export default function TextEditor({
       result += block.content;
       prevWasNewline = isNewline;
     }
-
+    console.log("result", result);
     return result;
   }
 
   function highlightWords(text: string) {
     const words = text.split(/(\s+)/);
-    console.log("t",words);
+    let isFirstRender = false;
+
+    // Different rendering for first render (browser adds )
+    if (firstRender.current && blocks.length !== 0) {
+      isFirstRender = true;
+      firstRender.current = false;
+    }
 
     return words.map((word) => {
       // Is it \n\n\n...?
@@ -113,22 +121,21 @@ export default function TextEditor({
         // Count it
         const matches = word.match(/(\n+)/);
         let count = matches ? matches[0].length : 0;
-        
-        count = (count - 1) / 2;
-        // console.log("count: ", count)
-        
-        // if(count > 1){
-        //   count += count - 1;
-        // }
-        // console.log("newcount: ", count)
 
-        // Return empty lines
-        if (count > 0) {
-          return Array.from({ length: count }).map(() => (
-            <div>
-              <br />
-            </div>
-          ));
+        if (isFirstRender) {
+          if (count > 1) {
+            count += count - 1;
+          }
+        } else {
+          count = (count - 1) / 2;
+
+          if (count > 0) {
+            return Array.from({ length: count }).map(() => (
+              <div>
+                <br />
+              </div>
+            ));
+          }
         }
 
         // No empty lines -> space
