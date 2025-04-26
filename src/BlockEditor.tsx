@@ -1,8 +1,8 @@
 import "./BlockEditor.css";
+import type { BlockType } from "./types";
 import { earsTest } from "./wordCategories.tsx";
 
 import { useState, useRef, useEffect, ReactNode } from "react";
-import type { BlockType } from "./types";
 import SortableBlock from "./SortableBlock";
 
 import {
@@ -10,6 +10,9 @@ import {
   useDroppable,
   closestCorners,
   DragEndEvent,
+  DragStartEvent,
+  DragCancelEvent,
+  DragOverlay
 } from "@dnd-kit/core";
 import {
   SortableContext,
@@ -38,6 +41,7 @@ export default function BlockEditor({
   const changeBlockRef = useRef(false);
   const lines = splitLines(blocks); // Blocks converted into lines of blocks based on \n
   const setFirstRef = useRef(false);
+  const [activeBlock, setActiveBlock] = useState<BlockType | null>(null);
 
   // When first rendered, check for line height and set input on end
   useEffect(() => {
@@ -693,8 +697,6 @@ export default function BlockEditor({
 
     const activeId = active.id;
     const overId = String(over.id);
-    console.log("AID:", activeId);
-    console.log("OID:", overId);
 
     let sourceLineIndex = -1;
     let targetLineIndex = -1;
@@ -710,24 +712,23 @@ export default function BlockEditor({
 
     if (overId.startsWith("line-")) {
       console.log("na radek");
-    //   // Dropujeme na řádek
-    //   targetLineIndex = parseInt(overId.replace("line-", ""), 10);
+      //   // Dropujeme na řádek
+      //   targetLineIndex = parseInt(overId.replace("line-", ""), 10);
 
-    //   if (sourceLineIndex === -1 || targetLineIndex === -1 || !activeBlock)
-    //     return;
+      //   if (sourceLineIndex === -1 || targetLineIndex === -1 || !activeBlock)
+      //     return;
 
-    //   let newBlocks = [...blocks];
-    //   newBlocks = newBlocks.filter((block) => block.index !== activeId);
+      //   let newBlocks = [...blocks];
+      //   newBlocks = newBlocks.filter((block) => block.index !== activeId);
 
-    //   // Najdi první blok v řádku, nebo dej na konec
-    //   const firstBlockInLine = lines[targetLineIndex][0];
-    //   const insertIndex = firstBlockInLine
-    //     ? newBlocks.findIndex((b) => b.index === firstBlockInLine.index)
-    //     : newBlocks.length;
+      //   // Najdi první blok v řádku, nebo dej na konec
+      //   const firstBlockInLine = lines[targetLineIndex][0];
+      //   const insertIndex = firstBlockInLine
+      //     ? newBlocks.findIndex((b) => b.index === firstBlockInLine.index)
+      //     : newBlocks.length;
 
-    //   newBlocks.splice(insertIndex, 0, activeBlock);
-    //   setBlocks(newBlocks);
-
+      //   newBlocks.splice(insertIndex, 0, activeBlock);
+      //   setBlocks(newBlocks);
     } else {
       // Find line where target is
       lines.forEach((line, lineIndex) => {
@@ -754,6 +755,21 @@ export default function BlockEditor({
     }
   }
 
+  function handleDragStart(event: DragStartEvent) {
+    const { active } = event;
+    const activeId = active.id;
+  
+    const foundBlock = blocks.find((block) => block.index === activeId);
+  
+    if (foundBlock) {
+      setActiveBlock(foundBlock);
+    }
+  }
+
+  function handleDragCancel() {
+    setActiveBlock(null);
+  }
+
   // Rendering function
   function renderLine(line: BlockType[], lineIndex: number) {
     const blockIds = line.map((block) => block.index);
@@ -772,6 +788,7 @@ export default function BlockEditor({
             return (
               <>
                 {isInputHere && <InputBox />}
+                
                 <SortableBlock
                   key={block.index}
                   block={block}
@@ -845,8 +862,15 @@ export default function BlockEditor({
       >
         <DndContext
           onDragEnd={(e) => handleDragEnd(e)}
+          onDragStart={(e) => handleDragStart(e)}
+          onDragCancel={handleDragCancel}
           collisionDetection={closestCorners}
         >
+          <DragOverlay>
+            {activeBlock && (
+              <SortableBlock block={activeBlock} lineIndex={2} />
+            )}
+          </DragOverlay>
           {lines.map((line, lineIndex) => renderLine(line, lineIndex))}
         </DndContext>
       </div>
