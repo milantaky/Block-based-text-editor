@@ -5,7 +5,12 @@ import { useState, useRef, useEffect, ReactNode } from "react";
 import type { BlockType } from "./types";
 import SortableBlock from "./SortableBlock";
 
-import { DndContext, closestCorners, DragEndEvent } from "@dnd-kit/core";
+import {
+  DndContext,
+  useDroppable,
+  closestCorners,
+  DragEndEvent,
+} from "@dnd-kit/core";
 import {
   SortableContext,
   horizontalListSortingStrategy,
@@ -642,44 +647,111 @@ export default function BlockEditor({
   }
 
   // Handle function for Drag and Drop
+  //   function handleDragEnd(event: DragEndEvent) {
+  //     const { active, over } = event;
+
+  //     // Not dragged over anything or itself
+  //     if (!over || active.id === over.id) return;
+
+  //     const activeId = active.id;
+  //     const overId = over.id;
+
+  //     let sourceLineIndex = -1;
+  //     let targetLineIndex = -1;
+  //     let activeBlock: BlockType | undefined;
+
+  //     // Find which line the block is from
+  //     lines.forEach((line, lineIndex) => {
+  //       const found = line.find((block) => block.index === activeId);
+  //       if (found) {
+  //         sourceLineIndex = lineIndex;
+  //         activeBlock = found;
+  //       }
+
+  //       const isInTarget = line.some((block) => block.index === overId);
+  //       if (isInTarget) targetLineIndex = lineIndex;
+  //     });
+
+  //     // If not found
+  //     if (sourceLineIndex === -1 || targetLineIndex === -1 || !activeBlock)
+  //       return;
+
+  //     // Remove from original line and move to new place
+  //     let newBlocks = [...blocks];
+  //     newBlocks = newBlocks.filter((block) => block.index !== activeId);
+
+  //     // Find block, filter oroginal, and set new
+  //     const targetIndex = newBlocks.findIndex((block) => block.index === overId);
+
+  //     newBlocks.splice(targetIndex, 0, activeBlock);
+  //     setBlocks(newBlocks);
+  //   }
+
   function handleDragEnd(event: DragEndEvent) {
     const { active, over } = event;
-
-    // Not dragged over anything or itself
     if (!over || active.id === over.id) return;
 
     const activeId = active.id;
-    const overId = over.id;
+    const overId = String(over.id);
+    console.log("AID:", activeId);
+    console.log("OID:", overId);
 
     let sourceLineIndex = -1;
     let targetLineIndex = -1;
     let activeBlock: BlockType | undefined;
 
-    // Find which line the block is from
     lines.forEach((line, lineIndex) => {
       const found = line.find((block) => block.index === activeId);
       if (found) {
         sourceLineIndex = lineIndex;
         activeBlock = found;
       }
-
-      const isInTarget = line.some((block) => block.index === overId);
-      if (isInTarget) targetLineIndex = lineIndex;
     });
 
-    // If not found
-    if (sourceLineIndex === -1 || targetLineIndex === -1 || !activeBlock)
-      return;
+    if (overId.startsWith("line-")) {
+      console.log("na radek");
+    //   // Dropujeme na řádek
+    //   targetLineIndex = parseInt(overId.replace("line-", ""), 10);
 
-    // Remove from original line and move to new place
-    let newBlocks = [...blocks];
-    newBlocks = newBlocks.filter((block) => block.index !== activeId);
+    //   if (sourceLineIndex === -1 || targetLineIndex === -1 || !activeBlock)
+    //     return;
 
-    // Find block, filter oroginal, and set new
-    const targetIndex = newBlocks.findIndex((block) => block.index === overId);
-    // console.log("TI:", targetIndex)
-    newBlocks.splice(targetIndex, 0, activeBlock);
-    setBlocks(newBlocks);
+    //   let newBlocks = [...blocks];
+    //   newBlocks = newBlocks.filter((block) => block.index !== activeId);
+
+    //   // Najdi první blok v řádku, nebo dej na konec
+    //   const firstBlockInLine = lines[targetLineIndex][0];
+    //   const insertIndex = firstBlockInLine
+    //     ? newBlocks.findIndex((b) => b.index === firstBlockInLine.index)
+    //     : newBlocks.length;
+
+    //   newBlocks.splice(insertIndex, 0, activeBlock);
+    //   setBlocks(newBlocks);
+
+    } else {
+      // Find line where target is
+      lines.forEach((line, lineIndex) => {
+        const isInTarget = line.some(
+          (block) => block.index === parseInt(overId)
+        );
+        if (isInTarget) targetLineIndex = lineIndex;
+      });
+
+      // If not found
+      if (sourceLineIndex === -1 || targetLineIndex === -1 || !activeBlock)
+        return;
+
+      // Find block, filter oroginal, and set new
+      const targetIndex = blocks.findIndex(
+        (block) => block.index === parseInt(overId)
+      );
+
+      // Remove from original block and move to new place
+      let newBlocks = [...blocks];
+      newBlocks = newBlocks.filter((block) => block.index !== activeId);
+      newBlocks.splice(targetIndex, 0, activeBlock);
+      setBlocks(newBlocks);
+    }
   }
 
   // Rendering function
@@ -687,11 +759,12 @@ export default function BlockEditor({
     const blockIds = line.map((block) => block.index);
 
     return (
-      <Line key={lineIndex} lineIndex={lineIndex}>
-        <SortableContext
-          items={blockIds}
-          strategy={horizontalListSortingStrategy}
-        >
+      <SortableContext
+        key={lineIndex}
+        items={blockIds}
+        strategy={horizontalListSortingStrategy}
+      >
+        <Line key={lineIndex} lineIndex={lineIndex}>
           {line.map((block, wordIndex) => {
             const isInputHere =
               inputLineIndex === lineIndex && inputIndex === wordIndex;
@@ -699,7 +772,11 @@ export default function BlockEditor({
             return (
               <>
                 {isInputHere && <InputBox />}
-                <SortableBlock block={block} lineIndex={lineIndex} />
+                <SortableBlock
+                  key={block.index}
+                  block={block}
+                  lineIndex={lineIndex}
+                />
               </>
             );
           })}
@@ -708,8 +785,8 @@ export default function BlockEditor({
           {inputLineIndex === lineIndex && inputIndex === line.length && (
             <InputBox />
           )}
-        </SortableContext>
-      </Line>
+        </Line>
+      </SortableContext>
     );
   }
 
@@ -733,14 +810,27 @@ export default function BlockEditor({
     children: ReactNode;
     lineIndex: number;
   }) {
+    const { setNodeRef, isOver } = useDroppable({
+      id: `line-${lineIndex}`, // důležité: musíš použít ID řádku
+      data: {
+        type: "line",
+        lineIndex,
+      },
+    });
+
     // ! pak jak se oddelaji ramecky, upravit!!!
     const minHeight = baseLineHeight.current - 16; // Base line height - 16px top, bottom padding
 
-    const isEmpty = children!.props.children[0].length === 0;
+    const isEmpty = children[0].length === 0;
     const style = isEmpty ? { minHeight: `${minHeight}px` } : undefined;
 
     return (
-      <div className="line" data-index={lineIndex} style={style}>
+      <div
+        ref={setNodeRef}
+        className={`line ${isOver ? "drag-over" : ""}`}
+        data-index={lineIndex}
+        style={style}
+      >
         {children}
       </div>
     );

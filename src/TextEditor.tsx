@@ -11,11 +11,12 @@ export default function TextEditor({
 }) {
   const [text, setText] = useState(convertToText(blocks));
   const editableRef = useRef<HTMLDivElement>(null);
+  const highlightedWords = highlightWords(text);
 
   // On first render -> transform BLOCKS to TEXT, set caret to end
   useEffect(() => {
     if (editableRef.current) {
-      editableRef.current.innerText = convertToText(blocks);
+      editableRef.current.innerText = text;
       editableRef.current.focus();
     }
 
@@ -30,6 +31,7 @@ export default function TextEditor({
   function handleInput() {
     if (editableRef.current) {
       const content = editableRef.current.innerText;
+      console.log(content.split('\n'))
       setText(content);
     }
   }
@@ -43,8 +45,47 @@ export default function TextEditor({
     sel!.addRange(range);
   }
 
-  // Converts blocks to text -> leaves spaces around '\n' 
+  // Converts blocks to text
   function convertToText(blockArray: BlockType[]) {
+
+    // Add necessary \n
+    // let index = 0;
+    // const newBlocks: string[] = [];
+    // for (const block of blockArray) {
+    //   newBlocks.push(block.content);
+
+    //   // Is new line?
+    //   if (block.content === "\n") {
+    //     // Is next block new line? Add one more \n
+    //     if (
+    //       index + 1 < blockArray.length &&
+    //       blockArray[index + 1].content === "\n"
+    //     ) {
+    //       newBlocks.push("\n");
+    //     }
+    //   }
+    //   index++;
+    // }
+
+    // // Join the blocks (leave spaces around '\n')
+    // let result = "";
+    // let prevWasNewline = false;
+
+    // for (const block of newBlocks) {
+    //   const isNewline = block === "\n";
+
+    //   if (!isNewline && result && !prevWasNewline) {
+    //     result += " ";
+    //   }
+
+    //   result += block;
+    //   prevWasNewline = isNewline;
+    // }
+
+    // return result;
+
+
+    // Join the blocks (leave spaces around '\n')
     let result = "";
     let prevWasNewline = false;
 
@@ -62,9 +103,9 @@ export default function TextEditor({
     return result;
   }
 
-  //todo rozlisit jestli je to prvni, nebo ne
   function highlightWords(text: string) {
     const words = text.split(/(\s+)/);
+    console.log("t",words);
 
     return words.map((word) => {
       // Is it \n\n\n...?
@@ -72,9 +113,14 @@ export default function TextEditor({
         // Count it
         const matches = word.match(/(\n+)/);
         let count = matches ? matches[0].length : 0;
-
-        // Browser adds too many \n
-        count = (count - 1);
+        
+        count = (count - 1) / 2;
+        // console.log("count: ", count)
+        
+        // if(count > 1){
+        //   count += count - 1;
+        // }
+        // console.log("newcount: ", count)
 
         // Return empty lines
         if (count > 0) {
@@ -96,7 +142,7 @@ export default function TextEditor({
   return (
     <>
       <div className="textEditor-container">
-        <div className="highlighted-layer">{highlightWords(text)}</div>
+        <div className="highlighted-layer">{highlightedWords}</div>
         <div
           className="editor-layer"
           contentEditable
