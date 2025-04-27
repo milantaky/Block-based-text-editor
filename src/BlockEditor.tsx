@@ -8,7 +8,6 @@ import SortableBlock from "./SortableBlock";
 import {
   DndContext,
   useDroppable,
-  closestCorners,
   DragEndEvent,
   DragStartEvent,
   DragOverlay,
@@ -623,7 +622,9 @@ export default function BlockEditor({
       setInputLineIndex(lineIndex);
       setTimeout(() => inputRef.current?.focus(), 0);
       return;
-    } else if (clicked.classList.contains("line")) {
+    }
+
+    if (clicked.classList.contains("line")) {
       const lineIndex = parseInt(clicked.dataset.index!, 10);
 
       // Find closest space between blocks in place of click
@@ -636,14 +637,13 @@ export default function BlockEditor({
 
       setInputIndex(targetIndex);
       setInputLineIndex(lineIndex);
-      setTimeout(() => inputRef.current?.focus(), 0);
-      return;
     } else {
       // Set input to end
       setInputIndex(lines[lines.length - 1].length);
       setInputLineIndex(lines.length - 1);
-      setTimeout(() => inputRef.current?.focus(), 0);
     }
+
+    setTimeout(() => inputRef.current?.focus(), 0);
   }
 
   function handleInput(e: React.FormEvent<HTMLDivElement>) {
@@ -865,15 +865,14 @@ export default function BlockEditor({
           onDragEnd={(e) => handleDragEnd(e)}
           onDragStart={(e) => handleDragStart(e)}
           onDragCancel={handleDragCancel}
-          collisionDetection={pointerWithin}
-          //   collisionDetection={(args) => {
-          //     // console.log("args",args);
-          //     const collisions = closestCorners(args);
-          //     if (collisions.length === 0) {
-          //       return rectIntersection(args);
-          //     }
-          //     return collisions;
-          //   }}
+          //   collisionDetection={pointerWithin}
+          collisionDetection={(args) => {
+            const collisions = rectIntersection(args);
+            if (collisions.length === 0) {
+              return pointerWithin(args);
+            }
+            return collisions;
+          }}
         >
           <DragOverlay>
             {activeBlock && <SortableBlock block={activeBlock} lineIndex={2} />}
