@@ -2,7 +2,7 @@ import "./BlockEditor.css";
 import type { BlockType } from "./types";
 import { earsTest } from "./wordCategories.tsx";
 
-import { useState, useRef, useEffect, ReactNode } from "react";
+import { useState, useRef, useEffect, ReactNode, Children } from "react";
 import SortableBlock from "./SortableBlock";
 
 import {
@@ -839,7 +839,8 @@ export default function BlockEditor({
     // ! pak jak se oddelaji ramecky, upravit!!!
     const minHeight = baseLineHeight.current - 16; // Base line height - 16px top, bottom padding
 
-    const isEmpty = children[0].length === 0;
+    const childrenArray = Children.toArray(children);
+    const isEmpty = childrenArray.length === 0;
     const style = isEmpty ? { minHeight: `${minHeight}px` } : undefined;
 
     return (
