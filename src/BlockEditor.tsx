@@ -743,14 +743,17 @@ export default function BlockEditor({
       if (sourceLineIndex === -1 || targetLineIndex === -1 || !activeBlock)
         return;
 
-      // Find block
+      // Filter blocks 
+      let newBlocks = [...blocks];
+      newBlocks = newBlocks.filter((block) => block.index !== activeId);
+
+
+      // Find new index for block
       const targetIndex = blocks.findIndex(
         (block) => block.index === parseInt(overId)
       );
 
-      // Remove from original block and move to new place
-      let newBlocks = [...blocks];
-      newBlocks = newBlocks.filter((block) => block.index !== activeId);
+      // Set new blocks
       newBlocks.splice(targetIndex, 0, activeBlock);
       setBlocks(newBlocks);
     }
