@@ -650,46 +650,41 @@ export default function BlockEditor({
     setInputText(e.currentTarget.textContent || "");
   }
 
-  // Handle function for Drag and Drop
-  //   function handleDragEnd(event: DragEndEvent) {
-  //     const { active, over } = event;
+  function findDragOnLineIndex(targetLineIndex: number) {
+    // Find insert index -> count \n in blocks, if empty, put it there, if not, put it on end
+    let targetIndex = -1;
+    let newLines = 0;
+    let i = 0;
 
-  //     // Not dragged over anything or itself
-  //     if (!over || active.id === over.id) return;
+    // First line
+    if (targetLineIndex !== 0) {
+      while (i < blocks.length) {
+        // Correct line
+        if (newLines === targetLineIndex) {
+          if (blocks[i].content === "\n") {
+            targetIndex = i;
+            break;
+          }
+        }
 
-  //     const activeId = active.id;
-  //     const overId = over.id;
+        // New line
+        if (blocks[i].content === "\n") {
+          newLines++;
+          i++;
+          continue;
+        }
 
-  //     let sourceLineIndex = -1;
-  //     let targetLineIndex = -1;
-  //     let activeBlock: BlockType | undefined;
+        i++;
+      }
+    } else {
+      targetIndex = lines[0].length;
+    }
 
-  //     // Find which line the block is from
-  //     lines.forEach((line, lineIndex) => {
-  //       const found = line.find((block) => block.index === activeId);
-  //       if (found) {
-  //         sourceLineIndex = lineIndex;
-  //         activeBlock = found;
-  //       }
+    // If it was on last line (no \n on end)
+    if (i === blocks.length) targetIndex = i;
 
-  //       const isInTarget = line.some((block) => block.index === overId);
-  //       if (isInTarget) targetLineIndex = lineIndex;
-  //     });
-
-  //     // If not found
-  //     if (sourceLineIndex === -1 || targetLineIndex === -1 || !activeBlock)
-  //       return;
-
-  //     // Remove from original line and move to new place
-  //     let newBlocks = [...blocks];
-  //     newBlocks = newBlocks.filter((block) => block.index !== activeId);
-
-  //     // Find block, filter oroginal, and set new
-  //     const targetIndex = newBlocks.findIndex((block) => block.index === overId);
-
-  //     newBlocks.splice(targetIndex, 0, activeBlock);
-  //     setBlocks(newBlocks);
-  //   }
+    return targetIndex;
+  }
 
   function handleDragEnd(event: DragEndEvent) {
     const { active, over } = event;
@@ -713,7 +708,6 @@ export default function BlockEditor({
     });
 
     if (overId.startsWith("line-")) {
-      console.log("na radek");
       targetLineIndex = parseInt(overId.replace("line-", ""), 10);
 
       // If not found
@@ -721,36 +715,7 @@ export default function BlockEditor({
         return;
 
       // Find insert index -> count \n in blocks, if empty, put it there, if not, put it on end
-      let targetIndex = -1;
-      let newLines = 0;
-      let i = 0;
-
-      // First line
-      if (targetLineIndex !== 0) {
-        while (i < blocks.length) {
-          // Correct line
-          if (newLines === targetLineIndex) {
-            if (blocks[i].content === "\n") {
-              targetIndex = i;
-              break;
-            }
-          }
-
-          // New line
-          if (blocks[i].content === "\n") {
-            newLines++;
-            i++;
-            continue;
-          }
-
-          i++;
-        }
-      } else {
-        targetIndex = lines[0].length;
-      }
-
-      // If it was on last line (no \n on end)
-      if (i === blocks.length) targetIndex = i;
+      let targetIndex = findDragOnLineIndex(targetLineIndex);
 
       // Filter the blocks
       let newBlocks = [...blocks];
@@ -766,7 +731,6 @@ export default function BlockEditor({
       newBlocks.splice(targetIndex, 0, activeBlock);
       setBlocks(newBlocks);
     } else {
-      console.log("na blok");
       // Find line where target is
       lines.forEach((line, lineIndex) => {
         const isInTarget = line.some(
