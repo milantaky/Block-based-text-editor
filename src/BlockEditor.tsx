@@ -11,7 +11,9 @@ import {
   closestCorners,
   DragEndEvent,
   DragStartEvent,
-  DragOverlay
+  DragOverlay,
+  rectIntersection,
+  pointerWithin,
 } from "@dnd-kit/core";
 import {
   SortableContext,
@@ -609,7 +611,6 @@ export default function BlockEditor({
 
   // Handles mouse click in editor
   function handleEditorClick(e: React.MouseEvent) {
-    console.log("tu");
     const clicked = e.target as HTMLElement;
 
     // If clicked on block
@@ -693,6 +694,7 @@ export default function BlockEditor({
   function handleDragEnd(event: DragEndEvent) {
     const { active, over } = event;
     if (!over || active.id === over.id) return;
+    console.log(event);
 
     const activeId = active.id;
     const overId = String(over.id);
@@ -701,6 +703,7 @@ export default function BlockEditor({
     let targetLineIndex = -1;
     let activeBlock: BlockType | undefined;
 
+    // Find source line and active block
     lines.forEach((line, lineIndex) => {
       const found = line.find((block) => block.index === activeId);
       if (found) {
@@ -711,24 +714,59 @@ export default function BlockEditor({
 
     if (overId.startsWith("line-")) {
       console.log("na radek");
-      //   // Dropujeme na řádek
-      //   targetLineIndex = parseInt(overId.replace("line-", ""), 10);
+      targetLineIndex = parseInt(overId.replace("line-", ""), 10);
 
-      //   if (sourceLineIndex === -1 || targetLineIndex === -1 || !activeBlock)
-      //     return;
+      // If not found
+      if (sourceLineIndex === -1 || targetLineIndex === -1 || !activeBlock)
+        return;
 
-      //   let newBlocks = [...blocks];
-      //   newBlocks = newBlocks.filter((block) => block.index !== activeId);
+      // Find insert index -> count \n in blocks, if empty, put it there, if not, put it on end
+      let targetIndex = -1;
+      let newLines = 0;
+      let i = 0;
 
-      //   // Najdi první blok v řádku, nebo dej na konec
-      //   const firstBlockInLine = lines[targetLineIndex][0];
-      //   const insertIndex = firstBlockInLine
-      //     ? newBlocks.findIndex((b) => b.index === firstBlockInLine.index)
-      //     : newBlocks.length;
+      // First line
+      if (targetLineIndex !== 0) {
+        while (i < blocks.length) {
+          // Correct line
+          if (newLines === targetLineIndex) {
+            if (blocks[i].content === "\n") {
+              targetIndex = i;
+              break;
+            }
+          }
 
-      //   newBlocks.splice(insertIndex, 0, activeBlock);
-      //   setBlocks(newBlocks);
+          // New line
+          if (blocks[i].content === "\n") {
+            newLines++;
+            i++;
+            continue;
+          }
+
+          i++;
+        }
+      } else {
+        targetIndex = lines[0].length;
+      }
+
+      // If it was on last line (no \n on end)
+      if (i === blocks.length) targetIndex = i;
+
+      // Filter the blocks
+      let newBlocks = [...blocks];
+      newBlocks = newBlocks.filter((block) => block.index !== activeId);
+
+      // If old block before targetIndex
+      const oldIndex = blocks.findIndex((block) => block.index === activeId);
+      if (oldIndex !== -1 && oldIndex < targetIndex) {
+        targetIndex -= 1;
+      }
+
+      // Set new blocks
+      newBlocks.splice(targetIndex, 0, activeBlock);
+      setBlocks(newBlocks);
     } else {
+      console.log("na blok");
       // Find line where target is
       lines.forEach((line, lineIndex) => {
         const isInTarget = line.some(
@@ -741,7 +779,7 @@ export default function BlockEditor({
       if (sourceLineIndex === -1 || targetLineIndex === -1 || !activeBlock)
         return;
 
-      // Find block, filter oroginal, and set new
+      // Find block
       const targetIndex = blocks.findIndex(
         (block) => block.index === parseInt(overId)
       );
@@ -757,9 +795,9 @@ export default function BlockEditor({
   function handleDragStart(event: DragStartEvent) {
     const { active } = event;
     const activeId = active.id;
-  
+
     const foundBlock = blocks.find((block) => block.index === activeId);
-  
+
     if (foundBlock) {
       setActiveBlock(foundBlock);
     }
@@ -787,7 +825,7 @@ export default function BlockEditor({
             return (
               <>
                 {isInputHere && <InputBox />}
-                
+
                 <SortableBlock
                   key={block.index}
                   block={block}
@@ -863,12 +901,18 @@ export default function BlockEditor({
           onDragEnd={(e) => handleDragEnd(e)}
           onDragStart={(e) => handleDragStart(e)}
           onDragCancel={handleDragCancel}
-          collisionDetection={closestCorners}
+          collisionDetection={pointerWithin}
+          //   collisionDetection={(args) => {
+          //     // console.log("args",args);
+          //     const collisions = closestCorners(args);
+          //     if (collisions.length === 0) {
+          //       return rectIntersection(args);
+          //     }
+          //     return collisions;
+          //   }}
         >
           <DragOverlay>
-            {activeBlock && (
-              <SortableBlock block={activeBlock} lineIndex={2} />
-            )}
+            {activeBlock && <SortableBlock block={activeBlock} lineIndex={2} />}
           </DragOverlay>
           {lines.map((line, lineIndex) => renderLine(line, lineIndex))}
         </DndContext>
