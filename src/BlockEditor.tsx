@@ -13,6 +13,7 @@ import {
   DragOverlay,
   rectIntersection,
   pointerWithin,
+  DragOverEvent,
 } from "@dnd-kit/core";
 import {
   SortableContext,
@@ -42,6 +43,8 @@ export default function BlockEditor({
   const lines = splitLines(blocks); // Blocks converted into lines of blocks based on \n
   const setFirstRef = useRef(false);
   const [activeBlock, setActiveBlock] = useState<BlockType | null>(null);
+  const [draggingBlocks, setDraggingBlocks] = useState<BlockType[] | null>(null);
+
 
   // When first rendered, check for line height and set input on end
   useEffect(() => {
@@ -770,6 +773,79 @@ export default function BlockEditor({
     }
   }
 
+  function handleDragOver(event: DragOverEvent){
+    const { active, over } = event;
+  if (!over) return;
+
+  const activeId = active.id;
+  const overId = String(over.id);
+
+  let sourceLineIndex = -1;
+  let targetLineIndex = -1;
+  let activeBlock: BlockType | undefined;
+
+  // Najdi aktivní blok a odkud pochází
+  lines.forEach((line, lineIndex) => {
+    const found = line.find((block) => block.index === activeId);
+    if (found) {
+      sourceLineIndex = lineIndex;
+      activeBlock = found;
+    }
+  });
+
+  if (!activeBlock) return;
+
+  if (overId.startsWith("line-")) {
+    targetLineIndex = parseInt(overId.replace("line-", ""), 10);
+
+    if (sourceLineIndex === -1 || targetLineIndex === -1) return;
+
+    // Vytvoř kopii všech bloků
+    let tempBlocks = [...blocks];
+    tempBlocks = tempBlocks.filter((block) => block.index !== activeId);
+
+    // Urči, kam to vložit
+    let targetIndex = findDragOnLineIndex(targetLineIndex);
+
+    // Pokud v původním pořadí byl před cílovým indexem, oprav
+    const oldIndex = blocks.findIndex((block) => block.index === activeId);
+    if (oldIndex !== -1 && oldIndex < targetIndex) {
+      targetIndex -= 1;
+    }
+
+    // Vlož aktivní blok
+    tempBlocks.splice(targetIndex, 0, activeBlock);
+
+    setDraggingBlocks(tempBlocks);
+  } else {
+    // Find line where target is
+    lines.forEach((line, lineIndex) => {
+      const isInTarget = line.some(
+        (block) => block.index === parseInt(overId)
+      );
+      if (isInTarget) targetLineIndex = lineIndex;
+    });
+
+    // If not found
+    if (sourceLineIndex === -1 || targetLineIndex === -1 || !activeBlock)
+      return;
+
+    // Filter blocks 
+    let newBlocks = [...blocks];
+    newBlocks = newBlocks.filter((block) => block.index !== activeId);
+
+
+    // Find new index for block
+    const targetIndex = blocks.findIndex(
+      (block) => block.index === parseInt(overId)
+    );
+
+    // Set new blocks
+    newBlocks.splice(targetIndex, 0, activeBlock);
+    setDraggingBlocks(newBlocks);
+  }
+  }
+
   function handleDragCancel() {
     setActiveBlock(null);
   }
@@ -866,8 +942,9 @@ export default function BlockEditor({
         onMouseDown={(e) => handleEditorClick(e)}
       >
         <DndContext
-          onDragEnd={(e) => handleDragEnd(e)}
           onDragStart={(e) => handleDragStart(e)}
+          onDragOver={(e) => handleDragOver(e)}
+          onDragEnd={(e) => handleDragEnd(e)}
           onDragCancel={handleDragCancel}
           //   collisionDetection={pointerWithin}
           collisionDetection={(args) => {
@@ -881,7 +958,9 @@ export default function BlockEditor({
           <DragOverlay>
             {activeBlock && <SortableBlock block={activeBlock} lineIndex={2} />}
           </DragOverlay>
-          {lines.map((line, lineIndex) => renderLine(line, lineIndex))}
+          {/* {lines.map((line, lineIndex) => renderLine(line, lineIndex))} */}
+          {(draggingBlocks ? splitLines(draggingBlocks) : lines).map((line, lineIndex) => renderLine(line, lineIndex))}
+
         </DndContext>
       </div>
     </>
