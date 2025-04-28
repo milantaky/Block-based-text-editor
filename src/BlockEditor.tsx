@@ -624,12 +624,43 @@ export default function BlockEditor({
   }
 
   // Adds clicked block to selected blocks
-  function selectBlock(blockIndex: number){
-    setSelectedBlocks(
-        selectedBlocks.includes(blockIndex)
-          ? selectedBlocks.filter((block) => block !== blockIndex)
-          : [...selectedBlocks, blockIndex]
-      );
+  function selectBlock(blockIndex: number) {
+
+    // Empty -> select block
+    if (selectedBlocks.length === 0) {
+      setSelectedBlocks([blockIndex]);
+    }
+
+    // Selected one block already -> if not clicked on the same, select all blocks in between
+    if (selectedBlocks.length === 1) {
+      // Clicked on the same block
+      if (selectedBlocks[0] === blockIndex) {
+        setSelectedBlocks([]);
+        return;
+      }
+
+      const existingIndex = blocks.find(
+        (block) => block.index === selectedBlocks[0]
+      )!.index;
+      const currentIndex = blocks.find(
+        (block) => block.index === blockIndex
+      )!.index;
+
+      // Smaller index is start
+      const start = Math.min(existingIndex, currentIndex);
+      const end = Math.max(existingIndex, currentIndex);
+
+      const newSelectedBlocks = blocks
+        .slice(start, end + 1)
+        .map((block) => block.index);
+
+      setSelectedBlocks(newSelectedBlocks);
+      return;
+    }
+
+    // Many selected -> select only the clicked one
+    setSelectedBlocks([blockIndex]);
+
   }
 
   // Handles mouse click in editor
@@ -641,7 +672,7 @@ export default function BlockEditor({
       // Clicked with Shift
       if (e.shiftKey) {
         const blockIndex = parseInt(clicked.dataset.index!, 10);
-        
+
         selectBlock(blockIndex);
         return;
       }
