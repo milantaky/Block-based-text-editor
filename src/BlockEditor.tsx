@@ -622,7 +622,7 @@ export default function BlockEditor({
       // Get indices from data attributes and convert them to number
       const blockIndex = parseInt(clicked.dataset.indexonline!, 10);
       const lineIndex = parseInt(clicked.dataset.lineindex!, 10);
-      
+
       setInputIndex(blockIndex + 1);
       setInputLineIndex(lineIndex);
       setTimeout(() => inputRef.current?.focus(), 0);
@@ -633,12 +633,15 @@ export default function BlockEditor({
       const lineIndex = parseInt(clicked.dataset.index!, 10);
 
       // Find closest space between blocks in place of click
-      const targetIndex = findPositionOfClickOnLine(
+      let targetIndex = findPositionOfClickOnLine(
         e.clientX,
         e.clientY,
         (e.target as HTMLElement).clientHeight,
         (e.target as HTMLElement).children
       );
+
+      // Returned value is longer than current line
+      if(targetIndex > lines[lineIndex].length) targetIndex -= 1;
 
       setInputIndex(targetIndex);
       setInputLineIndex(lineIndex);
@@ -873,8 +876,8 @@ export default function BlockEditor({
   const sensors = useSensors(
     useSensor(PointerSensor, {
       activationConstraint: {
-        distance: 10
-      }
+        distance: 10,
+      },
     })
   );
 
@@ -891,7 +894,6 @@ export default function BlockEditor({
           onDragEnd={(e) => handleDragEnd(e)}
           onDragCancel={handleDragCancel}
           collisionDetection={(args) => {
-            console.log("tu")
             const collisions = rectIntersection(args);
             if (collisions.length === 0) {
               return pointerWithin(args);
@@ -900,7 +902,13 @@ export default function BlockEditor({
           }}
         >
           <DragOverlay>
-            {activeBlock && <SortableBlock block={activeBlock} lineIndex={2} />}
+            {activeBlock && (
+              <SortableBlock
+                block={activeBlock}
+                lineIndex={2}
+                indexOnLine={-1}
+              />
+            )}
           </DragOverlay>
           {lines.map((line, lineIndex) => renderLine(line, lineIndex))}
         </DndContext>
