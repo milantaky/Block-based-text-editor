@@ -46,6 +46,8 @@ export default function BlockEditor({
   const lines = splitLines(blocks); // Blocks converted into lines of blocks based on \n
   const setFirstRef = useRef(false);
   const [activeBlock, setActiveBlock] = useState<BlockType | null>(null);
+  const [selectedBlocks, setSelectedBlocks] = useState<number[]>([]);
+  console.log("SB:", selectedBlocks);
 
   // When first rendered, check for line height and set input on end
   useEffect(() => {
@@ -617,6 +619,32 @@ export default function BlockEditor({
   function handleEditorClick(e: React.MouseEvent) {
     const clicked = e.target as HTMLElement;
 
+    //------------------------------------------
+    // Clicked with shift
+    if (e.shiftKey) {
+      console.log("Se shiftem");
+      
+      if (clicked.classList.contains("block")) {
+        const blockIndex = parseInt(clicked.dataset.index!, 10);
+
+        if (selectedBlocks.includes(blockIndex)) {
+          setSelectedBlocks(
+            selectedBlocks.filter((block) => block !== blockIndex)
+          );
+        } else {
+          setSelectedBlocks([...selectedBlocks, blockIndex]);
+        }
+        return;
+      }
+    } else {
+        if(selectedBlocks.length !== 0){
+            setSelectedBlocks([]);
+        }
+    }
+
+    return;
+    //------------------------------------------
+
     // If clicked on block
     if (clicked.classList.contains("block")) {
       // Get indices from data attributes and convert them to number
@@ -641,7 +669,7 @@ export default function BlockEditor({
       );
 
       // Returned value is longer than current line
-      if(targetIndex > lines[lineIndex].length) targetIndex -= 1;
+      if (targetIndex > lines[lineIndex].length) targetIndex -= 1;
 
       setInputIndex(targetIndex);
       setInputLineIndex(lineIndex);
@@ -809,6 +837,7 @@ export default function BlockEditor({
                   block={block}
                   indexOnLine={wordIndex}
                   lineIndex={lineIndex}
+                  isSelected={selectedBlocks.includes(block.index)}
                 />
               </>
             );
