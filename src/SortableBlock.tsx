@@ -5,9 +5,11 @@ import { CSS } from "@dnd-kit/utilities";
 export default function SortableBlock({
   block,
   lineIndex,
+  indexOnLine
 }: {
   block: BlockType;
   lineIndex: number;
+  indexOnLine: number;
 }) {
   const { attributes, listeners, setNodeRef, transform, transition } =
     useSortable({ id: block.index });
@@ -22,6 +24,7 @@ export default function SortableBlock({
       ref={setNodeRef}
       className={`block type-${block.wordType}`}
       data-lineindex={lineIndex}
+      data-indexonline={indexOnLine}
       data-index={block.index}
       style={style}
       {...attributes}

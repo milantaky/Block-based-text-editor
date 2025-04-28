@@ -368,52 +368,6 @@ export default function BlockEditor({
     return closestIndex;
   }
 
-  // Todo vyresit inputtext?
-  function findPositionOfClickOnLine(
-    clickX: number,
-    clickY: number,
-    lineHeight: number,
-    items: HTMLCollection
-  ) {
-    // Line not wrapped
-    if (lineHeight <= baseLineHeight.current) {
-      const offsetArray = Array.from(items).map(
-        (item) => (item as HTMLElement).offsetLeft
-      );
-      return findClosestIndex(offsetArray, clickX);
-    } else {
-      const blockOffsetArray: number[] = [];
-      let blocksBefore = 0;
-      let reference = -1;
-
-      for (let i = 0; i < items.length; i++) {
-        const currentBlockOffset =
-          (items[i] as HTMLElement).offsetTop +
-          (items[i] as HTMLElement).offsetHeight;
-
-        // While not on correct line
-        if (clickY > currentBlockOffset) {
-          blocksBefore++;
-          continue;
-        } else {
-          // Correct line, find place to fit input based on offsetLeft
-          if (reference === -1) {
-            reference = currentBlockOffset;
-          }
-
-          // Did we move to next line? Return last index (clicked on end of line)
-          if (currentBlockOffset === reference) {
-            blockOffsetArray.push((items[i] as HTMLElement).offsetLeft);
-          } else {
-            break;
-          }
-        }
-      }
-
-      return findClosestIndex(blockOffsetArray, clickX) + blocksBefore;
-    }
-  }
-
   // Splits wrapped line into separate blocks (their position)
   // Returns offsetLeft array of blocks on lines and an index of line input is on, and index on the line
   function splitLineBlocks(
@@ -613,6 +567,52 @@ export default function BlockEditor({
     setNextBlockIndex(nextBlockIndex + newBlocks.length);
   }
 
+  // Todo vyresit inputtext?
+  function findPositionOfClickOnLine(
+    clickX: number,
+    clickY: number,
+    lineHeight: number,
+    items: HTMLCollection
+  ) {
+    // Line not wrapped
+    if (lineHeight <= baseLineHeight.current) {
+      const offsetArray = Array.from(items).map(
+        (item) => (item as HTMLElement).offsetLeft
+      );
+      return findClosestIndex(offsetArray, clickX);
+    } else {
+      const blockOffsetArray: number[] = [];
+      let blocksBefore = 0;
+      let reference = -1;
+
+      for (let i = 0; i < items.length; i++) {
+        const currentBlockOffset =
+          (items[i] as HTMLElement).offsetTop +
+          (items[i] as HTMLElement).offsetHeight;
+
+        // While not on correct line
+        if (clickY > currentBlockOffset) {
+          blocksBefore++;
+          continue;
+        } else {
+          // Correct line, find place to fit input based on offsetLeft
+          if (reference === -1) {
+            reference = currentBlockOffset;
+          }
+
+          // Did we move to next line? Return last index (clicked on end of line)
+          if (currentBlockOffset === reference) {
+            blockOffsetArray.push((items[i] as HTMLElement).offsetLeft);
+          } else {
+            break;
+          }
+        }
+      }
+
+      return findClosestIndex(blockOffsetArray, clickX) + blocksBefore;
+    }
+  }
+
   // Handles mouse click in editor
   function handleEditorClick(e: React.MouseEvent) {
     const clicked = e.target as HTMLElement;
@@ -620,9 +620,9 @@ export default function BlockEditor({
     // If clicked on block
     if (clicked.classList.contains("block")) {
       // Get indices from data attributes and convert them to number
-      const blockIndex = parseInt(clicked.dataset.index!, 10);
+      const blockIndex = parseInt(clicked.dataset.indexonline!, 10);
       const lineIndex = parseInt(clicked.dataset.lineindex!, 10);
-
+      
       setInputIndex(blockIndex + 1);
       setInputLineIndex(lineIndex);
       setTimeout(() => inputRef.current?.focus(), 0);
@@ -804,6 +804,7 @@ export default function BlockEditor({
                 <SortableBlock
                   key={block.index}
                   block={block}
+                  indexOnLine={wordIndex}
                   lineIndex={lineIndex}
                 />
               </>
@@ -890,6 +891,7 @@ export default function BlockEditor({
           onDragEnd={(e) => handleDragEnd(e)}
           onDragCancel={handleDragCancel}
           collisionDetection={(args) => {
+            console.log("tu")
             const collisions = rectIntersection(args);
             if (collisions.length === 0) {
               return pointerWithin(args);
