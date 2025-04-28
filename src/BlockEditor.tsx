@@ -13,7 +13,7 @@ import {
   DragOverlay,
   rectIntersection,
   pointerWithin,
-  DragOverEvent,
+//   DragOverEvent,
 } from "@dnd-kit/core";
 import {
   SortableContext,
@@ -43,9 +43,6 @@ export default function BlockEditor({
   const lines = splitLines(blocks); // Blocks converted into lines of blocks based on \n
   const setFirstRef = useRef(false);
   const [activeBlock, setActiveBlock] = useState<BlockType | null>(null);
-  const [draggingBlocks, setDraggingBlocks] = useState<BlockType[] | null>(
-    null
-  );
 
   // When first rendered, check for line height and set input on end
   useEffect(() => {
@@ -778,7 +775,6 @@ export default function BlockEditor({
 
   // Rendering function
   function renderLine(line: BlockType[], lineIndex: number) {
-    const currentBlocks = draggingBlocks ? splitLines(draggingBlocks)[lineIndex] : line;
     const blockIds = line.map((block) => block.index);
 
     return (
@@ -788,8 +784,7 @@ export default function BlockEditor({
         strategy={horizontalListSortingStrategy}
       >
         <Line key={lineIndex} lineIndex={lineIndex}>
-          {currentBlocks.map((block, wordIndex) => {
-          {/* {line.map((block, wordIndex) => { */}
+          {line.map((block, wordIndex) => {
             const isInputHere =
               inputLineIndex === lineIndex && inputIndex === wordIndex;
 
@@ -871,7 +866,7 @@ export default function BlockEditor({
       >
         <DndContext
           onDragStart={(e) => handleDragStart(e)}
-            onDragOver={(e) => handleDragOver(e)}
+            // onDragOver={(e) => handleDragOver(e)}
           onDragEnd={(e) => handleDragEnd(e)}
           onDragCancel={handleDragCancel}
           //   collisionDetection={pointerWithin}
@@ -886,8 +881,7 @@ export default function BlockEditor({
           <DragOverlay>
             {activeBlock && <SortableBlock block={activeBlock} lineIndex={2} />}
           </DragOverlay>
-          {/* {lines.map((line, lineIndex) => renderLine(line, lineIndex))} */}
-          {(draggingBlocks ? splitLines(draggingBlocks) : lines).map((line, lineIndex) => renderLine(line, lineIndex))}
+          {lines.map((line, lineIndex) => renderLine(line, lineIndex))}
         </DndContext>
       </div>
     </>
