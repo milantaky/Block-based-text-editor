@@ -623,6 +623,15 @@ export default function BlockEditor({
     }
   }
 
+  // Adds clicked block to selected blocks
+  function selectBlock(blockIndex: number){
+    setSelectedBlocks(
+        selectedBlocks.includes(blockIndex)
+          ? selectedBlocks.filter((block) => block !== blockIndex)
+          : [...selectedBlocks, blockIndex]
+      );
+  }
+
   // Handles mouse click in editor
   function handleEditorClick(e: React.MouseEvent) {
     const clicked = e.target as HTMLElement;
@@ -632,13 +641,8 @@ export default function BlockEditor({
       // Clicked with Shift
       if (e.shiftKey) {
         const blockIndex = parseInt(clicked.dataset.index!, 10);
-
-        setSelectedBlocks(
-          selectedBlocks.includes(blockIndex)
-            ? selectedBlocks.filter((block) => block !== blockIndex)
-            : [...selectedBlocks, blockIndex]
-        );
-
+        
+        selectBlock(blockIndex);
         return;
       }
 
@@ -652,6 +656,7 @@ export default function BlockEditor({
       setInputIndex(blockIndex + 1);
       setInputLineIndex(lineIndex);
       setTimeout(() => inputRef.current?.focus(), 0);
+
       return;
     }
 
