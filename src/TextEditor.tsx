@@ -101,7 +101,6 @@ export default function TextEditor({
       result += block.content;
       prevWasNewline = isNewline;
     }
-    console.log("result", result);
     return result;
   }
 
