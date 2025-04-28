@@ -475,6 +475,7 @@ export default function BlockEditor({
     return lines;
   }
 
+  // Handles pressed keys
   function handleKeyDown(e: React.KeyboardEvent<HTMLDivElement>) {
     switch (e.key) {
       case " ":
@@ -650,46 +651,24 @@ export default function BlockEditor({
     setTimeout(() => inputRef.current?.focus(), 0);
   }
 
+  // Handles user input in editor
   function handleInput(e: React.FormEvent<HTMLDivElement>) {
     setInputText(e.currentTarget.textContent || "");
   }
 
-  function findDragOnLineIndex(targetLineIndex: number) {
-    // Find insert index -> count \n in blocks, if empty, put it there, if not, put it on end
-    let targetIndex = -1;
-    let newLines = 0;
-    let i = 0;
+  // Dnd started
+  function handleDragStart(event: DragStartEvent) {
+    const { active } = event;
+    const activeId = active.id;
 
-    // First line
-    if (targetLineIndex !== 0) {
-      while (i < blocks.length) {
-        // Correct line
-        if (newLines === targetLineIndex) {
-          if (blocks[i].content === "\n") {
-            targetIndex = i;
-            break;
-          }
-        }
+    const foundBlock = blocks.find((block) => block.index === activeId);
 
-        // New line
-        if (blocks[i].content === "\n") {
-          newLines++;
-          i++;
-          continue;
-        }
-
-        i++;
-      }
-    } else {
-      targetIndex = lines[0].length;
+    if (foundBlock) {
+      setActiveBlock(foundBlock);
     }
-
-    // If it was on last line (no \n on end)
-    if (i === blocks.length) targetIndex = i;
-
-    return targetIndex;
   }
 
+  // DnD ended (dropped)
   function handleDragEnd(event: DragEndEvent) {
     const { active, over } = event;
     if (!over || active.id === over.id) return;
@@ -761,17 +740,44 @@ export default function BlockEditor({
     }
   }
 
-  function handleDragStart(event: DragStartEvent) {
-    const { active } = event;
-    const activeId = active.id;
+  // Finds index for dropping block when DnD
+  function findDragOnLineIndex(targetLineIndex: number) {
+    // Find insert index -> count \n in blocks, if empty, put it there, if not, put it on end
+    let targetIndex = -1;
+    let newLines = 0;
+    let i = 0;
 
-    const foundBlock = blocks.find((block) => block.index === activeId);
+    // First line
+    if (targetLineIndex !== 0) {
+      while (i < blocks.length) {
+        // Correct line
+        if (newLines === targetLineIndex) {
+          if (blocks[i].content === "\n") {
+            targetIndex = i;
+            break;
+          }
+        }
 
-    if (foundBlock) {
-      setActiveBlock(foundBlock);
+        // New line
+        if (blocks[i].content === "\n") {
+          newLines++;
+          i++;
+          continue;
+        }
+
+        i++;
+      }
+    } else {
+      targetIndex = lines[0].length;
     }
+
+    // If it was on last line (no \n on end)
+    if (i === blocks.length) targetIndex = i;
+
+    return targetIndex;
   }
 
+  // DnD canceled
   function handleDragCancel() {
     setActiveBlock(null);
   }
@@ -813,6 +819,7 @@ export default function BlockEditor({
     );
   }
 
+  // InputBox component
   function InputBox() {
     return (
       <div
@@ -826,6 +833,7 @@ export default function BlockEditor({
     );
   }
 
+  // Line component
   function Line({
     children,
     lineIndex,
@@ -860,7 +868,6 @@ export default function BlockEditor({
     );
   }
 
-
   // Sensor for Drag-and-drop (beacuse of colliding with handleEditorClick)
   const sensors = useSensors(
     useSensor(PointerSensor, {
@@ -882,7 +889,6 @@ export default function BlockEditor({
           onDragStart={(e) => handleDragStart(e)}
           onDragEnd={(e) => handleDragEnd(e)}
           onDragCancel={handleDragCancel}
-          //   collisionDetection={pointerWithin}
           collisionDetection={(args) => {
             const collisions = rectIntersection(args);
             if (collisions.length === 0) {
