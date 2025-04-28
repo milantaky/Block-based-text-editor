@@ -47,7 +47,7 @@ export default function BlockEditor({
   const setFirstRef = useRef(false);
   const [activeBlock, setActiveBlock] = useState<BlockType | null>(null);
   const [selectedBlocks, setSelectedBlocks] = useState<number[]>([]);
-  console.log("SB:", selectedBlocks);
+  //   console.log("SB:", selectedBlocks);
 
   // When first rendered, check for line height and set input on end
   useEffect(() => {
@@ -71,16 +71,16 @@ export default function BlockEditor({
 
   // Focuses editor, and sets caret on end of input when editing it
   useEffect(() => {
+    // setTimeout(() => {
     if (inputRef.current) {
       inputRef.current.focus();
       inputRef.current.textContent = inputText;
 
-      // Sets caret on the end when pressing backspace on block (editing)
-      if (changeBlockRef) {
-        setCaretToEnd();
-      }
+      if (changeBlockRef) setCaretToEnd();
     }
+    // }, 0);
   }, [blocks, inputIndex, inputLineIndex, inputText]);
+  //   }, [blocks, inputIndex, inputLineIndex, inputText, selectedBlocks]);
 
   // Splits text into blocks of words, gives them index, and category (wordType)
   // Runs when the block editor is first rendered
@@ -473,12 +473,20 @@ export default function BlockEditor({
             const insertIndex = countInsertIndex();
 
             // Shift -> delete block
-            if (e.shiftKey && inputIndex !== 0) {
-              setInputIndex(inputIndex - 1);
-              setBlocks(
-                blocks.filter((block) => block.index !== insertIndex - 1)
-              );
-              return;
+            if (e.shiftKey) {
+              if (selectedBlocks.length === 0) {
+                console.log("NSB");
+              } else {
+                console.log("SB");
+              }
+              if (inputIndex !== 0) {
+                setInputIndex(inputIndex - 1);
+                setBlocks(
+                  blocks.filter((block) => block.index !== insertIndex - 1)
+                );
+
+                return;
+              }
             }
 
             // Input on start -> deleting line
@@ -619,34 +627,24 @@ export default function BlockEditor({
   function handleEditorClick(e: React.MouseEvent) {
     const clicked = e.target as HTMLElement;
 
-    //------------------------------------------
-    // Clicked with shift
-    if (e.shiftKey) {
-      console.log("Se shiftem");
-      
-      if (clicked.classList.contains("block")) {
+    // Clicked on block
+    if (clicked.classList.contains("block")) {
+      // Clicked with Shift
+      if (e.shiftKey) {
         const blockIndex = parseInt(clicked.dataset.index!, 10);
 
-        if (selectedBlocks.includes(blockIndex)) {
-          setSelectedBlocks(
-            selectedBlocks.filter((block) => block !== blockIndex)
-          );
-        } else {
-          setSelectedBlocks([...selectedBlocks, blockIndex]);
-        }
+        setSelectedBlocks(
+          selectedBlocks.includes(blockIndex)
+            ? selectedBlocks.filter((block) => block !== blockIndex)
+            : [...selectedBlocks, blockIndex]
+        );
+
         return;
       }
-    } else {
-        if(selectedBlocks.length !== 0){
-            setSelectedBlocks([]);
-        }
-    }
 
-    return;
-    //------------------------------------------
+      // Clicked without shift
+      setSelectedBlocks([]);
 
-    // If clicked on block
-    if (clicked.classList.contains("block")) {
       // Get indices from data attributes and convert them to number
       const blockIndex = parseInt(clicked.dataset.indexonline!, 10);
       const lineIndex = parseInt(clicked.dataset.lineindex!, 10);
@@ -656,6 +654,8 @@ export default function BlockEditor({
       setTimeout(() => inputRef.current?.focus(), 0);
       return;
     }
+
+    setSelectedBlocks([]);
 
     if (clicked.classList.contains("line")) {
       const lineIndex = parseInt(clicked.dataset.index!, 10);
