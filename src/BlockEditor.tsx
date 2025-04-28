@@ -13,7 +13,10 @@ import {
   DragOverlay,
   rectIntersection,
   pointerWithin,
-//   DragOverEvent,
+  useSensor,
+  useSensors,
+  PointerSensor,
+  //   DragOverEvent,
 } from "@dnd-kit/core";
 import {
   SortableContext,
@@ -857,6 +860,16 @@ export default function BlockEditor({
     );
   }
 
+
+  // Sensor for Drag-and-drop (beacuse of colliding with handleEditorClick)
+  const sensors = useSensors(
+    useSensor(PointerSensor, {
+      activationConstraint: {
+        distance: 10
+      }
+    })
+  );
+
   return (
     <>
       <div
@@ -865,8 +878,8 @@ export default function BlockEditor({
         onMouseDown={(e) => handleEditorClick(e)}
       >
         <DndContext
+          sensors={sensors}
           onDragStart={(e) => handleDragStart(e)}
-            // onDragOver={(e) => handleDragOver(e)}
           onDragEnd={(e) => handleDragEnd(e)}
           onDragCancel={handleDragCancel}
           //   collisionDetection={pointerWithin}
