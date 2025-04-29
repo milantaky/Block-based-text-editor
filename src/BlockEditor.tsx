@@ -47,7 +47,11 @@ export default function BlockEditor({
   const setFirstRef = useRef(false);
   const [activeBlock, setActiveBlock] = useState<BlockType | null>(null);
   const [selectedBlocks, setSelectedBlocks] = useState<number[]>([]);
-    console.log("B:", blocks);
+  const [firstSelectedBlockIndex, setFirstSelectedBlockIndex] = useState<[number, number]>([-1, -1]); // [inputIndex, inputLineIndex]
+    // console.log("B:", blocks);
+    // console.log("SB:", selectedBlocks);
+    console.log("FFFS:", firstSelectedBlockIndex);
+    
 
   // When first rendered, check for line height and set input on end
   useEffect(() => {
@@ -477,13 +481,14 @@ export default function BlockEditor({
 
                 // Blocks are selected -> delete them
               if (selectedBlocks.length !== 0) {
-                console.log("delet sb", selectedBlocks);
                 
                 setBlocks(blocks.filter(block => !selectedBlocks.includes(block.index)));
+                setInputIndex(firstSelectedBlockIndex[0]);
+                setInputLineIndex(firstSelectedBlockIndex[1]);
+                setFirstSelectedBlockIndex([-1, -1]);
                 setSelectedBlocks([]);
+                
                 return;
-
-                // Set indices
               } 
               
               if (inputIndex !== 0) {
@@ -631,11 +636,14 @@ export default function BlockEditor({
   }
 
   // Adds clicked block to selected blocks
-  function selectBlock(blockIndex: number) {
+  function selectBlock(blockIndex: number, clicked: HTMLElement) {
+    const indexOnLine = parseInt(clicked.dataset.indexonline!, 10);
+    const lineIndex = parseInt(clicked.dataset.lineindex!, 10);
 
     // Empty -> select block
     if (selectedBlocks.length === 0) {
       setSelectedBlocks([blockIndex]);
+      setFirstSelectedBlockIndex([-1, -1]);
     }
 
     // Selected one block already -> if not clicked on the same, select all blocks in between
@@ -643,6 +651,7 @@ export default function BlockEditor({
       // Clicked on the same block
       if (selectedBlocks[0] === blockIndex) {
         setSelectedBlocks([]);
+        setFirstSelectedBlockIndex([-1, -1]);
         return;
       }
 
@@ -657,6 +666,11 @@ export default function BlockEditor({
       const start = Math.min(existingIndex, currentIndex);
       const end = Math.max(existingIndex, currentIndex);
 
+      // Clicked before the already selected block, update future input in case of deleting
+      if(currentIndex < existingIndex){
+        setFirstSelectedBlockIndex([indexOnLine, lineIndex]);
+      }
+
       const newSelectedBlocks = blocks
         .slice(start, end + 1)
         .map((block) => block.index);
@@ -667,6 +681,7 @@ export default function BlockEditor({
 
     // Many selected -> select only the clicked one
     setSelectedBlocks([blockIndex]);
+    setFirstSelectedBlockIndex([indexOnLine, lineIndex]);
 
   }
 
@@ -680,7 +695,7 @@ export default function BlockEditor({
       if (e.shiftKey) {
         const blockIndex = parseInt(clicked.dataset.index!, 10);
 
-        selectBlock(blockIndex);
+        selectBlock(blockIndex, clicked);
         return;
       }
 
