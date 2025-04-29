@@ -48,9 +48,6 @@ export default function BlockEditor({
   const [activeBlock, setActiveBlock] = useState<BlockType | null>(null);
   const [selectedBlocks, setSelectedBlocks] = useState<number[]>([]);
   const [firstSelectedBlockIndex, setFirstSelectedBlockIndex] = useState<[number, number]>([-1, -1]); // [inputIndex, inputLineIndex]
-    // console.log("B:", blocks);
-    // console.log("SB:", selectedBlocks);
-    console.log("FFFS:", firstSelectedBlockIndex);
     
 
   // When first rendered, check for line height and set input on end
@@ -589,6 +586,18 @@ export default function BlockEditor({
     setNextBlockIndex(nextBlockIndex + newBlocks.length);
   }
 
+  function handleCopy(){
+    console.log("chci copy");
+
+    if(selectedBlocks.length === 0){
+        console.log("nejsou oznacene bloky");
+    } else {
+        console.log("jsou");
+        
+    }
+    
+  }
+
   // Todo vyresit inputtext?
   function findPositionOfClickOnLine(
     clickX: number,
@@ -973,6 +982,7 @@ export default function BlockEditor({
       <div
         className="blockEditor-container"
         onPaste={(e) => handlePaste(e)}
+        onCopy={(e) => handleCopy(e)}
         onMouseDown={(e) => handleEditorClick(e)}
       >
         <DndContext
