@@ -47,7 +47,7 @@ export default function BlockEditor({
   const setFirstRef = useRef(false);
   const [activeBlock, setActiveBlock] = useState<BlockType | null>(null);
   const [selectedBlocks, setSelectedBlocks] = useState<number[]>([]);
-  //   console.log("SB:", selectedBlocks);
+    console.log("B:", blocks);
 
   // When first rendered, check for line height and set input on end
   useEffect(() => {
@@ -71,16 +71,16 @@ export default function BlockEditor({
 
   // Focuses editor, and sets caret on end of input when editing it
   useEffect(() => {
-    // setTimeout(() => {
+    setTimeout(() => {
     if (inputRef.current) {
       inputRef.current.focus();
       inputRef.current.textContent = inputText;
 
       if (changeBlockRef) setCaretToEnd();
     }
-    // }, 0);
-  }, [blocks, inputIndex, inputLineIndex, inputText]);
-  //   }, [blocks, inputIndex, inputLineIndex, inputText, selectedBlocks]);
+    }, 0);
+//   }, [blocks, inputIndex, inputLineIndex, inputText]);
+    }, [blocks, inputIndex, inputLineIndex, inputText, selectedBlocks]);
 
   // Splits text into blocks of words, gives them index, and category (wordType)
   // Runs when the block editor is first rendered
@@ -474,11 +474,18 @@ export default function BlockEditor({
 
             // Shift -> delete block
             if (e.shiftKey) {
-              if (selectedBlocks.length === 0) {
-                console.log("NSB");
-              } else {
-                console.log("SB");
-              }
+
+                // Blocks are selected -> delete them
+              if (selectedBlocks.length !== 0) {
+                console.log("delet sb", selectedBlocks);
+                
+                setBlocks(blocks.filter(block => !selectedBlocks.includes(block.index)));
+                setSelectedBlocks([]);
+                return;
+
+                // Set indices
+              } 
+              
               if (inputIndex !== 0) {
                 setInputIndex(inputIndex - 1);
                 setBlocks(
@@ -639,12 +646,12 @@ export default function BlockEditor({
         return;
       }
 
-      const existingIndex = blocks.find(
+      const existingIndex = blocks.findIndex(
         (block) => block.index === selectedBlocks[0]
-      )!.index;
-      const currentIndex = blocks.find(
+      );
+      const currentIndex = blocks.findIndex(
         (block) => block.index === blockIndex
-      )!.index;
+      );
 
       // Smaller index is start
       const start = Math.min(existingIndex, currentIndex);
