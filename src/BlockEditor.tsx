@@ -46,8 +46,9 @@ export default function BlockEditor({
   const lines = splitLines(blocks); // Blocks converted into lines of blocks based on \n
   const setFirstRef = useRef(false);
   const [activeBlock, setActiveBlock] = useState<BlockType | null>(null);
-  const [selectedBlocks, setSelectedBlocks] = useState<number[]>([]);
+  const [selectedBlocks, setSelectedBlocks] = useState<BlockType[]>([]);
   const [firstSelectedBlockIndex, setFirstSelectedBlockIndex] = useState<[number, number]>([-1, -1]); // [inputIndex, inputLineIndex]
+  console.log("SB", selectedBlocks);
     
 
   // When first rendered, check for line height and set input on end
@@ -658,14 +659,14 @@ export default function BlockEditor({
     // Selected one block already -> if not clicked on the same, select all blocks in between
     if (selectedBlocks.length === 1) {
       // Clicked on the same block
-      if (selectedBlocks[0] === blockIndex) {
+      if (selectedBlocks[0].index === blockIndex) {
         setSelectedBlocks([]);
         setFirstSelectedBlockIndex([-1, -1]);
         return;
       }
 
       const existingIndex = blocks.findIndex(
-        (block) => block.index === selectedBlocks[0]
+        (block) => block.index === selectedBlocks[0].index
       );
       const currentIndex = blocks.findIndex(
         (block) => block.index === blockIndex
@@ -681,15 +682,15 @@ export default function BlockEditor({
       }
 
       const newSelectedBlocks = blocks
-        .slice(start, end + 1)
-        .map((block) => block.index);
+        .slice(start, end + 1);
 
       setSelectedBlocks(newSelectedBlocks);
       return;
     }
 
     // Many selected -> select only the clicked one
-    setSelectedBlocks([blockIndex]);
+    const selectedBlock = blocks.find(block => block.index === blockIndex);
+    setSelectedBlocks([selectedBlock!]);
     setFirstSelectedBlockIndex([indexOnLine, lineIndex]);
 
   }
@@ -904,7 +905,7 @@ export default function BlockEditor({
                   block={block}
                   indexOnLine={wordIndex}
                   lineIndex={lineIndex}
-                  isSelected={selectedBlocks.includes(block.index)}
+                  isSelected={selectedBlocks.some(b => b.index === block.index)}
                 />
               </>
             );
