@@ -594,6 +594,8 @@ export default function BlockEditor({
         console.log("nejsou oznacene bloky");
     } else {
         console.log("jsou");
+        const copiedContent = selectedBlocks.map(block => block.content).join(" ");
+        navigator.clipboard.writeText(copiedContent);
         
     }
     
