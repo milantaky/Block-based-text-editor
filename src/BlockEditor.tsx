@@ -878,15 +878,35 @@ export default function BlockEditor({
 
       // Filter blocks
       let newBlocks = [...blocks];
-      newBlocks = newBlocks.filter((block) => block.index !== activeId);
+
+      if (isMultipleDrag) {
+        newBlocks = newBlocks.filter(
+          (block) =>
+            !selectedBlocks.some(
+              (selectedBlock) =>
+                selectedBlock.index === block.index &&
+                selectedBlock.content !== "\n"
+            )
+        );
+      } else {
+        newBlocks = newBlocks.filter((block) => block.index !== activeId);
+      }
 
       // Find new index for block
-      const targetIndex = blocks.findIndex(
+      let targetIndex = newBlocks.findIndex(
         (block) => block.index === parseInt(overId)
       );
 
+      if(blocks.findIndex(block => block.index === activeId) < blocks.findIndex(block => block.index === parseInt(overId))){
+        targetIndex += 1;
+      }
+
       // Set new blocks
-      newBlocks.splice(targetIndex, 0, activeBlock);
+      if (isMultipleDrag) {
+        newBlocks.splice(targetIndex, 0, ...selectedBlocks);
+      } else {
+        newBlocks.splice(targetIndex, 0, activeBlock);
+      }
       setBlocks(newBlocks);
     }
   }
