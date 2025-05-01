@@ -50,7 +50,6 @@ export default function BlockEditor({
   const [firstSelectedBlockIndex, setFirstSelectedBlockIndex] = useState<
     [number, number]
   >([-1, -1]); // [inputIndex, inputLineIndex]
-  console.log("SB", selectedBlocks);
 
   // When first rendered, check for line height and set input on end
   useEffect(() => {
@@ -481,7 +480,10 @@ export default function BlockEditor({
               if (selectedBlocks.length !== 0) {
                 setBlocks(
                   blocks.filter(
-                    (block) => !selectedBlocks.some(selected => selected.index === block.index)
+                    (block) =>
+                      !selectedBlocks.some(
+                        (selected) => selected.index === block.index
+                      )
                   )
                 );
                 setInputIndex(firstSelectedBlockIndex[0]);
@@ -571,6 +573,9 @@ export default function BlockEditor({
   function handlePaste(e: React.ClipboardEvent<HTMLDivElement>) {
     e.preventDefault();
 
+    // Unselects blocks
+    if (selectedBlocks.length !== 0) setSelectedBlocks([]);
+
     // Gets text from clipboard and converts it to blocks with correct indices
     const pastedText = e.clipboardData.getData("text");
     let newBlocks = convertToBlocks(pastedText, nextBlockIndex);
@@ -586,7 +591,23 @@ export default function BlockEditor({
       ...prevBlocks.slice(insertIndex),
     ]);
 
-    setInputIndex(inputIndex + newBlocks.length);
+    // Count new lines
+    const newLineCount = newBlocks.reduce((acc, block) => {
+      return acc + (block.content.includes("\n") ? 1 : 0);
+    }, 0);
+
+    if (newLineCount === 0) setInputIndex(inputIndex + newBlocks.length);
+    else {
+      let index = 0;
+      for (let i = newBlocks.length - 1; i >= 0; i--) {
+        index++;
+        if (newBlocks[i].content === "\n") break;
+      }
+
+      setInputIndex(index - 1);
+      setInputLineIndex(inputLineIndex + newLineCount);
+    }
+
     setNextBlockIndex(nextBlockIndex + newBlocks.length);
   }
 
@@ -767,7 +788,7 @@ export default function BlockEditor({
 
   // Handles user input in editor
   function handleInput(e: React.FormEvent<HTMLDivElement>) {
-    if(selectedBlocks.length !== 0) setSelectedBlocks([]);  // Removes block selection when writing
+    if (selectedBlocks.length !== 0) setSelectedBlocks([]); // Removes block selection when writing
     setInputText(e.currentTarget.textContent || "");
   }
 
