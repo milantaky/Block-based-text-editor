@@ -746,7 +746,7 @@ export default function BlockEditor({
       }
 
       // Clicked without shift
-      setSelectedBlocks([]);
+      //!   setSelectedBlocks([]); zkousim kvuli dnd na selected blocks
 
       // Get indices from data attributes and convert them to number
       const blockIndex = parseInt(clicked.dataset.indexonline!, 10);
@@ -825,6 +825,28 @@ export default function BlockEditor({
       }
     });
 
+    const isMultipleDrag =
+      selectedBlocks.some((block) => block.index === activeId) &&
+      selectedBlocks.length !== 0;
+
+    let targetIndex;
+    let newBlocks = [...blocks];
+
+    // Filter blocks
+    if (isMultipleDrag) {
+      newBlocks = newBlocks.filter(
+        (block) =>
+          !selectedBlocks.some(
+            (selectedBlock) =>
+              selectedBlock.index === block.index &&
+              selectedBlock.content !== "\n"
+          )
+      );
+    } else {
+      newBlocks = newBlocks.filter((block) => block.index !== activeId);
+    }
+
+    // Is dropped on line, or block
     if (overId.startsWith("line-")) {
       targetLineIndex = parseInt(overId.replace("line-", ""), 10);
 
@@ -833,21 +855,7 @@ export default function BlockEditor({
         return;
 
       // Find insert index -> count \n in blocks, if empty, put it there, if not, put it on end
-      let targetIndex = findDragOnLineIndex(targetLineIndex);
-
-      // Filter the blocks
-      let newBlocks = [...blocks];
-      newBlocks = newBlocks.filter((block) => block.index !== activeId);
-
-      // If old block before targetIndex
-      const oldIndex = blocks.findIndex((block) => block.index === activeId);
-      if (oldIndex !== -1 && oldIndex < targetIndex) {
-        targetIndex -= 1;
-      }
-
-      // Set new blocks
-      newBlocks.splice(targetIndex, 0, activeBlock);
-      setBlocks(newBlocks);
+      targetIndex = findDragOnLineIndex(newBlocks, targetLineIndex);
     } else {
       // Find line where target is
       lines.forEach((line, lineIndex) => {
@@ -861,23 +869,30 @@ export default function BlockEditor({
       if (sourceLineIndex === -1 || targetLineIndex === -1 || !activeBlock)
         return;
 
-      // Filter blocks
-      let newBlocks = [...blocks];
-      newBlocks = newBlocks.filter((block) => block.index !== activeId);
-
       // Find new index for block
-      const targetIndex = blocks.findIndex(
+      targetIndex = newBlocks.findIndex(
         (block) => block.index === parseInt(overId)
       );
 
-      // Set new blocks
-      newBlocks.splice(targetIndex, 0, activeBlock);
-      setBlocks(newBlocks);
+      if (
+        blocks.findIndex((block) => block.index === activeId) <
+        blocks.findIndex((block) => block.index === parseInt(overId))
+      ) {
+        targetIndex += 1;
+      }
     }
+
+    // Set new blocks
+    if (isMultipleDrag) {
+      newBlocks.splice(targetIndex, 0, ...selectedBlocks);
+    } else {
+      newBlocks.splice(targetIndex, 0, activeBlock);
+    }
+    setBlocks(newBlocks);
   }
 
   // Finds index for dropping block when DnD
-  function findDragOnLineIndex(targetLineIndex: number) {
+  function findDragOnLineIndex(blocks: BlockType[], targetLineIndex: number) {
     // Find insert index -> count \n in blocks, if empty, put it there, if not, put it on end
     let targetIndex = -1;
     let newLines = 0;
