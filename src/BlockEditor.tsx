@@ -745,12 +745,14 @@ export default function BlockEditor({
         return;
       }
 
-      // Clicked without shift
-      //!   setSelectedBlocks([]); zkousim kvuli dnd na selected blocks
-
       // Get indices from data attributes and convert them to number
       const blockIndex = parseInt(clicked.dataset.indexonline!, 10);
       const lineIndex = parseInt(clicked.dataset.lineindex!, 10);
+
+      // Did not click on selected block
+      if(!selectedBlocks.some(block => block.index === blockIndex)){
+        setSelectedBlocks([]);
+      }
 
       setInputIndex(blockIndex + 1);
       setInputLineIndex(lineIndex);
