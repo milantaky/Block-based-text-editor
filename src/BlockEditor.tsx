@@ -46,6 +46,10 @@ export default function BlockEditor({
   const lines = splitLines(blocks); // Blocks converted into lines of blocks based on \n
   const setFirstRef = useRef(false);
   const [activeBlock, setActiveBlock] = useState<BlockType | null>(null);
+  const [selectedBlocks, setSelectedBlocks] = useState<BlockType[]>([]);
+  const [firstSelectedBlockIndex, setFirstSelectedBlockIndex] = useState<
+    [number, number]
+  >([-1, -1]); // [inputIndex, inputLineIndex]
 
   // When first rendered, check for line height and set input on end
   useEffect(() => {
@@ -69,16 +73,16 @@ export default function BlockEditor({
 
   // Focuses editor, and sets caret on end of input when editing it
   useEffect(() => {
-    if (inputRef.current) {
-      inputRef.current.focus();
-      inputRef.current.textContent = inputText;
+    setTimeout(() => {
+      if (inputRef.current) {
+        inputRef.current.focus();
+        inputRef.current.textContent = inputText;
 
-      // Sets caret on the end when pressing backspace on block (editing)
-      if (changeBlockRef) {
-        setCaretToEnd();
+        if (changeBlockRef) setCaretToEnd();
       }
-    }
-  }, [blocks, inputIndex, inputLineIndex, inputText]);
+    }, 0);
+    //   }, [blocks, inputIndex, inputLineIndex, inputText]);
+  }, [blocks, inputIndex, inputLineIndex, inputText, selectedBlocks]);
 
   // Splits text into blocks of words, gives them index, and category (wordType)
   // Runs when the block editor is first rendered
@@ -471,12 +475,33 @@ export default function BlockEditor({
             const insertIndex = countInsertIndex();
 
             // Shift -> delete block
-            if (e.shiftKey && inputIndex !== 0) {
-              setInputIndex(inputIndex - 1);
-              setBlocks(
-                blocks.filter((block) => block.index !== insertIndex - 1)
-              );
-              return;
+            if (e.shiftKey) {
+              // Blocks are selected -> delete them
+              if (selectedBlocks.length !== 0) {
+                setBlocks(
+                  blocks.filter(
+                    (block) =>
+                      !selectedBlocks.some(
+                        (selected) => selected.index === block.index
+                      )
+                  )
+                );
+                setInputIndex(firstSelectedBlockIndex[0]);
+                setInputLineIndex(firstSelectedBlockIndex[1]);
+                setFirstSelectedBlockIndex([-1, -1]);
+                setSelectedBlocks([]);
+
+                return;
+              }
+
+              if (inputIndex !== 0) {
+                setInputIndex(inputIndex - 1);
+                setBlocks(
+                  blocks.filter((block) => block.index !== insertIndex - 1)
+                );
+
+                return;
+              }
             }
 
             // Input on start -> deleting line
@@ -548,6 +573,9 @@ export default function BlockEditor({
   function handlePaste(e: React.ClipboardEvent<HTMLDivElement>) {
     e.preventDefault();
 
+    // Unselects blocks
+    if (selectedBlocks.length !== 0) setSelectedBlocks([]);
+
     // Gets text from clipboard and converts it to blocks with correct indices
     const pastedText = e.clipboardData.getData("text");
     let newBlocks = convertToBlocks(pastedText, nextBlockIndex);
@@ -563,8 +591,51 @@ export default function BlockEditor({
       ...prevBlocks.slice(insertIndex),
     ]);
 
-    setInputIndex(inputIndex + newBlocks.length);
+    // Count new lines
+    const newLineCount = newBlocks.reduce((acc, block) => {
+      return acc + (block.content.includes("\n") ? 1 : 0);
+    }, 0);
+
+    if (newLineCount === 0) setInputIndex(inputIndex + newBlocks.length);
+    else {
+      let index = 0;
+      for (let i = newBlocks.length - 1; i >= 0; i--) {
+        index++;
+        if (newBlocks[i].content === "\n") break;
+      }
+
+      setInputIndex(index - 1);
+      setInputLineIndex(inputLineIndex + newLineCount);
+    }
+
     setNextBlockIndex(nextBlockIndex + newBlocks.length);
+  }
+
+  // Converts blocks to text
+  function convertToText(blockArray: BlockType[]) {
+    // Join the blocks (leave spaces around '\n')
+    let result = "";
+    let prevWasNewline = false;
+
+    for (const block of blockArray) {
+      const isNewline = block.content === "\n";
+
+      if (!isNewline && result && !prevWasNewline) {
+        result += " ";
+      }
+
+      result += block.content;
+      prevWasNewline = isNewline;
+    }
+    return result;
+  }
+
+  // Handles copying (only selected blocks)
+  function handleCopy() {
+    if (selectedBlocks.length !== 0) {
+      const copiedContent = convertToText(selectedBlocks);
+      navigator.clipboard.writeText(copiedContent);
+    }
   }
 
   // Todo vyresit inputtext?
@@ -613,12 +684,70 @@ export default function BlockEditor({
     }
   }
 
+  // Adds clicked block to selected blocks
+  function selectBlock(clicked: HTMLElement) {
+    const blockIndex = parseInt(clicked.dataset.index!, 10);
+    const indexOnLine = parseInt(clicked.dataset.indexonline!, 10);
+    const lineIndex = parseInt(clicked.dataset.lineindex!, 10);
+
+    // Empty -> select block
+    if (selectedBlocks.length === 0) {
+      setSelectedBlocks([blocks.find((block) => block.index === blockIndex)!]);
+      setFirstSelectedBlockIndex([-1, -1]);
+    }
+
+    // Selected one block already -> if not clicked on the same, select all blocks in between
+    if (selectedBlocks.length === 1) {
+      // Clicked on the same block
+      if (selectedBlocks[0].index === blockIndex) {
+        setSelectedBlocks([]);
+        setFirstSelectedBlockIndex([-1, -1]);
+        return;
+      }
+
+      const existingIndex = blocks.findIndex(
+        (block) => block.index === selectedBlocks[0].index
+      );
+      const currentIndex = blocks.findIndex(
+        (block) => block.index === blockIndex
+      );
+
+      // Smaller index is start
+      const start = Math.min(existingIndex, currentIndex);
+      const end = Math.max(existingIndex, currentIndex);
+
+      // Clicked before the already selected block, update future input in case of deleting
+      if (currentIndex < existingIndex) {
+        setFirstSelectedBlockIndex([indexOnLine, lineIndex]);
+      }
+
+      const newSelectedBlocks = blocks.slice(start, end + 1);
+
+      setSelectedBlocks(newSelectedBlocks);
+      return;
+    }
+
+    // Many selected -> select only the clicked one
+    const selectedBlock = blocks.find((block) => block.index === blockIndex);
+    setSelectedBlocks([selectedBlock!]);
+    setFirstSelectedBlockIndex([indexOnLine, lineIndex]);
+  }
+
   // Handles mouse click in editor
   function handleEditorClick(e: React.MouseEvent) {
     const clicked = e.target as HTMLElement;
 
-    // If clicked on block
+    // Clicked on block
     if (clicked.classList.contains("block")) {
+      // Clicked with Shift
+      if (e.shiftKey) {
+        selectBlock(clicked);
+        return;
+      }
+
+      // Clicked without shift
+      setSelectedBlocks([]);
+
       // Get indices from data attributes and convert them to number
       const blockIndex = parseInt(clicked.dataset.indexonline!, 10);
       const lineIndex = parseInt(clicked.dataset.lineindex!, 10);
@@ -626,8 +755,11 @@ export default function BlockEditor({
       setInputIndex(blockIndex + 1);
       setInputLineIndex(lineIndex);
       setTimeout(() => inputRef.current?.focus(), 0);
+
       return;
     }
+
+    setSelectedBlocks([]);
 
     if (clicked.classList.contains("line")) {
       const lineIndex = parseInt(clicked.dataset.index!, 10);
@@ -641,7 +773,7 @@ export default function BlockEditor({
       );
 
       // Returned value is longer than current line
-      if(targetIndex > lines[lineIndex].length) targetIndex -= 1;
+      if (targetIndex > lines[lineIndex].length) targetIndex -= 1;
 
       setInputIndex(targetIndex);
       setInputLineIndex(lineIndex);
@@ -656,6 +788,7 @@ export default function BlockEditor({
 
   // Handles user input in editor
   function handleInput(e: React.FormEvent<HTMLDivElement>) {
+    if (selectedBlocks.length !== 0) setSelectedBlocks([]); // Removes block selection when writing
     setInputText(e.currentTarget.textContent || "");
   }
 
@@ -809,6 +942,9 @@ export default function BlockEditor({
                   block={block}
                   indexOnLine={wordIndex}
                   lineIndex={lineIndex}
+                  isSelected={selectedBlocks.some(
+                    (b) => b.index === block.index
+                  )}
                 />
               </>
             );
@@ -886,6 +1022,7 @@ export default function BlockEditor({
       <div
         className="blockEditor-container"
         onPaste={(e) => handlePaste(e)}
+        onCopy={handleCopy}
         onMouseDown={(e) => handleEditorClick(e)}
       >
         <DndContext
@@ -907,6 +1044,7 @@ export default function BlockEditor({
                 block={activeBlock}
                 lineIndex={2}
                 indexOnLine={-1}
+                isSelected={false}
               />
             )}
           </DragOverlay>
