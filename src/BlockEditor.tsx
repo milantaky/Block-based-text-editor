@@ -767,6 +767,7 @@ export default function BlockEditor({
 
   // Handles user input in editor
   function handleInput(e: React.FormEvent<HTMLDivElement>) {
+    if(selectedBlocks.length !== 0) setSelectedBlocks([]);  // Removes block selection when writing
     setInputText(e.currentTarget.textContent || "");
   }
 
