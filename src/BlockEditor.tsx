@@ -68,6 +68,7 @@ export default function BlockEditor({
   const [firstSelectedBlockIndex, setFirstSelectedBlockIndex] = useState<
     [number, number]
   >([-1, -1]); // [inputIndex, inputLineIndex]
+  console.log("CI:", findInputBlocksIndex());
 
   // When first rendered, check for line height and set input on end
   useEffect(() => {
@@ -154,8 +155,15 @@ export default function BlockEditor({
   }
 
   function checkForWordWithSpaces() {
-    for (let i = 0; i < blocks.length; i++) {
-      const block = blocks[i].content;
+    let line = 0;
+
+    for (let startIndex = 0; startIndex < blocks.length; startIndex++) {
+      const block = blocks[startIndex].content;
+
+      if (block === "\n") {
+        line++;
+        continue;
+      }
 
       // Has spaces already?
       if (block.includes(" ")) continue;
@@ -176,20 +184,30 @@ export default function BlockEditor({
           // Is this the right word?
           for (let k = 0; k < splitWord.length; k++) {
             // If the words don't match
-            if (!(i + k < blocks.length && splitWord[k] === blocks[i + k].content)) {
+            if (
+              !(
+                startIndex + k < blocks.length &&
+                splitWord[k] === blocks[startIndex + k].content
+              )
+            ) {
               match = false;
               break;
-            } 
+            }
           }
 
           // The blocks match the word with spaces
           if (match) {
             // Join the blocks and use index of last block
-            mergeBlocks(i, i + splitWord.length);
+            mergeBlocks(startIndex, startIndex + splitWord.length);
+            console.log("SWL",splitWord.length)
+            // Handle input if on same line
+            if (line === inputLineIndex) {
+              const inputIndexInBlocks = findInputBlocksIndex();
 
-            // ! Zatim
-            setInputIndex(0);
-            setInputLineIndex(0);
+              if (inputIndexInBlocks > startIndex) {
+                setInputIndex(inputIndex - splitWord.length + 1);
+              }
+            }
             return;
           }
         }
@@ -213,10 +231,23 @@ export default function BlockEditor({
     const newBlocks = [
       ...blocks.slice(0, start),
       newBlock,
-      ...blocks.slice(end + 1),
+      ...blocks.slice(end),
     ];
 
     setBlocks(newBlocks);
+  }
+
+  // Counts the index of input where it should be in blocks array
+  function findInputBlocksIndex() {
+    let returnIndex = 0;
+
+    for (let i = 0; i < lines.length; i++) {
+      if (i < inputLineIndex) {
+        returnIndex += lines[i].length + 1; // + \n
+      } else break;
+    }
+
+    return returnIndex + inputIndex; // Current input index on line
   }
 
   // TODO
