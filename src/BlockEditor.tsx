@@ -159,7 +159,7 @@ export default function BlockEditor({
     let currentLine = 0;
 
     for (let startIndex = 0; startIndex < blocks.length; startIndex++) {
-      const block = blocks[startIndex].content;
+      const block = sanitizeBlock(blocks[startIndex].content);
 
       if (block === "\n") {
         currentLine++;
@@ -182,7 +182,7 @@ export default function BlockEditor({
 
           // Is this the right word?
           for (let offset = 0; offset < splitWord.length; offset++) {
-            const nextBlock = blocks[startIndex + offset].content;
+            const nextBlock = sanitizeBlock(blocks[startIndex + offset].content);
 
             // If the words don't match
             if (
@@ -213,6 +213,11 @@ export default function BlockEditor({
         }
       }
     }
+  }
+
+  // Removes . , ' from string
+  function sanitizeBlock(word: string){
+    return word.replace(/[.,']/g, "");
   }
 
   // Merges blocks from start to end indices, uses index of last block as new index and sets new blocks
