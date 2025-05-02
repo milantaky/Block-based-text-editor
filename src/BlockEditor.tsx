@@ -156,9 +156,10 @@ export default function BlockEditor({
   // Checks blocks if tere are any possible blocks to be joined (for exapmle: state [LGS] [Warning] [System] -> [LGS Warning System]), if so, set new blocks and update input position
   function checkForWordWithSpaces() {
     let currentLine = 0;
+    let newBlocks = blocks;
 
-    for (let startIndex = 0; startIndex < blocks.length; startIndex++) {
-      const block = sanitizeBlock(blocks[startIndex].content);
+    for (let startIndex = 0; startIndex < newBlocks.length; startIndex++) {
+      const block = sanitizeBlock(newBlocks[startIndex].content);
 
       if (block === "\n") {
         currentLine++;
@@ -181,12 +182,12 @@ export default function BlockEditor({
 
           // Is this the right word?
           for (let offset = 0; offset < splitWord.length; offset++) {
-            const nextBlock = sanitizeBlock(blocks[startIndex + offset].content);
+            const nextBlock = sanitizeBlock(newBlocks[startIndex + offset].content);
 
             // If the words don't match
             if (
               !(
-                startIndex + offset < blocks.length &&
+                startIndex + offset < newBlocks.length &&
                 splitWord[offset] === nextBlock
               )
             ) {
@@ -198,20 +199,22 @@ export default function BlockEditor({
           // The blocks match the word with spaces
           if (match) {
             // Join the blocks and use index of last block
-            mergeBlocks(startIndex, startIndex + splitWord.length);
+            newBlocks = mergeBlocks(newBlocks, startIndex, startIndex + splitWord.length);
 
-            // Handle input if on same line
-            if (currentLine === inputLineIndex) {
-              const inputIndexInBlocks = findInputBlocksIndex();
-              if (inputIndexInBlocks > startIndex)
-                setInputIndex(inputIndex - splitWord.length + 1);
-            }
+            // // Handle input if on same line
+            // if (currentLine === inputLineIndex) {
+            //   const inputIndexInBlocks = findInputBlocksIndex();
+            //   if (inputIndexInBlocks > startIndex)
+            //     setInputIndex(inputIndex - splitWord.length + 1);
+            // }
 
-            return;
+            break;
           }
         }
       }
     }
+
+    setBlocks(newBlocks);
   }
 
   // Removes . , ' from string
@@ -220,8 +223,8 @@ export default function BlockEditor({
   }
 
   // Merges blocks from start to end indices, uses index of last block as new index and sets new blocks
-  function mergeBlocks(start: number, end: number) {
-    const blocksToMerge = blocks.slice(start, end);
+  function mergeBlocks(blockArray: BlockType[], start: number, end: number) {
+    const blocksToMerge = blockArray.slice(start, end);
 
     const newContent = blocksToMerge.map((block) => block.content).join(" ");
 
@@ -232,12 +235,12 @@ export default function BlockEditor({
     };
 
     const newBlocks = [
-      ...blocks.slice(0, start),
+      ...blockArray.slice(0, start),
       newBlock,
-      ...blocks.slice(end),
+      ...blockArray.slice(end),
     ];
 
-    setBlocks(newBlocks);
+    return newBlocks;
   }
 
   // Counts the index of input where it should be in blocks array
