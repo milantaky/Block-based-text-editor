@@ -68,7 +68,6 @@ export default function BlockEditor({
   const [firstSelectedBlockIndex, setFirstSelectedBlockIndex] = useState<
     [number, number]
   >([-1, -1]); // [inputIndex, inputLineIndex]
-  console.log("CI:", findInputBlocksIndex());
 
   // When first rendered, check for line height and set input on end
   useEffect(() => {

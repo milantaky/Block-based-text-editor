@@ -2,12 +2,12 @@ export const ears = {
   keywords: {
     color: "#FFB400",
     type: 1,
-    items: ["while", "when", "where", "if", "shall", "then"],
+    items: new Set(["while", "when", "where", "if", "shall", "then"]),
   },
   relationalOperators: {
     color: "#FF6B6B",
     type: 2,
-    items: [
+    items: new Set([
       "is",
       "and",
       "set",
@@ -18,27 +18,27 @@ export const ears = {
       "less than",
       "for",
       "has been",
-    ],
+    ]),
   },
   objects: {
     color: "#4ECDC4",
     type: 3,
-    items: [],
+    items: new Set([]),
   },
   states: {
     color: "#1A535C",
     type: 4,
-    items: [],
+    items: new Set([]),
   },
   actors: {
     color: "#F7FFF7",
     type: 5,
-    items: [],
+    items: new Set([]),
   },
   other: {
     color: "#A9A9A9",
     type: 0,
-    items: [",", ".", "the", "second", "seconds"],
+    items: new Set([",", ".", "the", "second", "seconds"]),
   },
 };
 
@@ -46,12 +46,12 @@ export const earsTest = {
   keywords: {
     color: "#FFB400",
     type: 1,
-    items: ["while", "when", "where", "if", "shall", "then"],
+    items: new Set(["while", "when", "where", "if", "shall", "then"]),
   },
   relationalOperators: {
     color: "#FF6B6B",
     type: 2,
-    items: [
+    items: new Set([
       "is",
       "and",
       "set",
@@ -60,24 +60,24 @@ export const earsTest = {
       "has been",
       "for",
       "greater than",
-    ],
+    ]),
   },
   objects: {
     color: "#4ECDC4",
     type: 3,
-    items: [
+    items: new Set([
       "left gear state",
       "aircraft speed",
       "aircraft status",
       "operational mode",
       "left gear visual warning",
       "left gear warning lamp",
-    ],
+    ]),
   },
   states: {
     color: "#1A535C",
     type: 4,
-    items: [
+    items: new Set([
       "becomes hazardous",
       "stops being hazardous",
       "active",
@@ -87,16 +87,16 @@ export const earsTest = {
       "in air",
       "on land",
       "up and locked",
-    ],
+    ]),
   },
   actors: {
     color: "#F7FFF7",
     type: 5,
-    items: ["LGS Warning System"],
+    items: new Set(["LGS Warning System"]),
   },
   other: {
     color: "#A9A9A9",
     type: 0,
-    items: [",", ".", "the", "second", "seconds", "previous"],
+    items: new Set([",", ".", "the", "second", "seconds", "previous"]),
   },
 };
