@@ -154,18 +154,18 @@ export default function BlockEditor({
     return newBlocks;
   }
 
+  // Checks blocks if tere are any possible blocks to be joined (for exapmle: state [LGS] [Warning] [System] -> [LGS Warning System]), if so, set new blocks and update input position
   function checkForWordWithSpaces() {
-    let line = 0;
+    let currentLine = 0;
 
     for (let startIndex = 0; startIndex < blocks.length; startIndex++) {
       const block = blocks[startIndex].content;
 
       if (block === "\n") {
-        line++;
+        currentLine++;
         continue;
       }
 
-      // Has spaces already?
       if (block.includes(" ")) continue;
 
       // Is in list of possible multi word blocks?
@@ -176,18 +176,19 @@ export default function BlockEditor({
         );
 
         // Find if blocks after match the possible block
-        for (let j = 0; j < possibleBlocks.length; j++) {
-          console.log("PB:", possibleBlocks);
-          const splitWord = possibleBlocks[j]!.split(" ");
+        for (let i = 0; i < possibleBlocks.length; i++) {
+          const splitWord = possibleBlocks[i]!.split(" ");
           let match = true;
 
           // Is this the right word?
-          for (let k = 0; k < splitWord.length; k++) {
+          for (let offset = 0; offset < splitWord.length; offset++) {
+            const nextBlock = blocks[startIndex + offset].content;
+
             // If the words don't match
             if (
               !(
-                startIndex + k < blocks.length &&
-                splitWord[k] === blocks[startIndex + k].content
+                startIndex + offset < blocks.length &&
+                splitWord[offset] === nextBlock
               )
             ) {
               match = false;
@@ -199,15 +200,14 @@ export default function BlockEditor({
           if (match) {
             // Join the blocks and use index of last block
             mergeBlocks(startIndex, startIndex + splitWord.length);
-            console.log("SWL",splitWord.length)
-            // Handle input if on same line
-            if (line === inputLineIndex) {
-              const inputIndexInBlocks = findInputBlocksIndex();
 
-              if (inputIndexInBlocks > startIndex) {
+            // Handle input if on same line
+            if (currentLine === inputLineIndex) {
+              const inputIndexInBlocks = findInputBlocksIndex();
+              if (inputIndexInBlocks > startIndex)
                 setInputIndex(inputIndex - splitWord.length + 1);
-              }
             }
+
             return;
           }
         }
@@ -215,10 +215,9 @@ export default function BlockEditor({
     }
   }
 
+  // Merges blocks from start to end indices, uses index of last block as new index and sets new blocks
   function mergeBlocks(start: number, end: number) {
     const blocksToMerge = blocks.slice(start, end);
-    console.log("blocksToMerge", start, end);
-    console.log("blocksToMerge", blocksToMerge);
 
     const newContent = blocksToMerge.map((block) => block.content).join(" ");
 
