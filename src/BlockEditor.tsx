@@ -177,6 +177,8 @@ export default function BlockEditor({
 
         // Find if blocks after match the possible block
         for (let i = 0; i < possibleBlocks.length; i++) {
+          if(startIndex + possibleBlocks[i].split(" ").length - 1 > newBlocks.length) break;
+
           const splitWord = possibleBlocks[i]!.split(" ");
           let match = true;
 
@@ -201,12 +203,12 @@ export default function BlockEditor({
             // Join the blocks and use index of last block
             newBlocks = mergeBlocks(newBlocks, startIndex, startIndex + splitWord.length);
 
-            // // Handle input if on same line
-            // if (currentLine === inputLineIndex) {
-            //   const inputIndexInBlocks = findInputBlocksIndex();
-            //   if (inputIndexInBlocks > startIndex)
-            //     setInputIndex(inputIndex - splitWord.length + 1);
-            // }
+            // Handle input if on same line
+            if (currentLine === inputLineIndex) {
+              const inputIndexInBlocks = findInputBlocksIndex();
+              if (inputIndexInBlocks > startIndex)
+                setInputIndex(inputIndex - splitWord.length + 1);
+            }
 
             break;
           }
