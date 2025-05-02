@@ -33,6 +33,30 @@
     outline: 0;
 }
 
+.type-0 {
+    border-left: 4px solid #A9A9A9;
+  }
+  
+  .type-1 {
+    border-left: 4px solid #FFB400;
+  }
+  
+  .type-2 {
+    border-left: 4px solid #FF6B6B;
+  }
+  
+  .type-3 {
+    border-left: 4px solid #4ECDC4;
+  }
+  
+  .type-4 {
+    border-left: 4px solid #1A535C;
+  }
+  
+  .type-5 {
+    border-left: 4px solid #F7FFF7;
+  }
+
 .selected {
     border-color: red;
 }

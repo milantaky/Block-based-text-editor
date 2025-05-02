@@ -253,19 +253,15 @@ export default function BlockEditor({
     return returnIndex + inputIndex; // Current input index on line
   }
 
-  // TODO
   // Gets word type
   function getWordType(word: string) {
-    // for (const [category, data] of Object.entries(language)) {
-    //   if (data.items.includes(word)) {
-    //     console.log(
-    //       `"${word}" is in category "${category}" with color ${data.color}`
-    //     );
-    //     return data.type;
-    //   }
-    // }
+    for (const [, data] of Object.entries(language)) {
+      if (data.items.has(sanitizeBlock(word))) {
+        return data.type;
+      }
+    }
 
-    // console.log(`"${word}" not found in any category.`);
+    console.log(`"${word}" not found in any category.`);
     return 0;
   }
 
