@@ -16,7 +16,6 @@ import {
   useSensor,
   useSensors,
   PointerSensor,
-  //   DragOverEvent,
 } from "@dnd-kit/core";
 import {
   SortableContext,
@@ -524,6 +523,10 @@ export default function BlockEditor({
               changeBlockRef.current = true;
             }
           }
+        } else {
+            if(e.shiftKey){
+                setInputText("");
+            }
         }
         break;
 
