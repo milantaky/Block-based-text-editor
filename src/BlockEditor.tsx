@@ -25,6 +25,9 @@ import {
 // Selected language -> EARS
 const language = earsTest;
 const languageWordsWithSpaces = getItemsWithSpaces(language);
+const languageWordsWithSpacesConnected = new Set(
+  languageWordsWithSpaces.map((word) => word.split(" ")[0])
+); // Returns first words from list, and removes duplicates, is set because it has O(1) for lookup with .has
 
 function getItemsWithSpaces(data: typeof earsTest): string[] {
   const result: string[] = [];
@@ -84,6 +87,7 @@ export default function BlockEditor({
   // Update ref for parent
   useEffect(() => {
     blocksRef.current = blocks;
+    checkForWordWithSpaces();
   }, [blocks]);
 
   // Focuses editor, and sets caret on end of input when editing it
@@ -93,9 +97,8 @@ export default function BlockEditor({
         inputRef.current.focus();
         inputRef.current.textContent = inputText;
       }
+      if (changeBlockRef) setCaretToEnd();
     }, 0);
-
-    if (changeBlockRef) setCaretToEnd();
   }, [blocks, inputIndex, inputLineIndex, inputText, selectedBlocks]);
 
   // Splits text into blocks of words, gives them index, and category (wordType)
@@ -125,18 +128,14 @@ export default function BlockEditor({
     // Add lines
     const splitBlocksss = splitLines.flatMap((block, index) => {
       if (index + 1 !== splitLines.length) {
-        if (splitLines[index + 1] !== "\n") {
-          return [block, "\n"];
-        }
+        if (splitLines[index + 1] !== "\n") return [block, "\n"];
       }
       return block;
     });
 
     // Split blocks on lines
     const splitBlocks = splitBlocksss.flatMap((block) => {
-      if (block.includes(" ")) {
-        return block.split(" ");
-      }
+      if (block.includes(" ")) return block.split(" ");
       return block;
     });
 
@@ -152,6 +151,72 @@ export default function BlockEditor({
     });
 
     return newBlocks;
+  }
+
+  function checkForWordWithSpaces() {
+    for (let i = 0; i < blocks.length; i++) {
+      const block = blocks[i].content;
+
+      // Has spaces already?
+      if (block.includes(" ")) continue;
+
+      // Is in list of possible multi word blocks?
+      if (languageWordsWithSpacesConnected.has(block)) {
+        // Find which multi word block it can be
+        const possibleBlocks = languageWordsWithSpaces.filter((word) =>
+          word.includes(block)
+        );
+
+        // Find if blocks after match the possible block
+        for (let j = 0; j < possibleBlocks.length; j++) {
+          console.log("PB:", possibleBlocks);
+          const splitWord = possibleBlocks[j]!.split(" ");
+          let match = true;
+
+          // Is this the right word?
+          for (let k = 0; k < splitWord.length; k++) {
+            // If the words don't match
+            if (!(i + k < blocks.length && splitWord[k] === blocks[i + k].content)) {
+              match = false;
+              break;
+            } 
+          }
+
+          // The blocks match the word with spaces
+          if (match) {
+            // Join the blocks and use index of last block
+            mergeBlocks(i, i + splitWord.length);
+
+            // ! Zatim
+            setInputIndex(0);
+            setInputLineIndex(0);
+            return;
+          }
+        }
+      }
+    }
+  }
+
+  function mergeBlocks(start: number, end: number) {
+    const blocksToMerge = blocks.slice(start, end);
+    console.log("blocksToMerge", start, end);
+    console.log("blocksToMerge", blocksToMerge);
+
+    const newContent = blocksToMerge.map((block) => block.content).join(" ");
+
+    const newBlock: BlockType = {
+      index: blocksToMerge[blocksToMerge.length - 1].index,
+      content: newContent,
+      wordType: getWordType(newContent),
+    };
+
+    const newBlocks = [
+      ...blocks.slice(0, start),
+      newBlock,
+      ...blocks.slice(end + 1),
+    ];
+
+    setBlocks(newBlocks);
   }
 
   // TODO
