@@ -22,7 +22,23 @@ import {
   horizontalListSortingStrategy,
 } from "@dnd-kit/sortable";
 
+// Selected language -> EARS
 const language = earsTest;
+const languageWordsWithSpaces = getItemsWithSpaces(language);
+
+function getItemsWithSpaces(data: typeof earsTest): string[] {
+  const result: string[] = [];
+
+  for (const category of Object.values(data)) {
+    for (const item of category.items) {
+      if (item.includes(" ")) {
+        result.push(item);
+      }
+    }
+  }
+
+  return result;
+}
 
 export default function BlockEditor({
   text,
@@ -76,11 +92,10 @@ export default function BlockEditor({
       if (inputRef.current) {
         inputRef.current.focus();
         inputRef.current.textContent = inputText;
-
-        if (changeBlockRef) setCaretToEnd();
       }
     }, 0);
-    //   }, [blocks, inputIndex, inputLineIndex, inputText]);
+
+    if (changeBlockRef) setCaretToEnd();
   }, [blocks, inputIndex, inputLineIndex, inputText, selectedBlocks]);
 
   // Splits text into blocks of words, gives them index, and category (wordType)
@@ -216,6 +231,7 @@ export default function BlockEditor({
     return newBlock;
   }
 
+  // TODO: handle inputText?
   function moveInputUp() {
     const domLines = document.getElementsByClassName("line");
     const lineItems = domLines[inputLineIndex].children;
@@ -524,9 +540,7 @@ export default function BlockEditor({
             }
           }
         } else {
-            if(e.shiftKey){
-                setInputText("");
-            }
+          if (e.shiftKey) setInputText("");
         }
         break;
 
@@ -753,7 +767,7 @@ export default function BlockEditor({
       const lineIndex = parseInt(clicked.dataset.lineindex!, 10);
 
       // Did not click on selected block
-      if(!selectedBlocks.some(block => block.index === blockIndex)){
+      if (!selectedBlocks.some((block) => block.index === blockIndex)) {
         setSelectedBlocks([]);
       }
 
