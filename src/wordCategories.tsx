@@ -2,11 +2,13 @@ export const ears = {
   keywords: {
     color: "#FFB400",
     type: 1,
+    prefab: true,
     items: new Set(["while", "when", "where", "if", "shall", "then"]),
   },
   relationalOperators: {
     color: "#FF6B6B",
     type: 2,
+    prefab: false,
     items: new Set([
       "is",
       "and",
@@ -23,21 +25,25 @@ export const ears = {
   objects: {
     color: "#4ECDC4",
     type: 3,
+    prefab: true,
     items: new Set([]),
   },
   states: {
     color: "#1A535C",
     type: 4,
+    prefab: true,
     items: new Set([]),
   },
   actors: {
     color: "#F7FFF7",
     type: 5,
+    prefab: true,
     items: new Set([]),
   },
   other: {
     color: "#A9A9A9",
     type: 0,
+    prefab: false,
     items: new Set([",", ".", "the", "second", "seconds"]),
   },
 };
@@ -46,11 +52,13 @@ export const earsTest = {
   keywords: {
     color: "#FFB400",
     type: 1,
+    prefab: true,
     items: new Set(["while", "when", "where", "if", "shall", "then"]),
   },
   relationalOperators: {
     color: "#FF6B6B",
     type: 2,
+    prefab: false,
     items: new Set([
       "is",
       "and",
@@ -65,6 +73,7 @@ export const earsTest = {
   objects: {
     color: "#4ECDC4",
     type: 3,
+    prefab: true,
     items: new Set([
       "left gear state",
       "aircraft speed",
@@ -77,6 +86,7 @@ export const earsTest = {
   states: {
     color: "#1A535C",
     type: 4,
+    prefab: true,
     items: new Set([
       "becomes hazardous",
       "stops being hazardous",
@@ -92,11 +102,13 @@ export const earsTest = {
   actors: {
     color: "#F7FFF7",
     type: 5,
+    prefab: true,
     items: new Set(["LGS Warning System"]),
   },
   other: {
     color: "#A9A9A9",
     type: 0,
+    prefab: false,
     items: new Set([",", ".", "the", "second", "seconds", "previous"]),
   },
 };
