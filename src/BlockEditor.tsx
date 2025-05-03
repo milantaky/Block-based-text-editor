@@ -1199,6 +1199,26 @@ export default function BlockEditor({
     );
   }
 
+  function PrefabBlockButton({
+    content,
+    wordType,
+  }: {
+    content: string;
+    wordType: number;
+  }) {
+    return (
+      <button
+        className="prefab-block-button"
+        onClick={() => {
+          console.log("Clicked:", content, wordType);
+          // Insert block on place if input
+        }}
+      >
+        {content}
+      </button>
+    );
+  }
+
   // Section with prefabricated blocks
   function PrefabSection() {
     return (
@@ -1208,23 +1228,19 @@ export default function BlockEditor({
         {Object.entries(language)
           .filter(([, data]) => data.prefab) // Only those with prefab: true
 
-          .map(([key, data]) => (
-            <div key={key} className="prefab-section">
-              <h4>{key}</h4>
+          .map(([category, data]) => (
+            <div key={category} className="prefab-category">
+              <h4>{category}</h4>
 
               {[...data.items].map((item) => (
-                <button
+                <PrefabBlockButton
                   key={item}
-                  className="prefab-button"
-                  onClick={() => console.log("Clicked:", item, data.type)}
-                >
-                  {item}
-                </button>
+                  content={item}
+                  wordType={data.type}
+                />
               ))}
-
             </div>
           ))}
-          
       </div>
     );
   }
