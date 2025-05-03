@@ -1199,6 +1199,24 @@ export default function BlockEditor({
     );
   }
 
+  function PrefabBlockCategory({
+    category,
+    data,
+  }: {
+    category: string;
+    data: any;
+  }) {
+    return (
+      <div key={category} className="prefab-category">
+        <h4>{category}</h4>
+
+        {[...data.items].map((item) => (
+          <PrefabBlockButton key={item} content={item} wordType={data.type} />
+        ))}
+      </div>
+    );
+  }
+
   function PrefabBlockButton({
     content,
     wordType,
@@ -1221,26 +1239,17 @@ export default function BlockEditor({
 
   // Section with prefabricated blocks
   function PrefabSection() {
+    const filteredCategories = Object.entries(language).filter(
+      ([, data]) => data.prefab
+    );
+
     return (
       <div className="prefab-container">
         <h3>Prefab Section</h3>
 
-        {Object.entries(language)
-          .filter(([, data]) => data.prefab) // Only those with prefab: true
-
-          .map(([category, data]) => (
-            <div key={category} className="prefab-category">
-              <h4>{category}</h4>
-
-              {[...data.items].map((item) => (
-                <PrefabBlockButton
-                  key={item}
-                  content={item}
-                  wordType={data.type}
-                />
-              ))}
-            </div>
-          ))}
+        {filteredCategories.map(([category, data]) => (
+          <PrefabBlockCategory key={category} category={category} data={data} />
+        ))}
       </div>
     );
   }
