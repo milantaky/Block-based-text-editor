@@ -25,6 +25,9 @@ import {
 // Selected language -> EARS
 const language = earsTest;
 const languageWordsWithSpaces = getItemsWithSpaces(language);
+const languageWordsWithSpacesConnected = new Set(
+  languageWordsWithSpaces.map((word) => word.split(" ")[0])
+); // Returns first words from list, and removes duplicates, is set because it has O(1) for lookup with .has
 
 function getItemsWithSpaces(data: typeof earsTest): string[] {
   const result: string[] = [];
@@ -57,6 +60,7 @@ export default function BlockEditor({
   const [inputIndex, setInputIndex] = useState(0); // This index says before which block the input is
   const [inputLineIndex, setInputLineIndex] = useState(0); // Which line the input is on (0 = first line)
   const inputRef = useRef<HTMLDivElement>(null);
+  const editorRef = useRef<HTMLDivElement>(null);
   const changeBlockRef = useRef(false);
   const lines = splitLines(blocks); // Blocks converted into lines of blocks based on \n
   const setFirstRef = useRef(false);
@@ -81,9 +85,12 @@ export default function BlockEditor({
     }
   }, []);
 
-  // Update ref for parent
+  // Update ref for parent, check is some blocks can be joined -> I know I set state in useEffect for that state, but no looping
   useEffect(() => {
     blocksRef.current = blocks;
+
+    const newBlocks = checkForWordWithSpaces(blocks);
+    if (newBlocks !== false) setBlocks(newBlocks);
   }, [blocks]);
 
   // Focuses editor, and sets caret on end of input when editing it
@@ -93,9 +100,8 @@ export default function BlockEditor({
         inputRef.current.focus();
         inputRef.current.textContent = inputText;
       }
+      if (changeBlockRef) setCaretToEnd();
     }, 0);
-
-    if (changeBlockRef) setCaretToEnd();
   }, [blocks, inputIndex, inputLineIndex, inputText, selectedBlocks]);
 
   // Splits text into blocks of words, gives them index, and category (wordType)
@@ -125,18 +131,14 @@ export default function BlockEditor({
     // Add lines
     const splitBlocksss = splitLines.flatMap((block, index) => {
       if (index + 1 !== splitLines.length) {
-        if (splitLines[index + 1] !== "\n") {
-          return [block, "\n"];
-        }
+        if (splitLines[index + 1] !== "\n") return [block, "\n"];
       }
       return block;
     });
 
     // Split blocks on lines
     const splitBlocks = splitBlocksss.flatMap((block) => {
-      if (block.includes(" ")) {
-        return block.split(" ");
-      }
+      if (block.includes(" ")) return block.split(" ");
       return block;
     });
 
@@ -154,19 +156,153 @@ export default function BlockEditor({
     return newBlocks;
   }
 
-  // TODO
+  // Checks blocks if tere are any possible blocks to be joined (for exapmle: state [LGS] [Warning] [System] -> [LGS Warning System]), if so, set new blocks and update input position. Returns newBlocks if some joined, or false if not
+  function checkForWordWithSpaces(blockArray: BlockType[]) {
+    let currentLine = 0;
+    let newBlocks = blockArray;
+    let changed = false;
+
+    for (let startIndex = 0; startIndex < newBlocks.length; startIndex++) {
+      const block = sanitizeBlock(newBlocks[startIndex].content);
+
+      if (block === "\n") {
+        currentLine++;
+        continue;
+      }
+
+      if (block.includes(" ")) continue;
+
+      // EARS
+      if (block === "req:") {
+        if (startIndex + 1 < newBlocks.length) {
+          const nextBlock = newBlocks[startIndex + 1].content;
+
+          // Is number?
+          if (!isNaN(Number(nextBlock))) {
+            newBlocks = mergeBlocks(newBlocks, startIndex, startIndex + 2, true);
+
+            if (currentLine === inputLineIndex) {
+              const inputIndexInBlocks = findInputBlocksIndex();
+              if (inputIndexInBlocks > startIndex)
+                setInputIndex(inputIndex - 1);
+            }
+
+            changed = true;
+          }
+        }
+        continue;
+      }
+
+      // Is in list of possible multi word blocks?
+      if (languageWordsWithSpacesConnected.has(block)) {
+        // Find which multi word block it can be
+        const possibleBlocks = languageWordsWithSpaces.filter((word) =>
+          word.includes(block)
+        );
+
+        // Find if blocks after match the possible block
+        for (let i = 0; i < possibleBlocks.length; i++) {
+          if (
+            startIndex + possibleBlocks[i].split(" ").length >
+            newBlocks.length
+          )
+            break;
+
+          const splitWord = possibleBlocks[i]!.split(" ");
+          let match = true;
+
+          // Is this the right word?
+          for (let offset = 0; offset < splitWord.length; offset++) {
+            const nextBlock = sanitizeBlock(
+              newBlocks[startIndex + offset].content
+            );
+
+            // If the words don't match
+            if (
+              !(
+                startIndex + offset < newBlocks.length &&
+                splitWord[offset] === nextBlock
+              )
+            ) {
+              match = false;
+              break;
+            }
+          }
+
+          // The blocks match the word with spaces
+          if (match) {
+            // Join the blocks and use index of last block
+            newBlocks = mergeBlocks(
+              newBlocks,
+              startIndex,
+              startIndex + splitWord.length
+            );
+
+            // Handle input if on same line
+            if (currentLine === inputLineIndex) {
+              const inputIndexInBlocks = findInputBlocksIndex();
+              if (inputIndexInBlocks > startIndex)
+                setInputIndex(inputIndex - splitWord.length + 1);
+            }
+
+            changed = true;
+            break;
+          }
+        }
+      }
+    }
+
+    return changed ? newBlocks : false;
+  }
+
+  // Removes . , ' from string
+  function sanitizeBlock(word: string) {
+    return word.replace(/[.,']/g, "");
+  }
+
+  // Merges blocks from start to end indices, uses index of last block as new index and sets new blocks
+  function mergeBlocks(blockArray: BlockType[], start: number, end: number, isRequirement: boolean = false) {
+    const blocksToMerge = blockArray.slice(start, end);
+
+    const newContent = blocksToMerge.map((block) => block.content).join(" ");
+
+    const newBlock: BlockType = {
+      index: blocksToMerge[blocksToMerge.length - 1].index,
+      content: newContent,
+      wordType: isRequirement ? -1 : getWordType(newContent),
+    };
+
+    const newBlocks = [
+      ...blockArray.slice(0, start),
+      newBlock,
+      ...blockArray.slice(end),
+    ];
+
+    return newBlocks;
+  }
+
+  // Counts the index of input where it should be in blocks array
+  function findInputBlocksIndex() {
+    let returnIndex = 0;
+
+    for (let i = 0; i < lines.length; i++) {
+      if (i < inputLineIndex) {
+        returnIndex += lines[i].length + 1; // + \n
+      } else break;
+    }
+
+    return returnIndex + inputIndex; // Current input index on line
+  }
+
   // Gets word type
   function getWordType(word: string) {
-    // for (const [category, data] of Object.entries(language)) {
-    //   if (data.items.includes(word)) {
-    //     console.log(
-    //       `"${word}" is in category "${category}" with color ${data.color}`
-    //     );
-    //     return data.type;
-    //   }
-    // }
+    for (const [, data] of Object.entries(language)) {
+      if (data.items.has(sanitizeBlock(word))) {
+        return data.type;
+      }
+    }
 
-    // console.log(`"${word}" not found in any category.`);
+    console.log(`"${word}" not found in any category.`);
     return 0;
   }
 
@@ -477,7 +613,6 @@ export default function BlockEditor({
           }
           setInputText("");
           setInputIndex(inputIndex + 1);
-          //   setNextBlockIndex(nextBlockIndex + 1);
         }
         break;
 
@@ -602,11 +737,21 @@ export default function BlockEditor({
 
     // Inserts pasted blocks into blocks state
     const insertIndex = countInsertIndex();
-    setBlocks((prevBlocks) => [
-      ...prevBlocks.slice(0, insertIndex),
+    newBlocks = [
+      ...blocks.slice(0, insertIndex),
       ...newBlocks,
-      ...prevBlocks.slice(insertIndex),
-    ]);
+      ...blocks.slice(insertIndex),
+    ];
+
+    const joinedBlocks = checkForWordWithSpaces(newBlocks);
+
+    // Did some blocks join?
+    if (!joinedBlocks) {
+      setBlocks(newBlocks);
+    } else {
+      setBlocks(joinedBlocks);
+      newBlocks = joinedBlocks;
+    }
 
     // Count new lines
     const newLineCount = newBlocks.reduce((acc, block) => {
@@ -786,13 +931,14 @@ export default function BlockEditor({
       // Find closest space between blocks in place of click
       let targetIndex = findPositionOfClickOnLine(
         e.clientX,
-        e.clientY,
+        e.clientY + editorRef.current!.scrollTop, // Adding scrolled height
         (e.target as HTMLElement).clientHeight,
         (e.target as HTMLElement).children
       );
 
-      // Returned value is longer than current line
-      if (targetIndex > lines[lineIndex].length) targetIndex -= 1;
+      // Input in front (counted in)
+      if (inputLineIndex === lineIndex && targetIndex > inputIndex)
+        targetIndex -= 1;
 
       setInputIndex(targetIndex);
       setInputLineIndex(lineIndex);
@@ -1055,6 +1201,7 @@ export default function BlockEditor({
     <>
       <div
         className="blockEditor-container"
+        ref={editorRef}
         onPaste={(e) => handlePaste(e)}
         onCopy={handleCopy}
         onMouseDown={(e) => handleEditorClick(e)}
