@@ -16,6 +16,17 @@
     border: 1px solid blue;
 }
 
+.prefab-container {
+  border: 1px solid red;
+  height: 100px;
+  overflow: auto;
+}
+
+.prefab-container h2, h3, h4 {
+  margin: 0;
+  margin-bottom: 0.5em;
+}
+
 .blockEditor-container{
     display: flex;
     flex-direction: column;

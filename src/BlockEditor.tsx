@@ -69,6 +69,7 @@ export default function BlockEditor({
   const [firstSelectedBlockIndex, setFirstSelectedBlockIndex] = useState<
     [number, number]
   >([-1, -1]); // [inputIndex, inputLineIndex]
+  const [isPrefabVisible, setIsPrefabVisible] = useState(true);
 
   // When first rendered, check for line height and set input on end
   useEffect(() => {
@@ -179,7 +180,12 @@ export default function BlockEditor({
 
           // Is number?
           if (!isNaN(Number(nextBlock))) {
-            newBlocks = mergeBlocks(newBlocks, startIndex, startIndex + 2, true);
+            newBlocks = mergeBlocks(
+              newBlocks,
+              startIndex,
+              startIndex + 2,
+              true
+            );
 
             if (currentLine === inputLineIndex) {
               const inputIndexInBlocks = findInputBlocksIndex();
@@ -261,7 +267,12 @@ export default function BlockEditor({
   }
 
   // Merges blocks from start to end indices, uses index of last block as new index and sets new blocks
-  function mergeBlocks(blockArray: BlockType[], start: number, end: number, isRequirement: boolean = false) {
+  function mergeBlocks(
+    blockArray: BlockType[],
+    start: number,
+    end: number,
+    isRequirement: boolean = false
+  ) {
     const blocksToMerge = blockArray.slice(start, end);
 
     const newContent = blocksToMerge.map((block) => block.content).join(" ");
@@ -1188,6 +1199,36 @@ export default function BlockEditor({
     );
   }
 
+  // Section with prefabricated blocks
+  function PrefabSection() {
+    return (
+      <div className="prefab-container">
+        <h3>Prefab Section</h3>
+
+        {Object.entries(language)
+          .filter(([, data]) => data.prefab) // Only those with prefab: true
+
+          .map(([key, data]) => (
+            <div key={key} className="prefab-section">
+              <h4>{key}</h4>
+
+              {[...data.items].map((item) => (
+                <button
+                  key={item}
+                  className="prefab-button"
+                  onClick={() => console.log("Clicked:", item, data.type)}
+                >
+                  {item}
+                </button>
+              ))}
+
+            </div>
+          ))}
+          
+      </div>
+    );
+  }
+
   // Sensor for Drag-and-drop (beacuse of colliding with handleEditorClick)
   const sensors = useSensors(
     useSensor(PointerSensor, {
@@ -1199,6 +1240,7 @@ export default function BlockEditor({
 
   return (
     <>
+      {isPrefabVisible && <PrefabSection />}
       <div
         className="blockEditor-container"
         ref={editorRef}
