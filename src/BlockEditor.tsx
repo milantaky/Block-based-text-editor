@@ -85,10 +85,12 @@ export default function BlockEditor({
     }
   }, []);
 
-  // Update ref for parent
+  // Update ref for parent, check is some blocks can be joined -> I know I set state in useEffect for that state, but no looping
   useEffect(() => {
     blocksRef.current = blocks;
-    checkForWordWithSpaces();
+
+    const newBlocks = checkForWordWithSpaces(blocks);
+    if (newBlocks !== false) setBlocks(newBlocks);
   }, [blocks]);
 
   // Focuses editor, and sets caret on end of input when editing it
@@ -154,10 +156,11 @@ export default function BlockEditor({
     return newBlocks;
   }
 
-  // Checks blocks if tere are any possible blocks to be joined (for exapmle: state [LGS] [Warning] [System] -> [LGS Warning System]), if so, set new blocks and update input position
-  function checkForWordWithSpaces() {
+  // Checks blocks if tere are any possible blocks to be joined (for exapmle: state [LGS] [Warning] [System] -> [LGS Warning System]), if so, set new blocks and update input position. Returns newBlocks if some joined, or false if not
+  function checkForWordWithSpaces(blockArray: BlockType[]) {
     let currentLine = 0;
-    let newBlocks = blocks;
+    let newBlocks = blockArray;
+    let changed = false;
 
     for (let startIndex = 0; startIndex < newBlocks.length; startIndex++) {
       const block = sanitizeBlock(newBlocks[startIndex].content);
@@ -220,14 +223,14 @@ export default function BlockEditor({
               if (inputIndexInBlocks > startIndex)
                 setInputIndex(inputIndex - splitWord.length + 1);
             }
-
+            changed = true;
             break;
           }
         }
       }
     }
 
-    setBlocks(newBlocks);
+    return changed ? newBlocks : false;
   }
 
   // Removes . , ' from string
@@ -712,11 +715,21 @@ export default function BlockEditor({
 
     // Inserts pasted blocks into blocks state
     const insertIndex = countInsertIndex();
-    setBlocks((prevBlocks) => [
-      ...prevBlocks.slice(0, insertIndex),
+    newBlocks = [
+      ...blocks.slice(0, insertIndex),
       ...newBlocks,
-      ...prevBlocks.slice(insertIndex),
-    ]);
+      ...blocks.slice(insertIndex),
+    ];
+
+    const joinedBlocks = checkForWordWithSpaces(newBlocks);
+
+    // Did some blocks join?
+    if(!joinedBlocks){
+        setBlocks(newBlocks);
+    } else {
+        setBlocks(joinedBlocks);
+        newBlocks = joinedBlocks;
+    }
 
     // Count new lines
     const newLineCount = newBlocks.reduce((acc, block) => {
@@ -894,20 +907,12 @@ export default function BlockEditor({
       const lineIndex = parseInt(clicked.dataset.index!, 10);
 
       // Find closest space between blocks in place of click
-      console.log("e", e);
-      console.log("ref", editorRef.current!.scrollTop);
-
-      console.log("Y:", e.clientY);
-
       let targetIndex = findPositionOfClickOnLine(
         e.clientX,
         e.clientY + editorRef.current!.scrollTop, // Adding scrolled height
         (e.target as HTMLElement).clientHeight,
         (e.target as HTMLElement).children
       );
-
-      // Returned value is longer than current line
-      //   if (targetIndex > lines[lineIndex].length) targetIndex -= 1;
 
       // Input in front (counted in)
       if (inputLineIndex === lineIndex && targetIndex > inputIndex)
