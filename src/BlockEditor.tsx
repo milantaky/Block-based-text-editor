@@ -172,6 +172,27 @@ export default function BlockEditor({
 
       if (block.includes(" ")) continue;
 
+      // EARS
+      if (block === "req:") {
+        if (startIndex + 1 < newBlocks.length) {
+          const nextBlock = newBlocks[startIndex + 1].content;
+
+          // Is number?
+          if (!isNaN(Number(nextBlock))) {
+            newBlocks = mergeBlocks(newBlocks, startIndex, startIndex + 2, true);
+
+            if (currentLine === inputLineIndex) {
+              const inputIndexInBlocks = findInputBlocksIndex();
+              if (inputIndexInBlocks > startIndex)
+                setInputIndex(inputIndex - 1);
+            }
+
+            changed = true;
+          }
+        }
+        continue;
+      }
+
       // Is in list of possible multi word blocks?
       if (languageWordsWithSpacesConnected.has(block)) {
         // Find which multi word block it can be
@@ -223,6 +244,7 @@ export default function BlockEditor({
               if (inputIndexInBlocks > startIndex)
                 setInputIndex(inputIndex - splitWord.length + 1);
             }
+
             changed = true;
             break;
           }
@@ -239,7 +261,7 @@ export default function BlockEditor({
   }
 
   // Merges blocks from start to end indices, uses index of last block as new index and sets new blocks
-  function mergeBlocks(blockArray: BlockType[], start: number, end: number) {
+  function mergeBlocks(blockArray: BlockType[], start: number, end: number, isRequirement: boolean = false) {
     const blocksToMerge = blockArray.slice(start, end);
 
     const newContent = blocksToMerge.map((block) => block.content).join(" ");
@@ -247,7 +269,7 @@ export default function BlockEditor({
     const newBlock: BlockType = {
       index: blocksToMerge[blocksToMerge.length - 1].index,
       content: newContent,
-      wordType: getWordType(newContent),
+      wordType: isRequirement ? -1 : getWordType(newContent),
     };
 
     const newBlocks = [
@@ -724,11 +746,11 @@ export default function BlockEditor({
     const joinedBlocks = checkForWordWithSpaces(newBlocks);
 
     // Did some blocks join?
-    if(!joinedBlocks){
-        setBlocks(newBlocks);
+    if (!joinedBlocks) {
+      setBlocks(newBlocks);
     } else {
-        setBlocks(joinedBlocks);
-        newBlocks = joinedBlocks;
+      setBlocks(joinedBlocks);
+      newBlocks = joinedBlocks;
     }
 
     // Count new lines

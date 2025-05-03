@@ -34,6 +34,10 @@
     outline: 0;
 }
 
+.type--1 {
+    border-left: 4px solid #ff6600;
+  }
+
 .type-0 {
     border-left: 4px solid #A9A9A9;
   }
