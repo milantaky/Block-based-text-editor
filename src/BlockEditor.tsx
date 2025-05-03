@@ -177,7 +177,7 @@ export default function BlockEditor({
 
         // Find if blocks after match the possible block
         for (let i = 0; i < possibleBlocks.length; i++) {
-          if(startIndex + possibleBlocks[i].split(" ").length - 1 > newBlocks.length) break;
+          if(startIndex + possibleBlocks[i].split(" ").length > newBlocks.length) break;
 
           const splitWord = possibleBlocks[i]!.split(" ");
           let match = true;
@@ -577,7 +577,6 @@ export default function BlockEditor({
           }
           setInputText("");
           setInputIndex(inputIndex + 1);
-          //   setNextBlockIndex(nextBlockIndex + 1);
         }
         break;
 
