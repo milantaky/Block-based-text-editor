@@ -367,11 +367,11 @@ export default function BlockEditor({
     return count;
   }
 
-  function makeBlock(text: string) {
+  function makeBlock(text: string, type?:number) {
     const newBlock: BlockType = {
       index: nextBlockIndex,
       content: text,
-      wordType: getWordType(text),
+      wordType: (type === undefined) ? getWordType(text): type,
     };
 
     setNextBlockIndex(nextBlockIndex + 1);
@@ -1229,7 +1229,15 @@ export default function BlockEditor({
         className="prefab-block-button"
         onClick={() => {
           console.log("Clicked:", content, wordType);
-          // Insert block on place if input
+
+          const insertIndex = countInsertIndex();
+          setBlocks((prevBlocks) => [
+            ...prevBlocks.slice(0, insertIndex),
+            makeBlock(content, wordType),
+            ...prevBlocks.slice(insertIndex),
+          ]);
+
+          setInputIndex(inputIndex + 1);
         }}
       >
         {content}
