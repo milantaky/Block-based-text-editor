@@ -60,6 +60,7 @@ export default function BlockEditor({
   const [inputIndex, setInputIndex] = useState(0); // This index says before which block the input is
   const [inputLineIndex, setInputLineIndex] = useState(0); // Which line the input is on (0 = first line)
   const inputRef = useRef<HTMLDivElement>(null);
+  const editorRef = useRef<HTMLDivElement>(null);
   const changeBlockRef = useRef(false);
   const lines = splitLines(blocks); // Blocks converted into lines of blocks based on \n
   const setFirstRef = useRef(false);
@@ -177,14 +178,20 @@ export default function BlockEditor({
 
         // Find if blocks after match the possible block
         for (let i = 0; i < possibleBlocks.length; i++) {
-          if(startIndex + possibleBlocks[i].split(" ").length > newBlocks.length) break;
+          if (
+            startIndex + possibleBlocks[i].split(" ").length >
+            newBlocks.length
+          )
+            break;
 
           const splitWord = possibleBlocks[i]!.split(" ");
           let match = true;
 
           // Is this the right word?
           for (let offset = 0; offset < splitWord.length; offset++) {
-            const nextBlock = sanitizeBlock(newBlocks[startIndex + offset].content);
+            const nextBlock = sanitizeBlock(
+              newBlocks[startIndex + offset].content
+            );
 
             // If the words don't match
             if (
@@ -201,7 +208,11 @@ export default function BlockEditor({
           // The blocks match the word with spaces
           if (match) {
             // Join the blocks and use index of last block
-            newBlocks = mergeBlocks(newBlocks, startIndex, startIndex + splitWord.length);
+            newBlocks = mergeBlocks(
+              newBlocks,
+              startIndex,
+              startIndex + splitWord.length
+            );
 
             // Handle input if on same line
             if (currentLine === inputLineIndex) {
@@ -220,7 +231,7 @@ export default function BlockEditor({
   }
 
   // Removes . , ' from string
-  function sanitizeBlock(word: string){
+  function sanitizeBlock(word: string) {
     return word.replace(/[.,']/g, "");
   }
 
@@ -883,15 +894,24 @@ export default function BlockEditor({
       const lineIndex = parseInt(clicked.dataset.index!, 10);
 
       // Find closest space between blocks in place of click
+      console.log("e", e);
+      console.log("ref", editorRef.current!.scrollTop);
+
+      console.log("Y:", e.clientY);
+
       let targetIndex = findPositionOfClickOnLine(
         e.clientX,
-        e.clientY,
+        e.clientY + editorRef.current!.scrollTop, // Adding scrolled height
         (e.target as HTMLElement).clientHeight,
         (e.target as HTMLElement).children
       );
 
       // Returned value is longer than current line
-      if (targetIndex > lines[lineIndex].length) targetIndex -= 1;
+      //   if (targetIndex > lines[lineIndex].length) targetIndex -= 1;
+
+      // Input in front (counted in)
+      if (inputLineIndex === lineIndex && targetIndex > inputIndex)
+        targetIndex -= 1;
 
       setInputIndex(targetIndex);
       setInputLineIndex(lineIndex);
@@ -1154,6 +1174,7 @@ export default function BlockEditor({
     <>
       <div
         className="blockEditor-container"
+        ref={editorRef}
         onPaste={(e) => handlePaste(e)}
         onCopy={handleCopy}
         onMouseDown={(e) => handleEditorClick(e)}
