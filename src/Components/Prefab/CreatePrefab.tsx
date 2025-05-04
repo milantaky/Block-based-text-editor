@@ -1,18 +1,22 @@
 import { useState } from "react";
 
-export default function CreatePrefab() {
+export default function CreatePrefab({
+  onCreate,
+}: {
+  onCreate: (newBlock: string) => void;
+}) {
   const [createNew, setCreateNew] = useState(false);
   const [newBlockName, setNewBlockName] = useState("");
 
   function handleClick() {
-    if(createNew) setNewBlockName("");
+    if (createNew) setNewBlockName("");
     setCreateNew(!createNew);
   }
 
   function handleCreate() {
-    if (newBlockName.trim()) {
-      console.log("Creating new block:", newBlockName);
-
+    const blockName = newBlockName.trim();
+    if (blockName) {
+      onCreate(blockName);
       setNewBlockName("");
       setCreateNew(false);
     }

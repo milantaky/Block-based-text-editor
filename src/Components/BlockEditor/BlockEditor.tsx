@@ -1205,7 +1205,7 @@ export default function BlockEditor({
     const insertIndex = countInsertIndex();
     setBlocks((prevBlocks) => [
       ...prevBlocks.slice(0, insertIndex),
-      makeBlock(content, wordType),
+      (wordType !== -2) ? makeBlock(content, wordType) : makeBlock(content),
       ...prevBlocks.slice(insertIndex),
     ]);
 
