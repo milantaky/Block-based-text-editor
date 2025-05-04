@@ -1,29 +1,27 @@
+import { earsTest } from "../../wordCategories.tsx";
+import { useState, useRef, useEffect } from "react";
+import type { BlockType } from "../../types.tsx";
 import "./BlockEditor.css";
-import type { BlockType } from "./types";
-import { earsTest } from "./wordCategories.tsx";
 
-import { useState, useRef, useEffect, ReactNode, Children } from "react";
-import SortableBlock from "./SortableBlock";
+import SortableBlock from "./SortableBlock/SortableBlock.tsx";
+import PrefabSection from "./Prefab/PrefabSection.tsx";
+import InputBox from "./InputBox/InputBox.tsx";
+import Line from "./Line/Line.tsx";
 
 import {
   DndContext,
-  useDroppable,
   DragEndEvent,
   DragStartEvent,
   DragOverlay,
   rectIntersection,
   pointerWithin,
-  useSensor,
-  useSensors,
-  PointerSensor,
 } from "@dnd-kit/core";
 import {
   SortableContext,
   horizontalListSortingStrategy,
 } from "@dnd-kit/sortable";
 
-// Selected language -> EARS
-const language = earsTest;
+const language = earsTest; // Selected language -> EARS
 const languageWordsWithSpaces = getItemsWithSpaces(language);
 const languageWordsWithSpacesConnected = new Set(
   languageWordsWithSpaces.map((word) => word.split(" ")[0])
@@ -34,9 +32,7 @@ function getItemsWithSpaces(data: typeof earsTest): string[] {
 
   for (const category of Object.values(data)) {
     for (const item of category.items) {
-      if (item.includes(" ")) {
-        result.push(item);
-      }
+      if (item.includes(" ")) result.push(item);
     }
   }
 
@@ -69,6 +65,7 @@ export default function BlockEditor({
   const [firstSelectedBlockIndex, setFirstSelectedBlockIndex] = useState<
     [number, number]
   >([-1, -1]); // [inputIndex, inputLineIndex]
+  const [isPrefabVisible, setIsPrefabVisible] = useState(true);
 
   // When first rendered, check for line height and set input on end
   useEffect(() => {
@@ -179,7 +176,12 @@ export default function BlockEditor({
 
           // Is number?
           if (!isNaN(Number(nextBlock))) {
-            newBlocks = mergeBlocks(newBlocks, startIndex, startIndex + 2, true);
+            newBlocks = mergeBlocks(
+              newBlocks,
+              startIndex,
+              startIndex + 2,
+              true
+            );
 
             if (currentLine === inputLineIndex) {
               const inputIndexInBlocks = findInputBlocksIndex();
@@ -261,7 +263,12 @@ export default function BlockEditor({
   }
 
   // Merges blocks from start to end indices, uses index of last block as new index and sets new blocks
-  function mergeBlocks(blockArray: BlockType[], start: number, end: number, isRequirement: boolean = false) {
+  function mergeBlocks(
+    blockArray: BlockType[],
+    start: number,
+    end: number,
+    isRequirement: boolean = false
+  ) {
     const blocksToMerge = blockArray.slice(start, end);
 
     const newContent = blocksToMerge.map((block) => block.content).join(" ");
@@ -356,11 +363,11 @@ export default function BlockEditor({
     return count;
   }
 
-  function makeBlock(text: string) {
+  function makeBlock(text: string, type?: number) {
     const newBlock: BlockType = {
       index: nextBlockIndex,
       content: text,
-      wordType: getWordType(text),
+      wordType: type === undefined ? getWordType(text) : type,
     };
 
     setNextBlockIndex(nextBlockIndex + 1);
@@ -908,15 +915,14 @@ export default function BlockEditor({
       }
 
       // Get indices from data attributes and convert them to number
-      const blockIndex = parseInt(clicked.dataset.indexonline!, 10);
+      const blockIndex = parseInt(clicked.dataset.index!, 10);
+      const blockIndexOnLine = parseInt(clicked.dataset.indexonline!, 10);
       const lineIndex = parseInt(clicked.dataset.lineindex!, 10);
 
       // Did not click on selected block
-      if (!selectedBlocks.some((block) => block.index === blockIndex)) {
-        setSelectedBlocks([]);
-      }
+      if (!selectedBlocks.some((block) => block.index === blockIndex)) setSelectedBlocks([]);
 
-      setInputIndex(blockIndex + 1);
+      setInputIndex(blockIndexOnLine + 1);
       setInputLineIndex(lineIndex);
       setTimeout(() => inputRef.current?.focus(), 0);
 
@@ -1098,6 +1104,20 @@ export default function BlockEditor({
     setActiveBlock(null);
   }
 
+  // When clicked on a prefab block, the block gets added to the place of input
+  function handleClickPrefab(content: string, wordType: number) {
+    console.log(wordType);
+
+    const insertIndex = countInsertIndex();
+    setBlocks((prevBlocks) => [
+      ...prevBlocks.slice(0, insertIndex),
+      wordType !== -2 ? makeBlock(content, wordType) : makeBlock(content),
+      ...prevBlocks.slice(insertIndex),
+    ]);
+
+    setInputIndex(inputIndex + 1);
+  }
+
   // Rendering function
   function renderLine(line: BlockType[], lineIndex: number) {
     const blockIds = line.map((block) => block.index);
@@ -1108,14 +1128,24 @@ export default function BlockEditor({
         items={blockIds}
         strategy={horizontalListSortingStrategy}
       >
-        <Line key={lineIndex} lineIndex={lineIndex}>
+        <Line
+          key={lineIndex}
+          lineIndex={lineIndex}
+          baseLineHeight={baseLineHeight.current}
+        >
           {line.map((block, wordIndex) => {
             const isInputHere =
               inputLineIndex === lineIndex && inputIndex === wordIndex;
 
             return (
               <>
-                {isInputHere && <InputBox />}
+                {isInputHere && (
+                  <InputBox
+                    inputRef={inputRef}
+                    onInput={handleInput}
+                    onKeyDown={handleKeyDown}
+                  />
+                )}
 
                 <SortableBlock
                   key={block.index}
@@ -1132,73 +1162,21 @@ export default function BlockEditor({
 
           {/* Input on end */}
           {inputLineIndex === lineIndex && inputIndex === line.length && (
-            <InputBox />
+            <InputBox
+              inputRef={inputRef}
+              onInput={handleInput}
+              onKeyDown={handleKeyDown}
+            />
           )}
         </Line>
       </SortableContext>
     );
   }
 
-  // InputBox component
-  function InputBox() {
-    return (
-      <div
-        ref={inputRef}
-        className="input-box"
-        contentEditable
-        suppressContentEditableWarning
-        onInput={handleInput}
-        onKeyDown={handleKeyDown}
-      />
-    );
-  }
-
-  // Line component
-  function Line({
-    children,
-    lineIndex,
-  }: {
-    children: ReactNode;
-    lineIndex: number;
-  }) {
-    const { setNodeRef, isOver } = useDroppable({
-      id: `line-${lineIndex}`, // důležité: musíš použít ID řádku
-      data: {
-        type: "line",
-        lineIndex,
-      },
-    });
-
-    // ! pak jak se oddelaji ramecky, upravit!!!
-    const minHeight = baseLineHeight.current - 16; // Base line height - 16px top, bottom padding
-
-    const childrenArray = Children.toArray(children);
-    const isEmpty = childrenArray.length === 0;
-    const style = isEmpty ? { minHeight: `${minHeight}px` } : undefined;
-
-    return (
-      <div
-        ref={setNodeRef}
-        className={`line ${isOver ? "drag-over" : ""}`}
-        data-index={lineIndex}
-        style={style}
-      >
-        {children}
-      </div>
-    );
-  }
-
-  // Sensor for Drag-and-drop (beacuse of colliding with handleEditorClick)
-  const sensors = useSensors(
-    useSensor(PointerSensor, {
-      activationConstraint: {
-        distance: 10,
-      },
-    })
-  );
-
   return (
     <>
+      {isPrefabVisible && <PrefabSection onClick={handleClickPrefab} />}
+
       <div
         className="blockEditor-container"
         ref={editorRef}
@@ -1207,7 +1185,6 @@ export default function BlockEditor({
         onMouseDown={(e) => handleEditorClick(e)}
       >
         <DndContext
-          sensors={sensors}
           onDragStart={(e) => handleDragStart(e)}
           onDragEnd={(e) => handleDragEnd(e)}
           onDragCancel={handleDragCancel}

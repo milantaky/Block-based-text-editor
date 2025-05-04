@@ -1,0 +1,11 @@
+.prefab-container {
+    border: 1px solid red;
+    height: 100px;
+    overflow: auto;
+    padding: 0.5em;
+}
+  
+.prefab-container h2, h3, h4 {
+    margin: 0;
+    margin-bottom: 0.5em;
+}
