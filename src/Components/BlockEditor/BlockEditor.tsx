@@ -14,15 +14,12 @@ import {
   DragOverlay,
   rectIntersection,
   pointerWithin,
-  useSensor,
-  useSensors,
-  PointerSensor,
 } from "@dnd-kit/core";
 import {
   SortableContext,
   horizontalListSortingStrategy,
 } from "@dnd-kit/sortable";
-import Line from "../Line/Line.tsx";
+import Line from "./Line/Line.tsx";
 
 // Selected language -> EARS
 const language = earsTest;
@@ -1111,6 +1108,20 @@ export default function BlockEditor({
     setActiveBlock(null);
   }
 
+  // When clicked on a prefab block, the block gets added to the place of input
+  function handleClickPrefab(content: string, wordType: number) {
+    console.log(wordType);
+    
+    const insertIndex = countInsertIndex();
+    setBlocks((prevBlocks) => [
+      ...prevBlocks.slice(0, insertIndex),
+      (wordType !== -2) ? makeBlock(content, wordType) : makeBlock(content),
+      ...prevBlocks.slice(insertIndex),
+    ]);
+
+    setInputIndex(inputIndex + 1);
+  }
+
   // Rendering function
   function renderLine(line: BlockType[], lineIndex: number) {
     const blockIds = line.map((block) => block.index);
@@ -1151,65 +1162,7 @@ export default function BlockEditor({
       </SortableContext>
     );
   }
-
-  // // Line component
-  // function Line({
-  //   children,
-  //   lineIndex,
-  // }: {
-  //   children: ReactNode;
-  //   lineIndex: number;
-  // }) {
-  //   const { setNodeRef, isOver } = useDroppable({
-  //     id: `line-${lineIndex}`, // důležité: musíš použít ID řádku
-  //     data: {
-  //       type: "line",
-  //       lineIndex,
-  //     },
-  //   });
-
-  //   // ! pak jak se oddelaji ramecky, upravit!!!
-  //   const minHeight = baseLineHeight.current - 16; // Base line height - 16px top, bottom padding
-
-  //   const childrenArray = Children.toArray(children);
-  //   const isEmpty = childrenArray.length === 0;
-  //   const style = isEmpty ? { minHeight: `${minHeight}px` } : undefined;
-
-  //   return (
-  //     <div
-  //       ref={setNodeRef}
-  //       className={`line ${isOver ? "drag-over" : ""}`}
-  //       data-index={lineIndex}
-  //       style={style}
-  //     >
-  //       {children}
-  //     </div>
-  //   );
-  // }
-
-  // When clicked on a prefab block, the block gets added to the place of input
-  function handleClickPrefab(content: string, wordType: number) {
-    console.log(wordType);
-    
-    const insertIndex = countInsertIndex();
-    setBlocks((prevBlocks) => [
-      ...prevBlocks.slice(0, insertIndex),
-      (wordType !== -2) ? makeBlock(content, wordType) : makeBlock(content),
-      ...prevBlocks.slice(insertIndex),
-    ]);
-
-    setInputIndex(inputIndex + 1);
-  }
-
-  // Sensor for Drag-and-drop (beacuse of colliding with handleEditorClick)
-  const sensors = useSensors(
-    useSensor(PointerSensor, {
-      activationConstraint: {
-        distance: 10,
-      },
-    })
-  );
-
+  
   return (
     <>
       {isPrefabVisible && <PrefabSection onClick={handleClickPrefab} />}
@@ -1222,7 +1175,6 @@ export default function BlockEditor({
         onMouseDown={(e) => handleEditorClick(e)}
       >
         <DndContext
-          sensors={sensors}
           onDragStart={(e) => handleDragStart(e)}
           onDragEnd={(e) => handleDragEnd(e)}
           onDragCancel={handleDragCancel}
