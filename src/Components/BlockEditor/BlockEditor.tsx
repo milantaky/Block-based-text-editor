@@ -919,15 +919,8 @@ export default function BlockEditor({
       const blockIndexOnLine = parseInt(clicked.dataset.indexonline!, 10);
       const lineIndex = parseInt(clicked.dataset.lineindex!, 10);
 
-      console.log("Clicked: ", blockIndex);
-      
       // Did not click on selected block
-      if (!selectedBlocks.some((block) => block.index === blockIndex)) {
-        setSelectedBlocks([]);
-      } else {
-        console.log("tu");
-        
-      }
+      if (!selectedBlocks.some((block) => block.index === blockIndex)) setSelectedBlocks([]);
 
       setInputIndex(blockIndexOnLine + 1);
       setInputLineIndex(lineIndex);
@@ -1114,11 +1107,11 @@ export default function BlockEditor({
   // When clicked on a prefab block, the block gets added to the place of input
   function handleClickPrefab(content: string, wordType: number) {
     console.log(wordType);
-    
+
     const insertIndex = countInsertIndex();
     setBlocks((prevBlocks) => [
       ...prevBlocks.slice(0, insertIndex),
-      (wordType !== -2) ? makeBlock(content, wordType) : makeBlock(content),
+      wordType !== -2 ? makeBlock(content, wordType) : makeBlock(content),
       ...prevBlocks.slice(insertIndex),
     ]);
 
@@ -1135,14 +1128,24 @@ export default function BlockEditor({
         items={blockIds}
         strategy={horizontalListSortingStrategy}
       >
-        <Line key={lineIndex} lineIndex={lineIndex} baseLineHeight={baseLineHeight.current}>
+        <Line
+          key={lineIndex}
+          lineIndex={lineIndex}
+          baseLineHeight={baseLineHeight.current}
+        >
           {line.map((block, wordIndex) => {
             const isInputHere =
               inputLineIndex === lineIndex && inputIndex === wordIndex;
 
             return (
               <>
-                {isInputHere && <InputBox inputRef={inputRef} onInput={handleInput} onKeyDown={handleKeyDown}/>}
+                {isInputHere && (
+                  <InputBox
+                    inputRef={inputRef}
+                    onInput={handleInput}
+                    onKeyDown={handleKeyDown}
+                  />
+                )}
 
                 <SortableBlock
                   key={block.index}
@@ -1159,13 +1162,17 @@ export default function BlockEditor({
 
           {/* Input on end */}
           {inputLineIndex === lineIndex && inputIndex === line.length && (
-            <InputBox inputRef={inputRef} onInput={handleInput} onKeyDown={handleKeyDown}/>
+            <InputBox
+              inputRef={inputRef}
+              onInput={handleInput}
+              onKeyDown={handleKeyDown}
+            />
           )}
         </Line>
       </SortableContext>
     );
   }
-  
+
   return (
     <>
       {isPrefabVisible && <PrefabSection onClick={handleClickPrefab} />}
