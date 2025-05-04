@@ -44,11 +44,13 @@ export default function BlockEditor({
   blocksRef,
   baseLineHeight,
   blhSet,
+  prefabVisible
 }: {
   text: string;
   blocksRef: React.MutableRefObject<BlockType[]>;
   baseLineHeight: React.MutableRefObject<number>;
   blhSet: React.MutableRefObject<boolean>;
+  prefabVisible: boolean;
 }) {
   const [blocks, setBlocks] = useState<BlockType[]>(convertToBlocks(text));
   const [nextBlockIndex, setNextBlockIndex] = useState(text.split("").length);
@@ -65,7 +67,6 @@ export default function BlockEditor({
   const [firstSelectedBlockIndex, setFirstSelectedBlockIndex] = useState<
     [number, number]
   >([-1, -1]); // [inputIndex, inputLineIndex]
-  const [isPrefabVisible, setIsPrefabVisible] = useState(true);
 
   // When first rendered, check for line height and set input on end
   useEffect(() => {
@@ -1175,7 +1176,7 @@ export default function BlockEditor({
 
   return (
     <>
-      {isPrefabVisible && <PrefabSection onClick={handleClickPrefab} />}
+      {prefabVisible && <PrefabSection onClick={handleClickPrefab} />}
 
       <div
         className="blockEditor-container"

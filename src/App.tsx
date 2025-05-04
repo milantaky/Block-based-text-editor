@@ -1,7 +1,6 @@
 import { useState, useRef } from "react";
 import TextEditor from "./Components/TextEditor/TextEditor.tsx";
 import BlockEditor from "./Components/BlockEditor/BlockEditor.tsx";
-import SettingsWindow from "./Components/SettingsWindow/SettingsWindow.tsx";
 import type { BlockType, editorMode } from "./types";
 import "./App.css";
 
@@ -12,10 +11,7 @@ export default function App() {
   const baseLineHeight = useRef<number>(0); // Height of line on first render to compare if other lines have overflown
   const blhSet = useRef<boolean>(false);
   const [settingsVisible, setSettingsVisible] = useState(false);
-
-  function toggleSettings() {
-    setSettingsVisible(!settingsVisible);
-  }
+  const [prefabVisible, setPrefabVisible] = useState(true);
 
   function toggleEditorMode() {
     if (editorMode === "Text") {
@@ -33,11 +29,40 @@ export default function App() {
     );
   }
 
+  function toggleSettings() {
+    setSettingsVisible(!settingsVisible);
+  }
+
   function SettingsButton() {
     return (
       <button className="settings-window-button" onClick={toggleSettings}>
         Settings
       </button>
+    );
+  }
+
+  function togglePrefab() {
+    setPrefabVisible(!prefabVisible);
+  }
+
+  function SettingsWindow() {
+    return (
+      <>
+        <div className="settings-window">
+          <h3 className="settings-header">Settings</h3>
+          <div className="settings-items">
+            <div className="settings-item">
+              <input
+                className="setting-checkbox"
+                type="checkbox"
+                checked={prefabVisible}
+                onChange={togglePrefab}
+              />
+              Show prefabricated blocks
+            </div>
+          </div>
+        </div>
+      </>
     );
   }
 
@@ -50,6 +75,7 @@ export default function App() {
             blocksRef={blocksRef}
             baseLineHeight={baseLineHeight}
             blhSet={blhSet}
+            prefabVisible={prefabVisible}
           />
         ) : (
           <TextEditor blocks={blocksRef.current} textRef={textRef} />
