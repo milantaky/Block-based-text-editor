@@ -45,6 +45,7 @@ export default function PrefabSection({
             category={category}
             data={data}
             onClick={onClick}
+            onCreate={onCreate}
           />
         ))}
 
@@ -53,9 +54,9 @@ export default function PrefabSection({
           category="custom"
           data={customBlocks}
           onClick={onClick}
+          onCreate={onCreate}
         />
 
-        <CreatePrefab onCreate={onCreate} />
       </div>
     </div>
   );

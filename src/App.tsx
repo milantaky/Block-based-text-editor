@@ -33,6 +33,14 @@ export default function App() {
     );
   }
 
+  function SettingsButton() {
+    return (
+      <button className="settings-window-button" onClick={toggleSettings}>
+        Settings
+      </button>
+    );
+  }
+
   return (
     <div className="editor">
       <div className="editable-area">
@@ -48,13 +56,11 @@ export default function App() {
         )}
       </div>
 
-      {settingsVisible && <SettingsWindow/>}
+      {settingsVisible && <SettingsWindow />}
 
       <div className="main-buttons">
         <SwitchButton />
-        <button className="settings-window-button" onClick={toggleSettings}>
-          Settings
-        </button>
+        <SettingsButton />
       </div>
     </div>
   );

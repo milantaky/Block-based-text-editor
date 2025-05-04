@@ -20,14 +20,12 @@
     padding: 0.5em;
 }
 
-.prefab-category h4 {
+.prefab-category span {
     text-transform: capitalize;
+    font-weight: bold;
+    display: block;
+    margin-bottom: 0.2em;
 }
-
-.prefab-category {
-    /* border: 1px solid purple; */
-}
-
 
 .prefab-category-items {
     display: flex;
@@ -41,7 +39,7 @@
 }
 
 .create-prefab button {
-    padding: 0.2em 0.7em;
+    padding: 0.32em 0.5em;
     margin-right: 0.5em;
     border-radius: 0.3em;
     background-color: #EEEEEE;
@@ -54,7 +52,7 @@
 }
 
 .create-prefab input {
-    padding: 0.2em 0.5em;
+    padding: 0.2em 0.7em;
     border-radius: 0.3em;
     border: 1px solid lightgray;
     margin-right: 0.5em;
