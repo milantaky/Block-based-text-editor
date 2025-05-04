@@ -1,6 +1,7 @@
 import { earsTest } from "../../wordCategories.tsx";
 import CreatePrefab from "./CreatePrefab.tsx";
 import PrefabBlockCategory from "./PrefabCategory.tsx";
+import "./PrefabSection.css";
 
 const language = earsTest;
 
