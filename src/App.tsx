@@ -22,7 +22,7 @@ export default function App() {
   function SwitchButton() {
     return (
       <button className="mode-switch-button" onClick={toggleEditorMode}>
-        Switch to {editorMode === "Text" ? "Blocks" : "Text"}
+        Switch to <b>{editorMode === "Text" ? "Blocks" : "Text"}</b>
       </button>
     );
   }

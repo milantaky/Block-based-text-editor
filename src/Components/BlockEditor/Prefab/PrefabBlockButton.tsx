@@ -8,11 +8,11 @@ export default function PrefabBlockButton({
     onClick: (content: string, wordType: number) => void;
   }) {
     return (
-      <button
+      <div
         className="prefab-block-button"
         onClick={() => onClick(content, wordType)}
       >
         {content}
-      </button>
+      </div>
     );
   }

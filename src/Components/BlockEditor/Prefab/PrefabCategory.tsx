@@ -13,7 +13,7 @@ export default function PrefabBlockCategory({
     <div key={category} className="prefab-category">
       <h4>{category}</h4>
 
-      <div className="category-items">
+      <div className="prefab-category-items">
         {[...data.items].map((item) => (
           <PrefabBlockButton
             key={item}

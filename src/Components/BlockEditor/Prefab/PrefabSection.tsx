@@ -34,25 +34,29 @@ export default function PrefabSection({
 
   return (
     <div className="prefab-container">
-      <h3>Prefab Section</h3>
+      <div className="prefab-header">
+        <h3>Prefabricated Blocks</h3>
+      </div>
 
-      {filteredCategories.map(([category, data]) => (
+      <div className="prefab-category-list">
+        {filteredCategories.map(([category, data]) => (
+          <PrefabBlockCategory
+            key={category}
+            category={category}
+            data={data}
+            onClick={onClick}
+          />
+        ))}
+
         <PrefabBlockCategory
-          key={category}
-          category={category}
-          data={data}
+          key="custom"
+          category="custom"
+          data={customBlocks}
           onClick={onClick}
         />
-      ))}
 
-      <PrefabBlockCategory
-        key="custom"
-        category="custom"
-        data={customBlocks}
-        onClick={onClick}
-      />
-
-      <CreatePrefab onCreate={onCreate} />
+        <CreatePrefab onCreate={onCreate} />
+      </div>
     </div>
   );
 }

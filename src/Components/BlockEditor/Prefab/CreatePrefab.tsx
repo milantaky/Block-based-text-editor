@@ -29,7 +29,7 @@ export default function CreatePrefab({
   return (
     <div className="create-prefab">
       {!createNew ? (
-        <button onClick={handleClick}>Create New</button>
+        <button onClick={handleClick}>Create Custom</button>
       ) : (
         <>
           <input
@@ -39,7 +39,7 @@ export default function CreatePrefab({
             onChange={(e) => handleChange(e)}
           ></input>
           <button onClick={handleCreate}>Create</button>
-          <button onClick={handleClick}>Cancel</button>
+          <button className="cancel-button" onClick={handleClick}>Cancel</button>
         </>
       )}
     </div>
