@@ -1,11 +1,12 @@
-import "./BlockEditor.css";
-import type { BlockType } from "../../types.tsx";
 import { earsTest } from "../../wordCategories.tsx";
-
 import { useState, useRef, useEffect } from "react";
+import type { BlockType } from "../../types.tsx";
+import "./BlockEditor.css";
+
 import SortableBlock from "./SortableBlock/SortableBlock.tsx";
-import PrefabSection from "../Prefab/PrefabSection.tsx";
+import PrefabSection from "./Prefab/PrefabSection.tsx";
 import InputBox from "./InputBox/InputBox.tsx";
+import Line from "./Line/Line.tsx";
 
 import {
   DndContext,
@@ -19,10 +20,8 @@ import {
   SortableContext,
   horizontalListSortingStrategy,
 } from "@dnd-kit/sortable";
-import Line from "./Line/Line.tsx";
 
-// Selected language -> EARS
-const language = earsTest;
+const language = earsTest; // Selected language -> EARS
 const languageWordsWithSpaces = getItemsWithSpaces(language);
 const languageWordsWithSpacesConnected = new Set(
   languageWordsWithSpaces.map((word) => word.split(" ")[0])
@@ -33,9 +32,7 @@ function getItemsWithSpaces(data: typeof earsTest): string[] {
 
   for (const category of Object.values(data)) {
     for (const item of category.items) {
-      if (item.includes(" ")) {
-        result.push(item);
-      }
+      if (item.includes(" ")) result.push(item);
     }
   }
 
@@ -918,15 +915,21 @@ export default function BlockEditor({
       }
 
       // Get indices from data attributes and convert them to number
-      const blockIndex = parseInt(clicked.dataset.indexonline!, 10);
+      const blockIndex = parseInt(clicked.dataset.index!, 10);
+      const blockIndexOnLine = parseInt(clicked.dataset.indexonline!, 10);
       const lineIndex = parseInt(clicked.dataset.lineindex!, 10);
 
+      console.log("Clicked: ", blockIndex);
+      
       // Did not click on selected block
       if (!selectedBlocks.some((block) => block.index === blockIndex)) {
         setSelectedBlocks([]);
+      } else {
+        console.log("tu");
+        
       }
 
-      setInputIndex(blockIndex + 1);
+      setInputIndex(blockIndexOnLine + 1);
       setInputLineIndex(lineIndex);
       setTimeout(() => inputRef.current?.focus(), 0);
 
