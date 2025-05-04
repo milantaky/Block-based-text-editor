@@ -21,6 +21,7 @@ import {
   SortableContext,
   horizontalListSortingStrategy,
 } from "@dnd-kit/sortable";
+import PrefabSection from "./PrefabSection.tsx";
 
 // Selected language -> EARS
 const language = earsTest;
@@ -367,11 +368,11 @@ export default function BlockEditor({
     return count;
   }
 
-  function makeBlock(text: string, type?:number) {
+  function makeBlock(text: string, type?: number) {
     const newBlock: BlockType = {
       index: nextBlockIndex,
       content: text,
-      wordType: (type === undefined) ? getWordType(text): type,
+      wordType: type === undefined ? getWordType(text) : type,
     };
 
     setNextBlockIndex(nextBlockIndex + 1);
@@ -1199,67 +1200,16 @@ export default function BlockEditor({
     );
   }
 
-  function PrefabBlockCategory({
-    category,
-    data,
-  }: {
-    category: string;
-    data: any;
-  }) {
-    return (
-      <div key={category} className="prefab-category">
-        <h4>{category}</h4>
+  // When clicked on a prefab block, the block gets added to the place of input
+  function handleClickPrefab(content: string, wordType: number){
+    const insertIndex = countInsertIndex();
+    setBlocks((prevBlocks) => [
+      ...prevBlocks.slice(0, insertIndex),
+      makeBlock(content, wordType),
+      ...prevBlocks.slice(insertIndex),
+    ]);
 
-        {[...data.items].map((item) => (
-          <PrefabBlockButton key={item} content={item} wordType={data.type} />
-        ))}
-      </div>
-    );
-  }
-
-  function PrefabBlockButton({
-    content,
-    wordType,
-  }: {
-    content: string;
-    wordType: number;
-  }) {
-    return (
-      <button
-        className="prefab-block-button"
-        onClick={() => {
-          console.log("Clicked:", content, wordType);
-
-          const insertIndex = countInsertIndex();
-          setBlocks((prevBlocks) => [
-            ...prevBlocks.slice(0, insertIndex),
-            makeBlock(content, wordType),
-            ...prevBlocks.slice(insertIndex),
-          ]);
-
-          setInputIndex(inputIndex + 1);
-        }}
-      >
-        {content}
-      </button>
-    );
-  }
-
-  // Section with prefabricated blocks
-  function PrefabSection() {
-    const filteredCategories = Object.entries(language).filter(
-      ([, data]) => data.prefab
-    );
-
-    return (
-      <div className="prefab-container">
-        <h3>Prefab Section</h3>
-
-        {filteredCategories.map(([category, data]) => (
-          <PrefabBlockCategory key={category} category={category} data={data} />
-        ))}
-      </div>
-    );
+    setInputIndex(inputIndex + 1);
   }
 
   // Sensor for Drag-and-drop (beacuse of colliding with handleEditorClick)
@@ -1273,7 +1223,7 @@ export default function BlockEditor({
 
   return (
     <>
-      {isPrefabVisible && <PrefabSection />}
+      {isPrefabVisible && <PrefabSection onClick={handleClickPrefab}/>}
       <div
         className="blockEditor-container"
         ref={editorRef}
