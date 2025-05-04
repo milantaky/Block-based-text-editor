@@ -44,13 +44,21 @@ export default function BlockEditor({
   blocksRef,
   baseLineHeight,
   blhSet,
-  prefabVisible
+  prefabVisible,
+  customization,
 }: {
   text: string;
   blocksRef: React.MutableRefObject<BlockType[]>;
   baseLineHeight: React.MutableRefObject<number>;
   blhSet: React.MutableRefObject<boolean>;
   prefabVisible: boolean;
+  customization: {
+    backgroundColor?: string;
+    fontFamily?: string;
+    // borderStyle?: string;
+    boxShadow?: boolean;
+    // fillColor?: string;
+  };
 }) {
   const [blocks, setBlocks] = useState<BlockType[]>(convertToBlocks(text));
   const [nextBlockIndex, setNextBlockIndex] = useState(text.split("").length);
@@ -921,7 +929,8 @@ export default function BlockEditor({
       const lineIndex = parseInt(clicked.dataset.lineindex!, 10);
 
       // Did not click on selected block
-      if (!selectedBlocks.some((block) => block.index === blockIndex)) setSelectedBlocks([]);
+      if (!selectedBlocks.some((block) => block.index === blockIndex))
+        setSelectedBlocks([]);
 
       setInputIndex(blockIndexOnLine + 1);
       setInputLineIndex(lineIndex);
@@ -1184,6 +1193,13 @@ export default function BlockEditor({
         onPaste={(e) => handlePaste(e)}
         onCopy={handleCopy}
         onMouseDown={(e) => handleEditorClick(e)}
+        style={{
+          backgroundColor: customization.backgroundColor,
+          fontFamily: customization.fontFamily,
+          boxShadow: customization.boxShadow
+            ? "2px 2px 5px rgba(0,0,0,0.3)"
+            : "none",
+        }}
       >
         <DndContext
           onDragStart={(e) => handleDragStart(e)}

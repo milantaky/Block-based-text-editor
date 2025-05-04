@@ -3,6 +3,20 @@ import TextEditor from "./Components/TextEditor/TextEditor.tsx";
 import BlockEditor from "./Components/BlockEditor/BlockEditor.tsx";
 import type { BlockType, editorMode } from "./types";
 import "./App.css";
+import { earsTest } from "./wordCategories.tsx";
+
+const blockTypes = Object.keys(earsTest);
+const language = earsTest;
+
+type BlockStyle = {
+  backgroundColor: string;
+  textColor: string;
+  borderColor: string;
+};
+
+type BlockStylesMap = {
+  [blockType: string]: BlockStyle;
+};
 
 export default function App() {
   const [editorMode, setEditorMode] = useState<editorMode>("Blocks");
@@ -12,6 +26,36 @@ export default function App() {
   const blhSet = useRef<boolean>(false);
   const [settingsVisible, setSettingsVisible] = useState(false);
   const [prefabVisible, setPrefabVisible] = useState(true);
+
+  // Customization
+  const [backgroundColor, setBackgroundColor] = useState("#ffffff");
+  const [fontFamily, setFontFamily] = useState("sans-serif");
+  const [boxShadow, setBoxShadow] = useState(false);
+  const [selectedBlockType, setSelectedBlockType] = useState<string | null>(
+    null
+  );
+  const [blockStyles, setBlockStyles] = useState<BlockStylesMap>(
+    generateBlockStyles(language)
+  );
+
+  // Generates initial block styles
+  function generateBlockStyles(language: any) {
+    const result: Record<
+      string,
+      { backgroundColor: string; textColor: string; borderColor: string }
+    > = {};
+
+    for (const key in language) {
+      const category = language[key];
+      result[key] = {
+        backgroundColor: category.color,
+        textColor: "#000000",
+        borderColor: "#888888",
+      };
+    }
+
+    return result;
+  }
 
   function toggleEditorMode() {
     if (editorMode === "Text") {
@@ -51,6 +95,7 @@ export default function App() {
         <div className="settings-window">
           <h3 className="settings-header">Settings</h3>
           <div className="settings-items">
+            {/* Prefab */}
             <div className="settings-item">
               <input
                 className="setting-checkbox"
@@ -58,7 +103,119 @@ export default function App() {
                 checked={prefabVisible}
                 onChange={togglePrefab}
               />
-              Show prefabricated blocks
+              <label>Show prefabricated blocks</label>
+            </div>
+
+            {/* Shadow */}
+            <div className="settings-item">
+              <input
+                type="checkbox"
+                className="setting-checkbox"
+                checked={boxShadow}
+                onChange={(e) => setBoxShadow(e.target.checked)}
+              />
+              <label>Enable shadows</label>
+            </div>
+
+            {/* Font */}
+            <div className="settings-item">
+              <label>Font:</label>
+              <select
+                value={fontFamily}
+                onChange={(e) => setFontFamily(e.target.value)}
+              >
+                <option value="sans-serif">Sans-serif</option>
+                <option value="serif">Serif</option>
+                <option value="monospace">Monospace</option>
+              </select>
+            </div>
+
+            {/* Background color */}
+            <div className="settings-item">
+              <label>Editor background color:</label>
+              <input
+                type="color"
+                value={backgroundColor}
+                onChange={(e) => setBackgroundColor(e.target.value)}
+              />
+            </div>
+
+            {/* Blocks customization */}
+            <div className="settings-blocks">
+              <h4>Blocks Customization:</h4>
+
+              <div className="blocks-selection">
+                {blockTypes.map((type) => (
+                  <button
+                    key={type}
+                    className={`${selectedBlockType === type ? "selected" : ""} customize-button`}
+                    onClick={() => setSelectedBlockType(type)}
+                  >
+                    {type}
+                  </button>
+                ))}
+              </div>
+
+              {selectedBlockType && (
+                <div className="selection-categories">
+                  <div className="block-selection-item">
+                    <label>Background:</label>
+                    <input
+                      type="color"
+                      value={blockStyles[selectedBlockType].backgroundColor}
+                      onChange={(e) =>
+                        setBlockStyles((prev) => ({
+                          ...prev,
+                          [selectedBlockType]: {
+                            ...prev[selectedBlockType],
+                            backgroundColor: e.target.value,
+                            textColor: prev[selectedBlockType].textColor,
+                            borderColor: prev[selectedBlockType].borderColor,
+                          },
+                        }))
+                      }
+                    />
+                  </div>
+                  <div className="block-selection-item">
+                    <label>Text Color:</label>
+                    <input
+                      type="color"
+                      value={blockStyles[selectedBlockType].textColor}
+                      onChange={(e) =>
+                        setBlockStyles((prev) => ({
+                          ...prev,
+                          [selectedBlockType]: {
+                            ...prev[selectedBlockType],
+                            textColor: e.target.value,
+                            backgroundColor:
+                              prev[selectedBlockType]?.backgroundColor,
+                            borderColor: prev[selectedBlockType].borderColor,
+                          },
+                        }))
+                      }
+                    />
+                  </div>
+                  <div className="block-selection-item">
+                    <label>Border Color:</label>
+                    <input
+                      type="color"
+                      value={blockStyles[selectedBlockType].borderColor}
+                      onChange={(e) =>
+                        setBlockStyles((prev) => ({
+                          ...prev,
+                          [selectedBlockType]: {
+                            ...prev[selectedBlockType],
+                            borderColor: e.target.value,
+                            backgroundColor:
+                              prev[selectedBlockType].backgroundColor,
+                            textColor: prev[selectedBlockType].textColor,
+                          },
+                        }))
+                      }
+                    />
+                  </div>
+                </div>
+              )}
             </div>
           </div>
         </div>
@@ -76,6 +233,11 @@ export default function App() {
             baseLineHeight={baseLineHeight}
             blhSet={blhSet}
             prefabVisible={prefabVisible}
+            customization={{
+              fontFamily,
+              backgroundColor,
+              boxShadow,
+            }}
           />
         ) : (
           <TextEditor blocks={blocksRef.current} textRef={textRef} />
