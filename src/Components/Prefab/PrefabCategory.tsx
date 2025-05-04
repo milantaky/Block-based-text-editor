@@ -1,5 +1,4 @@
 import PrefabBlockButton from "./PrefabBlockButton";
-import "./PrefabCategory.css";
 
 export default function PrefabBlockCategory({
   category,

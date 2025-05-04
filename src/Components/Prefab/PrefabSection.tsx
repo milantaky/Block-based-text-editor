@@ -19,6 +19,8 @@ export default function PrefabSection({
     <div className="prefab-container">
       <h3>Prefab Section</h3>
 
+      <CreatePrefab />
+
       {filteredCategories.map(([category, data]) => (
         <PrefabBlockCategory
           key={category}
@@ -28,7 +30,6 @@ export default function PrefabSection({
         />
       ))}
 
-      <CreatePrefab />
     </div>
   );
 }
