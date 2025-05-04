@@ -102,5 +102,8 @@ body,
   padding: 0.32em 0.5em;
   border-radius: 0.3em;
   border: 1px solid black;
-  /* border: none; */
 }
+
+/* .blocks-selection .selected {
+  color: blue; 
+} */

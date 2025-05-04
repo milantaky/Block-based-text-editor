@@ -9,3 +9,13 @@ export type blockProps = {
 };
 
 export type editorMode = "Blocks" | "Text";
+
+export type BlockStyle = {
+  backgroundColor: string;
+  color: string;
+  borderColor: string;
+};
+
+export type BlockStylesMap = {
+  [blockType: string]: BlockStyle;
+};

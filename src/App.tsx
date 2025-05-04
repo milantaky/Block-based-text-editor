@@ -1,22 +1,12 @@
 import { useState, useRef } from "react";
 import TextEditor from "./Components/TextEditor/TextEditor.tsx";
 import BlockEditor from "./Components/BlockEditor/BlockEditor.tsx";
-import type { BlockType, editorMode } from "./types";
-import "./App.css";
+import type { BlockStylesMap, BlockType, editorMode } from "./types";
 import { earsTest } from "./wordCategories.tsx";
+import "./App.css";
 
 const blockTypes = Object.keys(earsTest);
 const language = earsTest;
-
-type BlockStyle = {
-  backgroundColor: string;
-  color: string;
-  borderColor: string;
-};
-
-type BlockStylesMap = {
-  [blockType: string]: BlockStyle;
-};
 
 export default function App() {
   const [editorMode, setEditorMode] = useState<editorMode>("Blocks");
@@ -37,8 +27,6 @@ export default function App() {
   const [blockStyles, setBlockStyles] = useState<BlockStylesMap>(
     generateBlockStyles(language)
   );
-
-  console.log(blockStyles)
 
   // Generates initial block styles
   function generateBlockStyles(language: any) {
