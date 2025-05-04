@@ -101,10 +101,6 @@ body,
 .customize-button {
   padding: 0.32em 0.5em;
   border-radius: 0.3em;
-  background-color: #eeeeee;
-  border: none;
-}
-
-.selected {
-  border: 1px solid red;
+  border: 1px solid black;
+  /* border: none; */
 }

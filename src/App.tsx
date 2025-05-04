@@ -10,7 +10,7 @@ const language = earsTest;
 
 type BlockStyle = {
   backgroundColor: string;
-  textColor: string;
+  color: string;
   borderColor: string;
 };
 
@@ -32,24 +32,26 @@ export default function App() {
   const [fontFamily, setFontFamily] = useState("sans-serif");
   const [boxShadow, setBoxShadow] = useState(false);
   const [selectedBlockType, setSelectedBlockType] = useState<string | null>(
-    null
+    blockTypes[0]
   );
   const [blockStyles, setBlockStyles] = useState<BlockStylesMap>(
     generateBlockStyles(language)
   );
 
+  console.log(blockStyles)
+
   // Generates initial block styles
   function generateBlockStyles(language: any) {
     const result: Record<
       string,
-      { backgroundColor: string; textColor: string; borderColor: string }
+      { backgroundColor: string; color: string; borderColor: string }
     > = {};
 
     for (const key in language) {
       const category = language[key];
       result[key] = {
         backgroundColor: category.color,
-        textColor: "#000000",
+        color: "#000000",
         borderColor: "#888888",
       };
     }
@@ -150,6 +152,7 @@ export default function App() {
                     key={type}
                     className={`${selectedBlockType === type ? "selected" : ""} customize-button`}
                     onClick={() => setSelectedBlockType(type)}
+                    style={blockStyles[type]}
                   >
                     {type}
                   </button>
@@ -158,6 +161,7 @@ export default function App() {
 
               {selectedBlockType && (
                 <div className="selection-categories">
+                  {/* Block Background Color */}
                   <div className="block-selection-item">
                     <label>Background:</label>
                     <input
@@ -169,24 +173,26 @@ export default function App() {
                           [selectedBlockType]: {
                             ...prev[selectedBlockType],
                             backgroundColor: e.target.value,
-                            textColor: prev[selectedBlockType].textColor,
+                            color: prev[selectedBlockType].color,
                             borderColor: prev[selectedBlockType].borderColor,
                           },
                         }))
                       }
                     />
                   </div>
+
+                  {/* Block Text Color */}
                   <div className="block-selection-item">
                     <label>Text Color:</label>
                     <input
                       type="color"
-                      value={blockStyles[selectedBlockType].textColor}
+                      value={blockStyles[selectedBlockType].color}
                       onChange={(e) =>
                         setBlockStyles((prev) => ({
                           ...prev,
                           [selectedBlockType]: {
                             ...prev[selectedBlockType],
-                            textColor: e.target.value,
+                            color: e.target.value,
                             backgroundColor:
                               prev[selectedBlockType]?.backgroundColor,
                             borderColor: prev[selectedBlockType].borderColor,
@@ -195,6 +201,8 @@ export default function App() {
                       }
                     />
                   </div>
+
+                  {/* Block Border Color */}
                   <div className="block-selection-item">
                     <label>Border Color:</label>
                     <input
@@ -208,7 +216,7 @@ export default function App() {
                             borderColor: e.target.value,
                             backgroundColor:
                               prev[selectedBlockType].backgroundColor,
-                            textColor: prev[selectedBlockType].textColor,
+                            color: prev[selectedBlockType].color,
                           },
                         }))
                       }
