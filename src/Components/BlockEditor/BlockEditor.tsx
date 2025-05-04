@@ -2,12 +2,13 @@ import "./BlockEditor.css";
 import type { BlockType } from "../../types.tsx";
 import { earsTest } from "../../wordCategories.tsx";
 
-import { useState, useRef, useEffect, ReactNode, Children } from "react";
+import { useState, useRef, useEffect } from "react";
 import SortableBlock from "./SortableBlock/SortableBlock.tsx";
+import PrefabSection from "../Prefab/PrefabSection.tsx";
+import InputBox from "./InputBox/InputBox.tsx";
 
 import {
   DndContext,
-  useDroppable,
   DragEndEvent,
   DragStartEvent,
   DragOverlay,
@@ -21,7 +22,7 @@ import {
   SortableContext,
   horizontalListSortingStrategy,
 } from "@dnd-kit/sortable";
-import PrefabSection from "../Prefab/PrefabSection.tsx";
+import Line from "../Line/Line.tsx";
 
 // Selected language -> EARS
 const language = earsTest;
@@ -1120,14 +1121,14 @@ export default function BlockEditor({
         items={blockIds}
         strategy={horizontalListSortingStrategy}
       >
-        <Line key={lineIndex} lineIndex={lineIndex}>
+        <Line key={lineIndex} lineIndex={lineIndex} baseLineHeight={baseLineHeight.current}>
           {line.map((block, wordIndex) => {
             const isInputHere =
               inputLineIndex === lineIndex && inputIndex === wordIndex;
 
             return (
               <>
-                {isInputHere && <InputBox />}
+                {isInputHere && <InputBox inputRef={inputRef} onInput={handleInput} onKeyDown={handleKeyDown}/>}
 
                 <SortableBlock
                   key={block.index}
@@ -1144,61 +1145,47 @@ export default function BlockEditor({
 
           {/* Input on end */}
           {inputLineIndex === lineIndex && inputIndex === line.length && (
-            <InputBox />
+            <InputBox inputRef={inputRef} onInput={handleInput} onKeyDown={handleKeyDown}/>
           )}
         </Line>
       </SortableContext>
     );
   }
 
-  // InputBox component
-  function InputBox() {
-    return (
-      <div
-        ref={inputRef}
-        className="input-box"
-        contentEditable
-        suppressContentEditableWarning
-        onInput={handleInput}
-        onKeyDown={handleKeyDown}
-      />
-    );
-  }
+  // // Line component
+  // function Line({
+  //   children,
+  //   lineIndex,
+  // }: {
+  //   children: ReactNode;
+  //   lineIndex: number;
+  // }) {
+  //   const { setNodeRef, isOver } = useDroppable({
+  //     id: `line-${lineIndex}`, // důležité: musíš použít ID řádku
+  //     data: {
+  //       type: "line",
+  //       lineIndex,
+  //     },
+  //   });
 
-  // Line component
-  function Line({
-    children,
-    lineIndex,
-  }: {
-    children: ReactNode;
-    lineIndex: number;
-  }) {
-    const { setNodeRef, isOver } = useDroppable({
-      id: `line-${lineIndex}`, // důležité: musíš použít ID řádku
-      data: {
-        type: "line",
-        lineIndex,
-      },
-    });
+  //   // ! pak jak se oddelaji ramecky, upravit!!!
+  //   const minHeight = baseLineHeight.current - 16; // Base line height - 16px top, bottom padding
 
-    // ! pak jak se oddelaji ramecky, upravit!!!
-    const minHeight = baseLineHeight.current - 16; // Base line height - 16px top, bottom padding
+  //   const childrenArray = Children.toArray(children);
+  //   const isEmpty = childrenArray.length === 0;
+  //   const style = isEmpty ? { minHeight: `${minHeight}px` } : undefined;
 
-    const childrenArray = Children.toArray(children);
-    const isEmpty = childrenArray.length === 0;
-    const style = isEmpty ? { minHeight: `${minHeight}px` } : undefined;
-
-    return (
-      <div
-        ref={setNodeRef}
-        className={`line ${isOver ? "drag-over" : ""}`}
-        data-index={lineIndex}
-        style={style}
-      >
-        {children}
-      </div>
-    );
-  }
+  //   return (
+  //     <div
+  //       ref={setNodeRef}
+  //       className={`line ${isOver ? "drag-over" : ""}`}
+  //       data-index={lineIndex}
+  //       style={style}
+  //     >
+  //       {children}
+  //     </div>
+  //   );
+  // }
 
   // When clicked on a prefab block, the block gets added to the place of input
   function handleClickPrefab(content: string, wordType: number) {
