@@ -14,21 +14,19 @@ export default function PrefabSection({
 }) {
   const [customBlocks, setCustomBlocks] = useState({
     type: -2,
-    items: new Set<string>(["sjdjdj"]),
+    items: new Set<string>([]),
   });
-  console.log(customBlocks)
 
   const filteredCategories = Object.entries(language).filter(
     ([, data]) => data.prefab
   );
 
-  // TODO
   function onCreate(newBlock: string) {
     setCustomBlocks((prev) => {
       const updatedItems = new Set(prev.items);
       updatedItems.add(newBlock);
       return {
-        type: -1,
+        type: -2,
         items: updatedItems,
       };
     });
@@ -37,8 +35,6 @@ export default function PrefabSection({
   return (
     <div className="prefab-container">
       <h3>Prefab Section</h3>
-
-      <CreatePrefab onCreate={onCreate}/>
 
       {filteredCategories.map(([category, data]) => (
         <PrefabBlockCategory
@@ -55,6 +51,8 @@ export default function PrefabSection({
         data={customBlocks}
         onClick={onClick}
       />
+
+      <CreatePrefab onCreate={onCreate} />
     </div>
   );
 }

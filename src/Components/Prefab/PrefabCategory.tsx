@@ -9,7 +9,6 @@ export default function PrefabBlockCategory({
   data: any;
   onClick: (content: string, wordType: number) => void;
 }) {
-  console.log("SS", data.type)
   return (
     <div key={category} className="prefab-category">
       <h4>{category}</h4>

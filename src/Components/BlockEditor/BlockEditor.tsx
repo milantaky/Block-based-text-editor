@@ -1202,6 +1202,8 @@ export default function BlockEditor({
 
   // When clicked on a prefab block, the block gets added to the place of input
   function handleClickPrefab(content: string, wordType: number) {
+    console.log(wordType);
+    
     const insertIndex = countInsertIndex();
     setBlocks((prevBlocks) => [
       ...prevBlocks.slice(0, insertIndex),
