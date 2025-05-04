@@ -1,9 +1,9 @@
 import "./BlockEditor.css";
-import type { BlockType } from "./types";
-import { earsTest } from "./wordCategories.tsx";
+import type { BlockType } from "../../types.tsx";
+import { earsTest } from "../../wordCategories.tsx";
 
 import { useState, useRef, useEffect, ReactNode, Children } from "react";
-import SortableBlock from "./SortableBlock";
+import SortableBlock from "./SortableBlock/SortableBlock.tsx";
 
 import {
   DndContext,
@@ -21,7 +21,7 @@ import {
   SortableContext,
   horizontalListSortingStrategy,
 } from "@dnd-kit/sortable";
-import PrefabSection from "./PrefabSection.tsx";
+import PrefabSection from "../Prefab/PrefabSection.tsx";
 
 // Selected language -> EARS
 const language = earsTest;
@@ -1201,7 +1201,7 @@ export default function BlockEditor({
   }
 
   // When clicked on a prefab block, the block gets added to the place of input
-  function handleClickPrefab(content: string, wordType: number){
+  function handleClickPrefab(content: string, wordType: number) {
     const insertIndex = countInsertIndex();
     setBlocks((prevBlocks) => [
       ...prevBlocks.slice(0, insertIndex),
@@ -1223,7 +1223,8 @@ export default function BlockEditor({
 
   return (
     <>
-      {isPrefabVisible && <PrefabSection onClick={handleClickPrefab}/>}
+      {isPrefabVisible && <PrefabSection onClick={handleClickPrefab} />}
+
       <div
         className="blockEditor-container"
         ref={editorRef}

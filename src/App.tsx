@@ -1,6 +1,6 @@
 import { useState, useRef } from "react";
-import TextEditor from "./TextEditor.tsx";
-import BlockEditor from "./BlockEditor.tsx";
+import TextEditor from "./Components/TextEditor/TextEditor.tsx";
+import BlockEditor from "./Components/BlockEditor/BlockEditor.tsx";
 import type { BlockType, editorMode } from "./types";
 import "./App.css";
 
