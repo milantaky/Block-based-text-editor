@@ -31,14 +31,16 @@ export default function App() {
   );
 
   // Generates initial block styles
-  function generateBlockStyles(data: any) {
+  function generateBlockStyles(data: typeof language) {
     const result: Record<
       string,
       { backgroundColor: string; color: string; borderColor: string }
     > = {};
 
     for (const key in data) {
-      const category = data[key];
+      const typedKey = key as keyof typeof data;
+      const category = data[typedKey];
+
       result[key] = {
         backgroundColor: category.color,
         color: "#000000",

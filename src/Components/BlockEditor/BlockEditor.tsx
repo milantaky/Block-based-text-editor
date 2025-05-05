@@ -46,7 +46,9 @@ function getItemsWithSpaces(data: typeof language): string[] {
 function createTypeToKeyMap(language: typeof earsTest): Record<number, string> {
   const map: Record<number, string> = {};
   for (const key of Object.keys(language)) {
-    map[language[key].type] = key;
+    const typedKey = key as keyof typeof language;
+    const item = language[typedKey];
+    map[item.type] = key;
   }
   return map;
 }
