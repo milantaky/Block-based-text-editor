@@ -120,8 +120,12 @@ export default function App() {
             {/* Font Size */}
             <div className="settings-item">
               <label>Font size:</label>
-              <input className="settings-number" type="number" value={fontSize || 16}
-              onChange={e => setFontSize(parseInt(e.target.value))}/>
+              <input
+                className="settings-number"
+                type="number"
+                value={fontSize || 16}
+                onChange={(e) => setFontSize(parseInt(e.target.value))}
+              />
             </div>
 
             {/* Background color */}
@@ -133,7 +137,9 @@ export default function App() {
                 content={
                   <SwatchesPicker
                     color={backgroundColor}
-                    onChangeComplete={(color: ColorResult) => setBackgroundColor(color.hex)}
+                    onChangeComplete={(color: ColorResult) =>
+                      setBackgroundColor(color.hex)
+                    }
                   />
                 }
               >
@@ -294,11 +300,15 @@ export default function App() {
               fontFamily,
               backgroundColor,
               blockStyles,
-              fontSize
+              fontSize,
             }}
           />
         ) : (
-          <TextEditor blocks={blocksRef.current} textRef={textRef} />
+          <TextEditor
+            blocks={blocksRef.current}
+            textRef={textRef}
+            customization={{ fontFamily, backgroundColor, fontSize }}
+          />
         )}
       </div>
 

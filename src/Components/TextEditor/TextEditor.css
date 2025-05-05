@@ -3,6 +3,7 @@
   width: 100%;
   height: 100%;
   border: 1px solid red;
+  padding: 0.5em;
 }
 
 .highlighted-layer {
@@ -11,7 +12,7 @@
   height: 100%;
   white-space: pre-wrap;
   word-wrap: break-word;
-  color: transparent;
+  color: red;
   pointer-events: none;
   z-index: 1;
   overflow: auto;
@@ -24,11 +25,34 @@
   outline: none;
   background: transparent;
   z-index: 2;
-  color: black;
   color: transparent;
   caret-color: black;
 }
 
-.word {
-  color: rgba(255, 0, 0, 0.3);
+.keywords {
+  color: #ff6347;
+}
+
+.actors {
+  color: #4682b4;
+}
+
+.verbs {
+  color: #32cd32;
+}
+
+.objects {
+  color: #daa520;
+}
+
+.modifiers {
+  color: #8a2be2;
+}
+
+.relationalOperators{
+  color: green;
+}
+
+.other {
+  color: #000000; /* základní barva pro neoznačená slova */
 }

@@ -951,7 +951,7 @@ export default function BlockEditor({
   // Handles mouse click in editor
   function handleEditorClick(e: React.MouseEvent) {
     const clicked = e.target as HTMLElement;
-    
+
     // Clicked on block
     if (clicked.classList.contains("block")) {
       // Clicked with Shift
@@ -1243,7 +1243,7 @@ export default function BlockEditor({
         style={{
           backgroundColor: customization.backgroundColor,
           fontFamily: customization.fontFamily,
-          fontSize: customization.fontSize
+          fontSize: customization.fontSize,
         }}
       >
         <DndContext
