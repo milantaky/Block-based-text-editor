@@ -89,13 +89,13 @@ export default function App() {
           <div className="settings-items">
             {/* Prefab */}
             <div className="settings-item">
+              <label>Show prefabricated blocks: </label>
               <input
                 className="setting-checkbox"
                 type="checkbox"
                 checked={prefabVisible}
                 onChange={togglePrefab}
               />
-              <label>Show prefabricated blocks</label>
             </div>
 
             {/* Font */}
@@ -114,7 +114,7 @@ export default function App() {
 
             {/* Background color */}
             <div className="settings-item">
-              <label>Editor Background color:</label>
+              <label>Background Color:</label>
               <Tippy
                 interactive={true}
                 trigger="click"
