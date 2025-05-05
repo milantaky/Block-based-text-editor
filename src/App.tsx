@@ -1,8 +1,8 @@
 import { useState, useRef } from "react";
 import TextEditor from "./Components/TextEditor/TextEditor.tsx";
 import BlockEditor from "./Components/BlockEditor/BlockEditor.tsx";
-import type { BlockStylesMap, BlockType, editorMode } from "./types";
 import { earsTest } from "./wordCategories.tsx";
+import type { BlockStylesMap, BlockType, editorMode } from "./types";
 import "./App.css";
 
 const blockTypes = Object.keys(earsTest);
@@ -14,6 +14,7 @@ export default function App() {
   const blocksRef = useRef<BlockType[]>([]);
   const baseLineHeight = useRef<number>(0); // Height of line on first render to compare if other lines have overflown
   const blhSet = useRef<boolean>(false);
+
   const [settingsVisible, setSettingsVisible] = useState(false);
   const [prefabVisible, setPrefabVisible] = useState(true);
 
@@ -27,16 +28,17 @@ export default function App() {
   const [blockStyles, setBlockStyles] = useState<BlockStylesMap>(
     generateBlockStyles(language)
   );
+  
 
   // Generates initial block styles
-  function generateBlockStyles(language: any) {
+  function generateBlockStyles(data: any) {
     const result: Record<
       string,
       { backgroundColor: string; color: string; borderColor: string }
     > = {};
 
-    for (const key in language) {
-      const category = language[key];
+    for (const key in data) {
+      const category = data[key];
       result[key] = {
         backgroundColor: category.color,
         color: "#000000",
@@ -96,7 +98,7 @@ export default function App() {
               <label>Show prefabricated blocks</label>
             </div>
 
-            {/* Shadow */}
+            {/* Shadow
             <div className="settings-item">
               <input
                 type="checkbox"
@@ -105,7 +107,7 @@ export default function App() {
                 onChange={(e) => setBoxShadow(e.target.checked)}
               />
               <label>Enable shadows</label>
-            </div>
+            </div> */}
 
             {/* Font */}
             <div className="settings-item">
@@ -233,6 +235,7 @@ export default function App() {
               fontFamily,
               backgroundColor,
               boxShadow,
+              blockStyles
             }}
           />
         ) : (

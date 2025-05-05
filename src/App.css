@@ -64,7 +64,7 @@ body,
 
 .settings-item {
   display: flex;
-  justify-content: center;
+  align-items: center;
   gap: 0.5em;
 }
 
@@ -95,6 +95,7 @@ body,
 
 .block-selection-item {
   display: flex;
+  align-items: center;
   gap: 0.5em;
 }
 

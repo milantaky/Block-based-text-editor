@@ -1,6 +1,6 @@
 import { earsTest } from "../../wordCategories.tsx";
 import { useState, useRef, useEffect } from "react";
-import type { BlockType } from "../../types.tsx";
+import type { BlockStylesMap, BlockType } from "../../types.tsx";
 import "./BlockEditor.css";
 
 import SortableBlock from "./SortableBlock/SortableBlock.tsx";
@@ -22,12 +22,13 @@ import {
 } from "@dnd-kit/sortable";
 
 const language = earsTest; // Selected language -> EARS
+const typeKeyMap = createTypeToKeyMap(language);
 const languageWordsWithSpaces = getItemsWithSpaces(language);
 const languageWordsWithSpacesConnected = new Set(
   languageWordsWithSpaces.map((word) => word.split(" ")[0])
 ); // Returns first words from list, and removes duplicates, is set because it has O(1) for lookup with .has
 
-function getItemsWithSpaces(data: typeof earsTest): string[] {
+function getItemsWithSpaces(data: typeof language): string[] {
   const result: string[] = [];
 
   for (const category of Object.values(data)) {
@@ -37,6 +38,14 @@ function getItemsWithSpaces(data: typeof earsTest): string[] {
   }
 
   return result;
+}
+
+function createTypeToKeyMap(language: typeof earsTest): Record<number, string> {
+  const map: Record<number, string> = {};
+  for (const key of Object.keys(language)) {
+    map[language[key].type] = key;
+  }
+  return map;
 }
 
 export default function BlockEditor({
@@ -53,11 +62,10 @@ export default function BlockEditor({
   blhSet: React.MutableRefObject<boolean>;
   prefabVisible: boolean;
   customization: {
-    backgroundColor?: string;
-    fontFamily?: string;
-    // borderStyle?: string;
-    boxShadow?: boolean;
-    // fillColor?: string;
+    backgroundColor: string;
+    fontFamily: string;
+    boxShadow: boolean;
+    blockStyles: BlockStylesMap;
   };
 }) {
   const [blocks, setBlocks] = useState<BlockType[]>(convertToBlocks(text));
@@ -72,9 +80,7 @@ export default function BlockEditor({
   const setFirstRef = useRef(false);
   const [activeBlock, setActiveBlock] = useState<BlockType | null>(null);
   const [selectedBlocks, setSelectedBlocks] = useState<BlockType[]>([]);
-  const [firstSelectedBlockIndex, setFirstSelectedBlockIndex] = useState<
-    [number, number]
-  >([-1, -1]); // [inputIndex, inputLineIndex]
+  const [firstSelectedBlockIndex, setFirstSelectedBlockIndex] = useState<[number, number]>([-1, -1]); // [inputIndex, inputLineIndex]
 
   // When first rendered, check for line height and set input on end
   useEffect(() => {
@@ -1165,6 +1171,8 @@ export default function BlockEditor({
                   isSelected={selectedBlocks.some(
                     (b) => b.index === block.index
                   )}
+                  customization={customization.blockStyles[typeKeyMap[block.wordType]]}
+                  // showShadows={customization.boxShadow}
                 />
               </>
             );
@@ -1196,9 +1204,6 @@ export default function BlockEditor({
         style={{
           backgroundColor: customization.backgroundColor,
           fontFamily: customization.fontFamily,
-          boxShadow: customization.boxShadow
-            ? "2px 2px 5px rgba(0,0,0,0.3)"
-            : "none",
         }}
       >
         <DndContext
@@ -1220,6 +1225,8 @@ export default function BlockEditor({
                 lineIndex={2}
                 indexOnLine={-1}
                 isSelected={false}
+                customization={customization.blockStyles[typeKeyMap[activeBlock.wordType]]}
+                // showShadows={customization.boxShadow}
               />
             )}
           </DragOverlay>

@@ -1,4 +1,4 @@
-import { BlockType } from "../../../types";
+import { BlockStyle, BlockType } from "../../../types";
 import { useSortable } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
 
@@ -6,12 +6,16 @@ export default function SortableBlock({
   block,
   lineIndex,
   indexOnLine,
-  isSelected
+  isSelected,
+  customization,
+  // showShadows
 }: {
   block: BlockType;
   lineIndex: number;
   indexOnLine: number;
   isSelected: boolean;
+  customization: BlockStyle
+  // showShadows: boolean;
 }) {
   const { attributes, listeners, setNodeRef, transform, transition } =
     useSortable({ id: block.index });
@@ -19,6 +23,12 @@ export default function SortableBlock({
   const style = {
     transform: CSS.Transform.toString(transform),
     transition,
+    color: customization.color,
+    backgroundColor: customization.backgroundColor,
+    borderColor: customization.borderColor
+    // boxShadow: showShadows
+    // ? "rgba(0, 0, 0, 0.15) 1px 1px 2px;"
+    // : "none",
   };
 
   return (
