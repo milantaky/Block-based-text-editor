@@ -1,41 +1,54 @@
 .line {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 0.5em;
-    border: 1px solid lightgray;
-    padding: 0.5em;
-    align-items: center;
+  display: flex;
+  width: 100%;
+}
+
+.line-number {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 32px;
+}
+
+.line-content {
+  display: flex;
+  flex-wrap: wrap;
+  flex-grow: 1;
+  gap: 0.5em;
+  border: 1px solid lightgray;
+  padding: 0.5em;
+  align-items: center;
 }
 
 .block {
-    border: 2px solid black;
-    padding: 0.1em 0.5em;
+  border: 2px solid black;
+  padding: 0.1em 0.5em;
 }
 
 .input-box {
-    padding: 0.2em 0;
-    border: 1px solid blue;
+  padding: 0.2em 0;
+  border: 1px solid blue;
 }
 
-.blockEditor-container{
-    display: flex;
-    flex-direction: column;
-    gap: 1em;
-    width: 100%;
-    height: 100%;
-    overflow: auto;
-    font-size: 1em;
+.blockEditor-container {
+  display: flex;
+  flex-direction: column;
+  gap: 1em;
+  width: 100%;
+  height: 100%;
+  overflow: auto;
+  font-size: 1em;
 }
 
 .input-box:focus {
-    outline: 0;
-    box-shadow: none;
+  outline: 0;
+  box-shadow: none;
 }
 
 .text-input {
-    outline: 0;
+  outline: 0;
 }
 
 .block.selected {
-    border: 2px solid red !important;
+  border: 2px solid red !important;
 }

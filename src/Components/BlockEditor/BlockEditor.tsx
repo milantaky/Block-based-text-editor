@@ -402,7 +402,7 @@ export default function BlockEditor({
 
   // TODO: handle inputText?
   function moveInputUp() {
-    const domLines = document.getElementsByClassName("line");
+    const domLines = document.getElementsByClassName("line-content");
     const lineItems = domLines[inputLineIndex].children;
 
     const currentLineInput = lineItems[inputIndex] as HTMLElement;
@@ -453,7 +453,7 @@ export default function BlockEditor({
 
   // TODO: handle inputText?
   function moveInputDown() {
-    const domLines = document.getElementsByClassName("line");
+    const domLines = document.getElementsByClassName("line-content");
     const lineItems = domLines[inputLineIndex].children;
 
     const currentLineInput = lineItems[inputIndex] as HTMLElement;
@@ -951,7 +951,7 @@ export default function BlockEditor({
   // Handles mouse click in editor
   function handleEditorClick(e: React.MouseEvent) {
     const clicked = e.target as HTMLElement;
-
+    
     // Clicked on block
     if (clicked.classList.contains("block")) {
       // Clicked with Shift
@@ -978,7 +978,7 @@ export default function BlockEditor({
 
     setSelectedBlocks([]);
 
-    if (clicked.classList.contains("line")) {
+    if (clicked.classList.contains("line-content")) {
       const lineIndex = parseInt(clicked.dataset.index!, 10);
 
       // Find closest space between blocks in place of click

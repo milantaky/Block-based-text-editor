@@ -22,7 +22,7 @@ export default function App() {
 
   // Customization
   const [backgroundColor, setBackgroundColor] = useState("#ffffff");
-  const [fontFamily, setFontFamily] = useState("sans-serif");
+  const [fontFamily, setFontFamily] = useState("serif");
   const [fontSize, setFontSize] = useState(16);
   const [selectedBlockType, setSelectedBlockType] = useState<string | null>(
     blockTypes[0]
