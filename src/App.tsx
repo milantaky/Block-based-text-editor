@@ -5,7 +5,7 @@ import { earsTest } from "./wordCategories.tsx";
 import type { BlockStylesMap, BlockType, editorMode } from "./types";
 import "./App.css";
 import Tippy from "@tippyjs/react";
-import { SwatchesPicker } from "react-color";
+import { SwatchesPicker, ColorResult } from "react-color";
 
 const blockTypes = Object.keys(earsTest);
 const language = earsTest;
@@ -123,7 +123,7 @@ export default function App() {
                 content={
                   <SwatchesPicker
                     color={backgroundColor}
-                    onChangeComplete={(color) => setBackgroundColor(color.hex)}
+                    onChangeComplete={(color: ColorResult) => setBackgroundColor(color.hex)}
                   />
                 }
               >
@@ -167,7 +167,7 @@ export default function App() {
                             color={
                               blockStyles[selectedBlockType].backgroundColor
                             }
-                            onChangeComplete={(colour) =>
+                            onChangeComplete={(colour: ColorResult) =>
                               setBlockStyles((prev) => ({
                                 ...prev,
                                 [selectedBlockType]: {
@@ -201,7 +201,7 @@ export default function App() {
                         content={
                           <SwatchesPicker
                             color={blockStyles[selectedBlockType].color}
-                            onChangeComplete={(colour) =>
+                            onChangeComplete={(colour: ColorResult) =>
                               setBlockStyles((prev) => ({
                                 ...prev,
                                 [selectedBlockType]: {
@@ -236,7 +236,7 @@ export default function App() {
                         content={
                           <SwatchesPicker
                             color={blockStyles[selectedBlockType].borderColor}
-                            onChangeComplete={(colour) =>
+                            onChangeComplete={(colour: ColorResult) =>
                               setBlockStyles((prev) => ({
                                 ...prev,
                                 [selectedBlockType]: {
