@@ -88,15 +88,17 @@ export default function App() {
           <h3 className="settings-header">Settings</h3>
           <div className="settings-items">
             {/* Prefab */}
-            <div className="settings-item">
-              <label>Show prefabricated blocks: </label>
-              <input
-                className="setting-checkbox"
-                type="checkbox"
-                checked={prefabVisible}
-                onChange={togglePrefab}
-              />
-            </div>
+            {editorMode === "Blocks" && (
+              <div className="settings-item">
+                <label>Show prefabricated blocks: </label>
+                <input
+                  className="setting-checkbox"
+                  type="checkbox"
+                  checked={prefabVisible}
+                  onChange={togglePrefab}
+                />
+              </div>
+            )}
 
             {/* Font */}
             <div className="settings-item">
@@ -133,129 +135,135 @@ export default function App() {
             </div>
 
             {/* Blocks customization */}
-            <div className="settings-blocks">
-              <h4>Blocks Customization:</h4>
+            {editorMode === "Blocks" && (
+              <div className="settings-blocks">
+                <h4>Blocks Customization:</h4>
 
-              <div className="blocks-selection">
-                {blockTypes.map((type) => (
-                  <button
-                    key={type}
-                    className={`${
-                      selectedBlockType === type ? "selected" : ""
-                    } customize-button`}
-                    onClick={() => setSelectedBlockType(type)}
-                    style={blockStyles[type]}
-                  >
-                    {type}
-                  </button>
-                ))}
-              </div>
-
-              {selectedBlockType && (
-                <div className="selection-categories">
-                  {/* Block Background Color */}
-                  <div className="block-selection-item">
-                    <label>Background:</label>
-                    <Tippy
-                      interactive={true}
-                      trigger="click"
-                      content={
-                        <SwatchesPicker
-                          color={blockStyles[selectedBlockType].backgroundColor}
-                          onChangeComplete={(colour) =>
-                            setBlockStyles((prev) => ({
-                              ...prev,
-                              [selectedBlockType]: {
-                                ...prev[selectedBlockType],
-                                backgroundColor: colour.hex,
-                                color: prev[selectedBlockType].color,
-                                borderColor:
-                                  prev[selectedBlockType].borderColor,
-                              },
-                            }))
-                          }
-                        />
-                      }
+                <div className="blocks-selection">
+                  {blockTypes.map((type) => (
+                    <button
+                      key={type}
+                      className={`${
+                        selectedBlockType === type ? "selected" : ""
+                      } customize-button`}
+                      onClick={() => setSelectedBlockType(type)}
+                      style={blockStyles[type]}
                     >
-                      <div
-                        className="color-div"
-                        style={{
-                          backgroundColor:
-                            blockStyles[selectedBlockType].backgroundColor,
-                        }}
-                      ></div>
-                    </Tippy>
-                  </div>
-
-                  {/* Block Text Color */}
-                  <div className="block-selection-item">
-                    <label>Text Color:</label>
-                    <Tippy
-                      interactive={true}
-                      trigger="click"
-                      content={
-                        <SwatchesPicker
-                          color={blockStyles[selectedBlockType].color}
-                          onChangeComplete={(colour) =>
-                            setBlockStyles((prev) => ({
-                              ...prev,
-                              [selectedBlockType]: {
-                                ...prev[selectedBlockType],
-                                color: colour.hex,
-                                backgroundColor:
-                                  prev[selectedBlockType]?.backgroundColor,
-                                borderColor:
-                                  prev[selectedBlockType].borderColor,
-                              },
-                            }))
-                          }
-                        />
-                      }
-                    >
-                      <div
-                        className="color-div"
-                        style={{
-                          backgroundColor: blockStyles[selectedBlockType].color,
-                        }}
-                      ></div>
-                    </Tippy>
-                  </div>
-
-                  {/* Block Border Color */}
-                  <div className="block-selection-item">
-                    <label>Border Color:</label>
-                    <Tippy
-                      interactive={true}
-                      trigger="click"
-                      content={
-                        <SwatchesPicker
-                          color={blockStyles[selectedBlockType].borderColor}
-                          onChangeComplete={(colour) =>
-                            setBlockStyles((prev) => ({
-                              ...prev,
-                              [selectedBlockType]: {
-                                ...prev[selectedBlockType],
-                                borderColor: colour.hex,
-                                backgroundColor:
-                                  prev[selectedBlockType].backgroundColor,
-                                color: prev[selectedBlockType].color,
-                              },
-                            }))
-                          }
-                        />
-                      }
-                    >
-                      <div
-                        className="color-div"
-                        style={{
-                          backgroundColor: blockStyles[selectedBlockType].borderColor,
-                        }}
-                      ></div>
-                    </Tippy>
-                  </div>
+                      {type}
+                    </button>
+                  ))}
                 </div>
-              )}
-            </div>
+
+                {selectedBlockType && (
+                  <div className="selection-categories">
+                    {/* Block Background Color */}
+                    <div className="block-selection-item">
+                      <label>Background:</label>
+                      <Tippy
+                        interactive={true}
+                        trigger="click"
+                        content={
+                          <SwatchesPicker
+                            color={
+                              blockStyles[selectedBlockType].backgroundColor
+                            }
+                            onChangeComplete={(colour) =>
+                              setBlockStyles((prev) => ({
+                                ...prev,
+                                [selectedBlockType]: {
+                                  ...prev[selectedBlockType],
+                                  backgroundColor: colour.hex,
+                                  color: prev[selectedBlockType].color,
+                                  borderColor:
+                                    prev[selectedBlockType].borderColor,
+                                },
+                              }))
+                            }
+                          />
+                        }
+                      >
+                        <div
+                          className="color-div"
+                          style={{
+                            backgroundColor:
+                              blockStyles[selectedBlockType].backgroundColor,
+                          }}
+                        ></div>
+                      </Tippy>
+                    </div>
+
+                    {/* Block Text Color */}
+                    <div className="block-selection-item">
+                      <label>Text Color:</label>
+                      <Tippy
+                        interactive={true}
+                        trigger="click"
+                        content={
+                          <SwatchesPicker
+                            color={blockStyles[selectedBlockType].color}
+                            onChangeComplete={(colour) =>
+                              setBlockStyles((prev) => ({
+                                ...prev,
+                                [selectedBlockType]: {
+                                  ...prev[selectedBlockType],
+                                  color: colour.hex,
+                                  backgroundColor:
+                                    prev[selectedBlockType]?.backgroundColor,
+                                  borderColor:
+                                    prev[selectedBlockType].borderColor,
+                                },
+                              }))
+                            }
+                          />
+                        }
+                      >
+                        <div
+                          className="color-div"
+                          style={{
+                            backgroundColor:
+                              blockStyles[selectedBlockType].color,
+                          }}
+                        ></div>
+                      </Tippy>
+                    </div>
+
+                    {/* Block Border Color */}
+                    <div className="block-selection-item">
+                      <label>Border Color:</label>
+                      <Tippy
+                        interactive={true}
+                        trigger="click"
+                        content={
+                          <SwatchesPicker
+                            color={blockStyles[selectedBlockType].borderColor}
+                            onChangeComplete={(colour) =>
+                              setBlockStyles((prev) => ({
+                                ...prev,
+                                [selectedBlockType]: {
+                                  ...prev[selectedBlockType],
+                                  borderColor: colour.hex,
+                                  backgroundColor:
+                                    prev[selectedBlockType].backgroundColor,
+                                  color: prev[selectedBlockType].color,
+                                },
+                              }))
+                            }
+                          />
+                        }
+                      >
+                        <div
+                          className="color-div"
+                          style={{
+                            backgroundColor:
+                              blockStyles[selectedBlockType].borderColor,
+                          }}
+                        ></div>
+                      </Tippy>
+                    </div>
+                  </div>
+                )}
+              </div>
+            )}
           </div>
         </div>
       </>
