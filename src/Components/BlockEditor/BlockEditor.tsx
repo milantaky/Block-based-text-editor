@@ -15,6 +15,9 @@ import {
   DragOverlay,
   rectIntersection,
   pointerWithin,
+  PointerSensor,
+  useSensor,
+  useSensors,
 } from "@dnd-kit/core";
 import {
   SortableContext,
@@ -438,8 +441,6 @@ export default function BlockEditor({
         inputOffset,
         inputLine
       );
-      console.log("UP SL:", splitLine, "IIOL", inputIndexOnLine)
-      // console.log("UP TI:", targetIndex, inputOffset, inputLine)
       setInputIndex(targetIndex);
     }
   }
@@ -573,7 +574,6 @@ export default function BlockEditor({
         if (block.className === "input-box") {
           inputLine = lineNumber;
           inputIndexOnLine = indexOnLine;
-          console.log("here1", inputIndexOnLine);
           // returnArray[lineNumber] = [];
           continue;
         }
@@ -589,7 +589,6 @@ export default function BlockEditor({
       }
 
       indexOnLine++;
-      console.log("IIOL", indexOnLine);
       
       returnArray[lineNumber].push((block as HTMLElement).offsetLeft);
     }
@@ -616,6 +615,10 @@ export default function BlockEditor({
     });
 
     return lines;
+  }
+
+  function handleBlockDoubleClick(blockIndex: number, blockLine: number, blockIndexOnLine: number){
+    console.log("double clicked ", blockIndex);
   }
 
   // Handles pressed keys
@@ -1181,6 +1184,7 @@ export default function BlockEditor({
                   isSelected={selectedBlocks.some(
                     (b) => b.index === block.index
                   )}
+                  onBlockDoubleClick={handleBlockDoubleClick}
                   customization={
                     customization.blockStyles[typeKeyMap[block.wordType]]
                   }
@@ -1203,6 +1207,14 @@ export default function BlockEditor({
     );
   }
 
+  const sensors = useSensors(
+    useSensor(PointerSensor, {
+      activationConstraint: {
+        distance: 10
+      }
+    })
+  );
+
   return (
     <>
       {prefabVisible && <PrefabSection onClick={handleClickPrefab} />}
@@ -1219,6 +1231,7 @@ export default function BlockEditor({
         }}
       >
         <DndContext
+          sensors={sensors}
           onDragStart={(e) => handleDragStart(e)}
           onDragEnd={(e) => handleDragEnd(e)}
           onDragCancel={handleDragCancel}
@@ -1237,6 +1250,7 @@ export default function BlockEditor({
                 lineIndex={2}
                 indexOnLine={-1}
                 isSelected={false}
+                onBlockDoubleClick={handleBlockDoubleClick}
                 customization={
                   customization.blockStyles[typeKeyMap[activeBlock.wordType]]
                 }
