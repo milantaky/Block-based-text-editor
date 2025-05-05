@@ -1,6 +1,6 @@
 import { earsTest } from "../../wordCategories.tsx";
 import { useState, useRef, useEffect } from "react";
-import type { BlockType } from "../../types.tsx";
+import type { BlockStylesMap, BlockType } from "../../types.tsx";
 import "./BlockEditor.css";
 
 import SortableBlock from "./SortableBlock/SortableBlock.tsx";
@@ -22,12 +22,13 @@ import {
 } from "@dnd-kit/sortable";
 
 const language = earsTest; // Selected language -> EARS
+const typeKeyMap = createTypeToKeyMap(language);
 const languageWordsWithSpaces = getItemsWithSpaces(language);
 const languageWordsWithSpacesConnected = new Set(
   languageWordsWithSpaces.map((word) => word.split(" ")[0])
 ); // Returns first words from list, and removes duplicates, is set because it has O(1) for lookup with .has
 
-function getItemsWithSpaces(data: typeof earsTest): string[] {
+function getItemsWithSpaces(data: typeof language): string[] {
   const result: string[] = [];
 
   for (const category of Object.values(data)) {
@@ -39,16 +40,33 @@ function getItemsWithSpaces(data: typeof earsTest): string[] {
   return result;
 }
 
+function createTypeToKeyMap(language: typeof earsTest): Record<number, string> {
+  const map: Record<number, string> = {};
+  for (const key of Object.keys(language)) {
+    map[language[key].type] = key;
+  }
+  return map;
+}
+
 export default function BlockEditor({
   text,
   blocksRef,
   baseLineHeight,
   blhSet,
+  prefabVisible,
+  customization,
 }: {
   text: string;
   blocksRef: React.MutableRefObject<BlockType[]>;
   baseLineHeight: React.MutableRefObject<number>;
   blhSet: React.MutableRefObject<boolean>;
+  prefabVisible: boolean;
+  customization: {
+    backgroundColor: string;
+    fontFamily: string;
+    boxShadow: boolean;
+    blockStyles: BlockStylesMap;
+  };
 }) {
   const [blocks, setBlocks] = useState<BlockType[]>(convertToBlocks(text));
   const [nextBlockIndex, setNextBlockIndex] = useState(text.split("").length);
@@ -65,7 +83,6 @@ export default function BlockEditor({
   const [firstSelectedBlockIndex, setFirstSelectedBlockIndex] = useState<
     [number, number]
   >([-1, -1]); // [inputIndex, inputLineIndex]
-  const [isPrefabVisible, setIsPrefabVisible] = useState(true);
 
   // When first rendered, check for line height and set input on end
   useEffect(() => {
@@ -421,7 +438,8 @@ export default function BlockEditor({
         inputOffset,
         inputLine
       );
-
+      console.log("UP SL:", splitLine)
+      console.log("UP TI:", targetIndex, inputOffset, inputLine)
       setInputIndex(targetIndex);
     }
   }
@@ -545,6 +563,8 @@ export default function BlockEditor({
     for (const block of blocks) {
       // New Line?
       if (lastLineOffset < (block as HTMLElement).offsetTop) {
+        console.log("newLine");
+        
         lineNumber++;
         indexOnLine = 0;
         lastLineOffset = (block as HTMLElement).offsetTop;
@@ -920,7 +940,8 @@ export default function BlockEditor({
       const lineIndex = parseInt(clicked.dataset.lineindex!, 10);
 
       // Did not click on selected block
-      if (!selectedBlocks.some((block) => block.index === blockIndex)) setSelectedBlocks([]);
+      if (!selectedBlocks.some((block) => block.index === blockIndex))
+        setSelectedBlocks([]);
 
       setInputIndex(blockIndexOnLine + 1);
       setInputLineIndex(lineIndex);
@@ -1106,8 +1127,6 @@ export default function BlockEditor({
 
   // When clicked on a prefab block, the block gets added to the place of input
   function handleClickPrefab(content: string, wordType: number) {
-    console.log(wordType);
-
     const insertIndex = countInsertIndex();
     setBlocks((prevBlocks) => [
       ...prevBlocks.slice(0, insertIndex),
@@ -1155,6 +1174,10 @@ export default function BlockEditor({
                   isSelected={selectedBlocks.some(
                     (b) => b.index === block.index
                   )}
+                  customization={
+                    customization.blockStyles[typeKeyMap[block.wordType]]
+                  }
+                  // showShadows={customization.boxShadow}
                 />
               </>
             );
@@ -1175,7 +1198,7 @@ export default function BlockEditor({
 
   return (
     <>
-      {isPrefabVisible && <PrefabSection onClick={handleClickPrefab} />}
+      {prefabVisible && <PrefabSection onClick={handleClickPrefab} />}
 
       <div
         className="blockEditor-container"
@@ -1183,6 +1206,10 @@ export default function BlockEditor({
         onPaste={(e) => handlePaste(e)}
         onCopy={handleCopy}
         onMouseDown={(e) => handleEditorClick(e)}
+        style={{
+          backgroundColor: customization.backgroundColor,
+          fontFamily: customization.fontFamily,
+        }}
       >
         <DndContext
           onDragStart={(e) => handleDragStart(e)}
@@ -1203,6 +1230,10 @@ export default function BlockEditor({
                 lineIndex={2}
                 indexOnLine={-1}
                 isSelected={false}
+                customization={
+                  customization.blockStyles[typeKeyMap[activeBlock.wordType]]
+                }
+                // showShadows={customization.boxShadow}
               />
             )}
           </DragOverlay>

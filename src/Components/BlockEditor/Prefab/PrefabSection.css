@@ -1,11 +1,59 @@
 .prefab-container {
-    border: 1px solid red;
-    height: 100px;
-    overflow: auto;
+    border: 1px solid gray;
+    border-bottom: 3px solid gray;
+}
+
+.prefab-header {
+    background-color: #DDDDDD;
     padding: 0.5em;
 }
   
 .prefab-container h2, h3, h4 {
     margin: 0;
-    margin-bottom: 0.5em;
+    margin-bottom: 0.2em;
+}
+
+.prefab-category-list {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1em;
+    padding: 0.5em;
+}
+
+.prefab-category span {
+    text-transform: capitalize;
+    font-weight: bold;
+    display: block;
+    margin-bottom: 0.2em;
+}
+
+.prefab-category-items {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.3em;
+}
+
+.prefab-block-button {
+    padding: 0.1em 0.5em;
+    border: 1px solid yellowgreen;
+}
+
+.create-prefab button {
+    padding: 0.32em 0.5em;
+    margin-right: 0.5em;
+    border-radius: 0.3em;
+    background-color: #EEEEEE;
+    border: none;
+}
+
+.create-prefab .cancel-button {
+    background-color: rgb(255, 100, 100);
+    margin-right: 0;
+}
+
+.create-prefab input {
+    padding: 0.2em 0.7em;
+    border-radius: 0.3em;
+    border: 1px solid lightgray;
+    margin-right: 0.5em;
 }

@@ -1,19 +1,110 @@
+* {
+  margin: 0;
+  padding: 0;
+}
+
+html,
+body,
+#root {
+  height: 100%;
+}
+
 .editor {
-    border: 1px solid black;
-    padding: 1em;
-    height: 300px; /* zatim */
-    width: 500px;
+  border: 1px solid gray;
+  padding: 1em;
+  height: 100%;
 }
 
 .editable-area {
-    height: 100%;
-    width: 100%;
-    overflow: auto;
+  height: 100%;
+  width: 100%;
+  overflow: auto;
 }
 
-.mode-switch-button {
-    position: absolute;
-    left: 0;
-    bottom: 0;
-    margin: 1em;
+.main-buttons {
+  position: fixed;
+  right: 0;
+  bottom: 0;
+  z-index: 3;
+  display: flex;
+  gap: 0.5em;
+  margin: 1em;
 }
+
+.mode-switch-button,
+.settings-window-button {
+  padding: 0.5em 1em;
+  border-radius: 0.5em;
+  background-color: #eeeeee;
+  border: none;
+}
+
+.settings-window {
+  background-color: #eeeeee;
+  width: 400px;
+  height: 400px;
+  position: absolute;
+  right: 1em;
+  bottom: 3.5em;
+  padding: 1em;
+  border-radius: 20px;
+}
+
+.settings-header {
+  margin-bottom: 0.5em;
+}
+
+.settings-items {
+  display: flex;
+  flex-direction: column;
+  align-items: start;
+  gap: 0.5em;
+  height: 100%;
+}
+
+.settings-item {
+  display: flex;
+  align-items: center;
+  gap: 0.5em;
+}
+
+.setting-checkbox {
+  width: 1.5em;
+  height: 1.5em;
+}
+
+.settings-blocks {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5em;
+  background-color: white;
+  padding: 0.5em;
+}
+
+.selection-categories {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5em;
+}
+
+.blocks-selection {
+ display: flex;
+ flex-wrap: wrap;
+ gap: 0.3em;
+}
+
+.block-selection-item {
+  display: flex;
+  align-items: center;
+  gap: 0.5em;
+}
+
+.customize-button {
+  padding: 0.32em 0.5em;
+  border-radius: 0.3em;
+  border: 1px solid black;
+}
+
+/* .blocks-selection .selected {
+  color: blue; 
+} */
