@@ -8,7 +8,10 @@ export default function PrefabBlockCategory({
   onCreate,
 }: {
   category: string;
-  data: any;
+  data: {
+    type: number;
+    items: Set<string>;
+  };
   onClick: (content: string, wordType: number) => void;
   onCreate: (newBlock: string) => void;
 }) {
