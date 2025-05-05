@@ -23,6 +23,7 @@ export default function App() {
   // Customization
   const [backgroundColor, setBackgroundColor] = useState("#ffffff");
   const [fontFamily, setFontFamily] = useState("sans-serif");
+  const [fontSize, setFontSize] = useState(16);
   const [selectedBlockType, setSelectedBlockType] = useState<string | null>(
     blockTypes[0]
   );
@@ -114,6 +115,13 @@ export default function App() {
                 <option value="serif">Serif</option>
                 <option value="monospace">Monospace</option>
               </select>
+            </div>
+
+            {/* Font Size */}
+            <div className="settings-item">
+              <label>Font size:</label>
+              <input className="settings-number" type="number" value={fontSize || 16}
+              onChange={e => setFontSize(parseInt(e.target.value))}/>
             </div>
 
             {/* Background color */}
@@ -286,6 +294,7 @@ export default function App() {
               fontFamily,
               backgroundColor,
               blockStyles,
+              fontSize
             }}
           />
         ) : (

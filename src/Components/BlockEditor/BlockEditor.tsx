@@ -70,6 +70,7 @@ export default function BlockEditor({
     backgroundColor: string;
     fontFamily: string;
     blockStyles: BlockStylesMap;
+    fontSize: number;
   };
 }) {
   const [blocks, setBlocks] = useState<BlockType[]>(convertToBlocks(text));
@@ -111,7 +112,7 @@ export default function BlockEditor({
 
     const newBlocks = checkForWordWithSpaces(blocks);
     if (newBlocks !== false) setBlocks(newBlocks);
-    
+
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [blocks]);
 
@@ -1242,6 +1243,7 @@ export default function BlockEditor({
         style={{
           backgroundColor: customization.backgroundColor,
           fontFamily: customization.fontFamily,
+          fontSize: customization.fontSize
         }}
       >
         <DndContext

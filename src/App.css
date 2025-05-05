@@ -69,19 +69,21 @@ body,
   justify-content: space-between;
 }
 
-.settings-select {
+.settings-select,
+.settings-number {
   padding: 0.2em 1em;
   border: 1px solid #ccc;
   border-radius: 8px;
-  background-color: #fff;
-  color: #333;
-  outline: none;
-  transition: border-color 0.2s, box-shadow 0.2s;
+}
+
+.settings-number {
+  width: 64px;
 }
 
 .color-div {
   width: 40px;
   height: 20px;
+  border-radius: 0.5em;
   border: 1px solid gray;
 }
 
@@ -107,9 +109,10 @@ body,
 }
 
 .blocks-selection {
- display: flex;
- flex-wrap: wrap;
- gap: 0.3em;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.3em;
+  margin-bottom: 0.5em;
 }
 
 .block-selection-item {
@@ -121,6 +124,5 @@ body,
 
 .customize-button {
   padding: 0.32em 0.5em;
-  border-radius: 0.3em;
   border: 1px solid black;
 }
