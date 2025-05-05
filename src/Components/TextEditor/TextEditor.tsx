@@ -1,5 +1,5 @@
 import { useRef, useState, useEffect } from "react";
-import type { BlockType } from "../../types";
+import type { BlockType, TextWordStylesMap } from "../../types";
 import "./TextEditor.css";
 import { earsTest } from "../../wordCategories";
 
@@ -32,15 +32,31 @@ export default function TextEditor({
     backgroundColor: string;
     fontFamily: string;
     fontSize: number;
+    textWordStyles: TextWordStylesMap;
   };
 }) {
   const [text, setText] = useState(convertToText(blocks));
   const editableRef = useRef<HTMLDivElement>(null);
   const firstRender = useRef(true);
   const words = text.split(/(\s+)/);
-  const helperArray = Array(words.length).fill(null);
-  getWordType();
-  const highlightedWords = highlightWords(words);  
+  const typeArray = getWordTypes();
+  const highlightedWords = highlightWords(words);
+  applyEarstestColors();
+
+  // Adds styles of 
+  function applyEarstestColors() {
+    const styleTag = document.createElement('style');
+    let css = '';
+  
+    const styles = customization.textWordStyles;
+  
+    for (const [wordType, { color }] of Object.entries(styles)) {
+      css += `.${wordType} { color: ${color}; }\n`;
+    }
+  
+    styleTag.innerHTML = css;
+    document.head.appendChild(styleTag);
+  }
 
   // On first render -> transform BLOCKS to TEXT, set caret to end
   useEffect(() => {
@@ -128,13 +144,15 @@ export default function TextEditor({
     return result;
   }
 
-  function getWordType() {
-    // Pokud první slovo odpovídá nějakému víceslovnému výrazu
+  function getWordTypes() {
+    const helperArray = Array(words.length).fill(null);
+console.log("tu");
+
+    // If first could be multi word
     for (let wordsIndex = 0; wordsIndex < words.length; wordsIndex++) {
       const word = words[wordsIndex];
 
       if (languageWordsWithSpacesConnected.has(word)) {
-        console.log("tu");
         
         const possibleMatches = languageWordsWithSpaces.filter((w) =>
           w.startsWith(word)
@@ -149,10 +167,11 @@ export default function TextEditor({
           const checkLength = split.length * 2 - 1;
 
           // Longer than words array
-          if (wordsIndex + checkLength > words.length) {
-            helperArray[wordsIndex] = "longer";
+          if (wordsIndex + checkLength > words.length - 1) {
+            helperArray[wordsIndex] = "other";
             continue;
           }
+          console.log(word, wordsIndex + checkLength, words.length);
 
           // Check rest with spaces
           for (let i = 0; i < split.length; i++) {
@@ -192,7 +211,7 @@ export default function TextEditor({
           }
         }
       } else {
-        // Jinak můžeš zkusit vracet podle kategorií
+        // Return by category
         let set = false;
         for (const [categoryKey, category] of Object.entries(language)) {
           if (category.items.has(word)) {
@@ -201,14 +220,13 @@ export default function TextEditor({
             break;
           }
         }
-        if(!set ){
-          
-          helperArray[wordsIndex] = "word";
+        if (!set) {
+          helperArray[wordsIndex] = "other";
         }
       }
-
-
     }
+
+    return helperArray;
   }
 
   function highlightWords(words: string[]) {
@@ -243,7 +261,7 @@ export default function TextEditor({
         // No empty lines -> space (     \n)
         return word;
         // } else return <span className="word">{word}</span>;
-      } else return <span className={helperArray[index]}>{word}</span>;
+      } else return <span className={typeArray[index]}>{word}</span>;
     });
 
     return newHighlighted;
@@ -254,11 +272,11 @@ export default function TextEditor({
       <div className="textEditor-container">
         <div
           className="highlighted-layer"
-          // style={{
-          //   fontFamily: customization.fontFamily,
-          //   backgroundColor: customization.backgroundColor,
-          //   fontSize: customization.fontSize,
-          // }}
+          style={{
+            fontFamily: customization.fontFamily,
+            backgroundColor: customization.backgroundColor,
+            fontSize: customization.fontSize,
+          }}
         >
           {highlightedWords}
         </div>
@@ -266,11 +284,10 @@ export default function TextEditor({
           className="editor-layer"
           contentEditable
           onInput={handleInput}
-          // style={{
-          //   fontFamily: customization.fontFamily,
-          //   backgroundColor: customization.backgroundColor,
-          //   fontSize: customization.fontSize,
-          // }}
+          style={{
+            fontFamily: customization.fontFamily,
+            fontSize: customization.fontSize,
+          }}
           ref={editableRef}
         ></div>
       </div>

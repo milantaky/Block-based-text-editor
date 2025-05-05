@@ -19,3 +19,11 @@ export type BlockStyle = {
 export type BlockStylesMap = {
   [blockType: string]: BlockStyle;
 };
+
+export type TextWordStyle = {
+  color: string;
+};
+
+export type TextWordStylesMap = {
+  [textType: string]: TextWordStyle;
+};

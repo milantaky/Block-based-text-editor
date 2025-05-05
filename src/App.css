@@ -47,6 +47,7 @@ body,
   bottom: 3.5em;
   padding: 1em;
   border-radius: 20px;
+  z-index: 3;
 }
 
 .settings-header {

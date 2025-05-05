@@ -2,7 +2,7 @@ import { useState, useRef } from "react";
 import TextEditor from "./Components/TextEditor/TextEditor.tsx";
 import BlockEditor from "./Components/BlockEditor/BlockEditor.tsx";
 import { earsTest } from "./wordCategories.tsx";
-import type { BlockStylesMap, BlockType, editorMode } from "./types";
+import type { BlockStylesMap, BlockType, editorMode, TextWordStylesMap } from "./types";
 import "./App.css";
 import Tippy from "@tippyjs/react";
 import { SwatchesPicker, ColorResult } from "react-color";
@@ -30,6 +30,12 @@ export default function App() {
   const [blockStyles, setBlockStyles] = useState<BlockStylesMap>(
     generateBlockStyles(language)
   );
+  const [selectedWordType, setSelectedWordType] = useState<string | null>(
+    blockTypes[0]
+  );
+  const [textWordStyles, setTextWordStyles] = useState<TextWordStylesMap>(
+    generateWordStyles(language)
+  );
 
   // Generates initial block styles
   function generateBlockStyles(data: typeof language) {
@@ -46,6 +52,22 @@ export default function App() {
         backgroundColor: category.color,
         color: "#000000",
         borderColor: "#888888",
+      };
+    }
+
+    return result;
+  }
+
+  // Generates initial word styles
+  function generateWordStyles(data: typeof language) {
+    const result: Record<string, { color: string }> = {};
+
+    for (const key in data) {
+      const typedKey = key as keyof typeof data;
+      const category = data[typedKey];
+
+      result[key] = {
+        color: category.color,
       };
     }
 
@@ -307,7 +329,7 @@ export default function App() {
           <TextEditor
             blocks={blocksRef.current}
             textRef={textRef}
-            customization={{ fontFamily, backgroundColor, fontSize }}
+            customization={{ fontFamily, backgroundColor, fontSize, textWordStyles }}
           />
         )}
       </div>

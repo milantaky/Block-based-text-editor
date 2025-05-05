@@ -12,7 +12,7 @@
   height: 100%;
   white-space: pre-wrap;
   word-wrap: break-word;
-  color: red;
+  /* color: red; */
   pointer-events: none;
   z-index: 1;
   overflow: auto;
@@ -27,32 +27,4 @@
   z-index: 2;
   color: transparent;
   caret-color: black;
-}
-
-.keywords {
-  color: #ff6347;
-}
-
-.actors {
-  color: #4682b4;
-}
-
-.verbs {
-  color: #32cd32;
-}
-
-.objects {
-  color: #daa520;
-}
-
-.modifiers {
-  color: #8a2be2;
-}
-
-.relationalOperators{
-  color: green;
-}
-
-.other {
-  color: #000000; /* základní barva pro neoznačená slova */
 }
