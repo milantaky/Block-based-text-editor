@@ -8,13 +8,13 @@
 }
 
 .block {
-    border: 1px solid green;
+    border: 2px solid black;
     padding: 0.1em 0.5em;
 }
 
 .input-box {
-    padding: 0.1em 0;
-    border: 1px solid blue;
+    padding: 0.3em 0;
+    /* border: 1px solid blue; */
 }
 
 .blockEditor-container{
@@ -35,6 +35,6 @@
     outline: 0;
 }
 
-.selected {
-    border-color: red;
+.block.selected {
+    border: 2px solid red !important;
 }
