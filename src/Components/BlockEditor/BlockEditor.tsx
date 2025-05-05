@@ -101,6 +101,8 @@ export default function BlockEditor({
       setInputLineIndex(lines.length - 1);
       setFirstRef.current = true;
     }
+
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   // Update ref for parent, check is some blocks can be joined -> I know I set state in useEffect for that state, but no looping
@@ -109,6 +111,8 @@ export default function BlockEditor({
 
     const newBlocks = checkForWordWithSpaces(blocks);
     if (newBlocks !== false) setBlocks(newBlocks);
+    
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [blocks]);
 
   // Focuses editor, and sets caret on end of input when editing it

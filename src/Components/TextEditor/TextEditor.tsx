@@ -1,5 +1,5 @@
 import { useRef, useState, useEffect } from "react";
-import type { BlockType } from "./types";
+import type { BlockType } from "../../types";
 import "./TextEditor.css";
 
 export default function TextEditor({
@@ -22,11 +22,14 @@ export default function TextEditor({
     }
 
     setCaretToEnd();
+
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   // Sets current text to ref for parent (App) to see
   useEffect(() => {
     textRef.current = editableRef.current!.innerText;
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [text]);
 
   function handleInput() {
