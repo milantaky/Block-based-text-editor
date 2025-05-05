@@ -438,8 +438,8 @@ export default function BlockEditor({
         inputOffset,
         inputLine
       );
-      console.log("UP SL:", splitLine)
-      console.log("UP TI:", targetIndex, inputOffset, inputLine)
+      console.log("UP SL:", splitLine, "IIOL", inputIndexOnLine)
+      // console.log("UP TI:", targetIndex, inputOffset, inputLine)
       setInputIndex(targetIndex);
     }
   }
@@ -517,7 +517,8 @@ export default function BlockEditor({
       inputIndexOnLine > 0 && splitLine[inputLine - 1].length > 0
         ? findClosestIndex(splitLine[inputLine - 1], inputOffset)
         : 0;
-
+    console.log(targetIndex, splitLine, inputLine, inputIndexOnLine);
+    
     // Count all blocks before
     if (inputLine > 0) {
       for (let i = 0; i < inputLine - 1; i++) {
@@ -545,6 +546,7 @@ export default function BlockEditor({
       }
     }
 
+    console.log(values, closestIndex);
     return closestIndex;
   }
 
@@ -563,8 +565,6 @@ export default function BlockEditor({
     for (const block of blocks) {
       // New Line?
       if (lastLineOffset < (block as HTMLElement).offsetTop) {
-        console.log("newLine");
-        
         lineNumber++;
         indexOnLine = 0;
         lastLineOffset = (block as HTMLElement).offsetTop;
@@ -573,7 +573,8 @@ export default function BlockEditor({
         if (block.className === "input-box") {
           inputLine = lineNumber;
           inputIndexOnLine = indexOnLine;
-          returnArray[lineNumber] = [];
+          console.log("here1", inputIndexOnLine);
+          // returnArray[lineNumber] = [];
           continue;
         }
 
@@ -583,12 +584,18 @@ export default function BlockEditor({
       if (block.className === "input-box") {
         inputLine = lineNumber;
         inputIndexOnLine = indexOnLine;
+        console.log("here2", inputIndexOnLine);
         continue;
       }
 
       indexOnLine++;
+      console.log("IIOL", indexOnLine);
+      
       returnArray[lineNumber].push((block as HTMLElement).offsetLeft);
     }
+
+    console.log(inputIndexOnLine);
+    
 
     return [returnArray, inputLine, inputIndexOnLine];
   }

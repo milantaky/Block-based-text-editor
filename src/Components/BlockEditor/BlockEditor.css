@@ -12,10 +12,10 @@
     padding: 0.1em 0.5em;
 }
 
-/* .input-box {
-    padding: 0 1em;
+.input-box {
+    padding: 0.1em 0;
     border: 1px solid blue;
-} */
+}
 
 .blockEditor-container{
     display: flex;
