@@ -519,7 +519,7 @@ export default function BlockEditor({
         ? findClosestIndex(splitLine[inputLine - 1], inputOffset)
         : 0;
     console.log(targetIndex, splitLine, inputLine, inputIndexOnLine);
-    
+
     // Count all blocks before
     if (inputLine > 0) {
       for (let i = 0; i < inputLine - 1; i++) {
@@ -589,12 +589,11 @@ export default function BlockEditor({
       }
 
       indexOnLine++;
-      
+
       returnArray[lineNumber].push((block as HTMLElement).offsetLeft);
     }
 
     console.log(inputIndexOnLine);
-    
 
     return [returnArray, inputLine, inputIndexOnLine];
   }
@@ -617,8 +616,19 @@ export default function BlockEditor({
     return lines;
   }
 
-  function handleBlockDoubleClick(blockIndex: number, blockLine: number, blockIndexOnLine: number){
-    console.log("double clicked ", blockIndex);
+  // Change block on double click
+  function handleBlockDoubleClick(
+    blockIndex: number,
+    content: string,
+    blockLine: number,
+    blockIndexOnLine: number
+  ) {
+    if (inputText === "") {
+      setBlocks(blocks.filter((block) => block.index !== blockIndex));
+      setInputIndex(blockIndexOnLine);
+      setInputLineIndex(blockLine);
+      setInputText(content);
+    }
   }
 
   // Handles pressed keys
@@ -1210,8 +1220,8 @@ export default function BlockEditor({
   const sensors = useSensors(
     useSensor(PointerSensor, {
       activationConstraint: {
-        distance: 10
-      }
+        distance: 10,
+      },
     })
   );
 

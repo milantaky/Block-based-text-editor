@@ -15,7 +15,7 @@ export default function SortableBlock({
   lineIndex: number;
   indexOnLine: number;
   isSelected: boolean;
-  onBlockDoubleClick: (blockIndex: number, blockLine: number, blockIndexOnLine: number) => void;
+  onBlockDoubleClick: (blockIndex: number, content: string, blockLine: number, blockIndexOnLine: number) => void;
   customization: BlockStyle
   // showShadows: boolean;
 }) {
@@ -45,7 +45,7 @@ export default function SortableBlock({
       {...listeners}
       // contentEditable
       // suppressContentEditableWarning
-      onDoubleClick={() => onBlockDoubleClick(block.index, lineIndex, indexOnLine)}
+      onDoubleClick={() => onBlockDoubleClick(block.index, block.content, lineIndex, indexOnLine)}
     >
       {block.content}
     </div>
