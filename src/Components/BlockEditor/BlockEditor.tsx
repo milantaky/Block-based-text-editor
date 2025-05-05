@@ -80,7 +80,9 @@ export default function BlockEditor({
   const setFirstRef = useRef(false);
   const [activeBlock, setActiveBlock] = useState<BlockType | null>(null);
   const [selectedBlocks, setSelectedBlocks] = useState<BlockType[]>([]);
-  const [firstSelectedBlockIndex, setFirstSelectedBlockIndex] = useState<[number, number]>([-1, -1]); // [inputIndex, inputLineIndex]
+  const [firstSelectedBlockIndex, setFirstSelectedBlockIndex] = useState<
+    [number, number]
+  >([-1, -1]); // [inputIndex, inputLineIndex]
 
   // When first rendered, check for line height and set input on end
   useEffect(() => {
@@ -436,7 +438,8 @@ export default function BlockEditor({
         inputOffset,
         inputLine
       );
-
+      console.log("UP SL:", splitLine)
+      console.log("UP TI:", targetIndex, inputOffset, inputLine)
       setInputIndex(targetIndex);
     }
   }
@@ -560,6 +563,8 @@ export default function BlockEditor({
     for (const block of blocks) {
       // New Line?
       if (lastLineOffset < (block as HTMLElement).offsetTop) {
+        console.log("newLine");
+        
         lineNumber++;
         indexOnLine = 0;
         lastLineOffset = (block as HTMLElement).offsetTop;
@@ -1122,8 +1127,6 @@ export default function BlockEditor({
 
   // When clicked on a prefab block, the block gets added to the place of input
   function handleClickPrefab(content: string, wordType: number) {
-    console.log(wordType);
-
     const insertIndex = countInsertIndex();
     setBlocks((prevBlocks) => [
       ...prevBlocks.slice(0, insertIndex),
@@ -1171,7 +1174,9 @@ export default function BlockEditor({
                   isSelected={selectedBlocks.some(
                     (b) => b.index === block.index
                   )}
-                  customization={customization.blockStyles[typeKeyMap[block.wordType]]}
+                  customization={
+                    customization.blockStyles[typeKeyMap[block.wordType]]
+                  }
                   // showShadows={customization.boxShadow}
                 />
               </>
@@ -1225,7 +1230,9 @@ export default function BlockEditor({
                 lineIndex={2}
                 indexOnLine={-1}
                 isSelected={false}
-                customization={customization.blockStyles[typeKeyMap[activeBlock.wordType]]}
+                customization={
+                  customization.blockStyles[typeKeyMap[activeBlock.wordType]]
+                }
                 // showShadows={customization.boxShadow}
               />
             )}
