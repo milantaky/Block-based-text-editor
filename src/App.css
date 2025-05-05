@@ -68,6 +68,22 @@ body,
   gap: 0.5em;
 }
 
+.settings-select {
+  padding: 0.2em 1em;
+  border: 1px solid #ccc;
+  border-radius: 8px;
+  background-color: #fff;
+  color: #333;
+  outline: none;
+  transition: border-color 0.2s, box-shadow 0.2s;
+}
+
+.color-div {
+  width: 40px;
+  height: 20px;
+  border: 1px solid gray;
+}
+
 .setting-checkbox {
   width: 1.5em;
   height: 1.5em;

@@ -9,7 +9,6 @@ export default function SortableBlock({
   isSelected,
   onBlockDoubleClick,
   customization,
-  // showShadows
 }: {
   block: BlockType;
   lineIndex: number;
@@ -17,7 +16,6 @@ export default function SortableBlock({
   isSelected: boolean;
   onBlockDoubleClick: (blockIndex: number, content: string, blockLine: number, blockIndexOnLine: number) => void;
   customization: BlockStyle
-  // showShadows: boolean;
 }) {
   const { attributes, listeners, setNodeRef, transform, transition } =
     useSortable({ id: block.index });
@@ -43,8 +41,6 @@ export default function SortableBlock({
       style={style}
       {...attributes}
       {...listeners}
-      // contentEditable
-      // suppressContentEditableWarning
       onDoubleClick={() => onBlockDoubleClick(block.index, block.content, lineIndex, indexOnLine)}
     >
       {block.content}

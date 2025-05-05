@@ -67,7 +67,6 @@ export default function BlockEditor({
   customization: {
     backgroundColor: string;
     fontFamily: string;
-    boxShadow: boolean;
     blockStyles: BlockStylesMap;
   };
 }) {
@@ -1198,7 +1197,6 @@ export default function BlockEditor({
                   customization={
                     customization.blockStyles[typeKeyMap[block.wordType]]
                   }
-                  // showShadows={customization.boxShadow}
                 />
               </>
             );
@@ -1264,7 +1262,6 @@ export default function BlockEditor({
                 customization={
                   customization.blockStyles[typeKeyMap[activeBlock.wordType]]
                 }
-                // showShadows={customization.boxShadow}
               />
             )}
           </DragOverlay>
