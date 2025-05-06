@@ -698,7 +698,7 @@ export default function BlockEditor({
 
                 const inputIndexInEditor = countInsertIndex() - 1;
                 setBlocks(
-                  blocks.filter((block, index) => index !== inputIndexInEditor)
+                  blocks.filter((_, index) => index !== inputIndexInEditor)
                 );
 
                 return;
@@ -732,15 +732,33 @@ export default function BlockEditor({
 
       case "ArrowLeft":
         e.preventDefault();
-        if (inputText === "" && inputIndex > 0) {
-          setInputIndex(inputIndex - 1);
+        if (inputText === "") {
+
+          if(inputIndex > 0){
+            setInputIndex(inputIndex - 1);
+            break;
+          }
+
+          // On beginning of line
+          if(inputLineIndex > 0){
+            setInputLineIndex(inputLineIndex - 1);
+            setInputIndex(lines[inputLineIndex - 1].length);
+          }
         }
         break;
 
       case "ArrowRight":
         e.preventDefault();
-        if (inputText === "" && inputIndex < lines[inputLineIndex].length) {
-          setInputIndex(inputIndex + 1);
+        if (inputText === "") {
+          if(inputIndex < lines[inputLineIndex].length){
+            setInputIndex(inputIndex + 1);
+            break;
+          }
+
+          if(inputLineIndex < lines.length - 1){
+            setInputLineIndex(inputLineIndex + 1);
+            setInputIndex(0);
+          }
         }
         break;
 
