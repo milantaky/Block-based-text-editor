@@ -59,3 +59,10 @@
 .block.type--1 {
   border: 2px solid purple;
 }
+
+/* Requirement */
+.block.type--3 {
+  border: 2px solid orange;
+  background-color: orange;
+}
+  

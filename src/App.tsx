@@ -198,7 +198,7 @@ export default function App() {
                   <div className="selection-categories">
                     {/* Block Background Color */}
                     <div className="block-selection-item">
-                      <label>Background:</label>
+                      <label>Fill color:</label>
                       <Tippy
                         interactive={true}
                         trigger="click"

@@ -28,3 +28,7 @@
   color: transparent;
   caret-color: black;
 }
+
+.first {
+  display: inline-block;
+}

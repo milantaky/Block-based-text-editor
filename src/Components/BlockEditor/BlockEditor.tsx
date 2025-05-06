@@ -88,6 +88,9 @@ export default function BlockEditor({
   const [firstSelectedBlockIndex, setFirstSelectedBlockIndex] = useState<
     [number, number]
   >([-1, -1]); // [inputIndex, inputLineIndex]
+  console.log(text);
+  
+  
 
   // When first rendered, check for line height and set input on end
   useEffect(() => {
@@ -302,7 +305,7 @@ export default function BlockEditor({
     const newBlock: BlockType = {
       index: blocksToMerge[blocksToMerge.length - 1].index,
       content: newContent,
-      wordType: isRequirement ? -1 : getWordType(newContent),
+      wordType: isRequirement ? -3 : getWordType(newContent),
     };
 
     const newBlocks = [
@@ -329,13 +332,14 @@ export default function BlockEditor({
 
   // Gets word type
   function getWordType(word: string) {
+    if (!isNaN(Number(word))) return 0;
+
     for (const [, data] of Object.entries(language)) {
       if (data.items.has(sanitizeBlock(word))) {
         return data.type;
       }
     }
 
-    console.log(`"${word}" not found in any category.`);
     return -1;
   }
 

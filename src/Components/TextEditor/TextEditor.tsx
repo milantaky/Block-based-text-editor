@@ -36,6 +36,7 @@ export default function TextEditor({
   };
 }) {
   const [text, setText] = useState(convertToText(blocks));
+  // const [text, setText] = useState(convertToText(blocks));
   const editableRef = useRef<HTMLDivElement>(null);
   const firstRender = useRef(true);
   const words = text.split(/(\s+)/);
@@ -49,7 +50,6 @@ export default function TextEditor({
       editableRef.current.innerHTML = convertForRef(blocks);
       editableRef.current.focus();
     }
-
     setCaretToEnd();
 
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -58,9 +58,11 @@ export default function TextEditor({
   // Sets current text to ref for parent (App) to see
   useEffect(() => {
     textRef.current = editableRef.current!.innerText;
+    console.log(editableRef.current!.innerText);
+    
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [text]);
-
+  
   function handleInput() {
     if (editableRef.current) {
       const content = editableRef.current.innerText;
@@ -103,6 +105,7 @@ export default function TextEditor({
     let result = "";
     let firstLine = true;
     let index = 0;
+    let lineContent = [];
 
     for (const block of blockArray) {
       if (firstLine) {
@@ -118,17 +121,25 @@ export default function TextEditor({
         index++;
       } else {
         if (block.content === "\n") {
+          if(lineContent.length !== 0) {
+            result += `<div>${lineContent.join(" ")}</div>`;
+            lineContent = [];
+          }
+
           if (
             index + 1 < blockArray.length &&
             blockArray[index + 1].content === "\n"
           ) {
             result += `<div><br></div>`;
           }
-        } else result += `<div>${block.content}</div>`;
+        // } else result += `<div class="first">${block.content}</div>`;
+        } else lineContent.push(block.content);
 
         index++;
       }
     }
+
+    if(lineContent.length !== 0) result += `<div>${lineContent.join(" ")}</div>`;
 
     return result;
   }
@@ -175,7 +186,6 @@ export default function TextEditor({
             helperArray[wordsIndex] = "other";
             continue;
           }
-          console.log(word, wordsIndex + checkLength, words.length);
 
           // Check rest with spaces
           for (let i = 0; i < split.length; i++) {
@@ -276,11 +286,11 @@ export default function TextEditor({
       <div className="textEditor-container">
         <div
           className="highlighted-layer"
-          style={{
-            fontFamily: customization.fontFamily,
-            backgroundColor: customization.backgroundColor,
-            fontSize: customization.fontSize,
-          }}
+          // style={{
+          //   fontFamily: customization.fontFamily,
+          //   backgroundColor: customization.backgroundColor,
+          //   fontSize: customization.fontSize,
+          // }}
         >
           {highlightedWords}
         </div>

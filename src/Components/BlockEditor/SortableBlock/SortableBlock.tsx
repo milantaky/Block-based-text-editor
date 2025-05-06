@@ -25,9 +25,8 @@ export default function SortableBlock({
   const { attributes, listeners, setNodeRef, transform, transition } =
     useSortable({ id: block.index });
 
-    //TODO uprav tu -1 styly
   const style =
-    block.wordType === -1
+    block.wordType === -1 || block.wordType === -3
       ? {
           transform: CSS.Transform.toString(transform),
           transition,
