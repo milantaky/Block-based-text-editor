@@ -695,8 +695,10 @@ export default function BlockEditor({
 
               if (inputIndex !== 0) {
                 setInputIndex(inputIndex - 1);
+
+                const inputIndexInEditor = countInsertIndex() - 1;
                 setBlocks(
-                  blocks.filter((block) => block.index !== insertIndex - 1)
+                  blocks.filter((block, index) => index !== inputIndexInEditor)
                 );
 
                 return;
