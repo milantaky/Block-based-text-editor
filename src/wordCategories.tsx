@@ -1,12 +1,12 @@
 export const ears = {
   keywords: {
-    color: "#FFB400",
+    color: "#C586C0", // Keywords - purple
     type: 1,
     prefab: true,
     items: new Set(["while", "when", "where", "if", "shall", "then"]),
   },
   relationalOperators: {
-    color: "#FF6B6B",
+    color: "#D4D4D4", // Operators / misc - light gray
     type: 2,
     prefab: false,
     items: new Set([
@@ -23,25 +23,25 @@ export const ears = {
     ]),
   },
   objects: {
-    color: "#4ECDC4",
+    color: "#9CDCFE", // Variables / objects - light blue
     type: 3,
     prefab: true,
     items: new Set([]),
   },
   states: {
-    color: "#1A535C",
+    color: "#CE9178", // States / strings - orange-brown
     type: 4,
     prefab: true,
     items: new Set([]),
   },
   actors: {
-    color: "#F7FFF7",
+    color: "#4EC9B0", // Identifiers / types - teal
     type: 5,
     prefab: true,
     items: new Set([]),
   },
   other: {
-    color: "#A9A9A9",
+    color: "#808080", // Misc / punctuation - gray
     type: 0,
     prefab: false,
     items: new Set([",", ".", "the", "second", "seconds"]),
@@ -50,13 +50,13 @@ export const ears = {
 
 export const earsTest = {
   keywords: {
-    color: "#FFB400",
+    color: "#C586C0",
     type: 1,
     prefab: true,
     items: new Set(["while", "when", "where", "if", "shall", "then"]),
   },
   relationalOperators: {
-    color: "#FF6B6B",
+    color: "#D4D4D4",
     type: 2,
     prefab: false,
     items: new Set([
@@ -71,7 +71,7 @@ export const earsTest = {
     ]),
   },
   objects: {
-    color: "#4ECDC4",
+    color: "#9CDCFE",
     type: 3,
     prefab: true,
     items: new Set([
@@ -84,7 +84,7 @@ export const earsTest = {
     ]),
   },
   states: {
-    color: "#1A535C",
+    color: "#CE9178",
     type: 4,
     prefab: true,
     items: new Set([
@@ -100,13 +100,13 @@ export const earsTest = {
     ]),
   },
   actors: {
-    color: "#F7FFF7",
+    color: "#4EC9B0",
     type: 5,
     prefab: true,
     items: new Set(["LGS Warning System"]),
   },
   other: {
-    color: "#A9A9A9",
+    color: "#808080",
     type: 0,
     prefab: false,
     items: new Set([",", ".", "the", "second", "seconds", "previous"]),

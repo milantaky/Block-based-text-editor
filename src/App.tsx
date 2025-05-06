@@ -2,7 +2,12 @@ import { useState, useRef } from "react";
 import TextEditor from "./Components/TextEditor/TextEditor.tsx";
 import BlockEditor from "./Components/BlockEditor/BlockEditor.tsx";
 import { earsTest } from "./wordCategories.tsx";
-import type { BlockStylesMap, BlockType, editorMode, TextWordStylesMap } from "./types";
+import type {
+  BlockStylesMap,
+  BlockType,
+  editorMode,
+  TextWordStylesMap,
+} from "./types";
 import "./App.css";
 import Tippy from "@tippyjs/react";
 import { SwatchesPicker, ColorResult } from "react-color";
@@ -124,7 +129,6 @@ export default function App() {
                 />
               </div>
             )}
-
             {/* Font */}
             <div className="settings-item">
               <label>Font:</label>
@@ -138,7 +142,6 @@ export default function App() {
                 <option value="monospace">Monospace</option>
               </select>
             </div>
-
             {/* Font Size */}
             <div className="settings-item">
               <label>Font size:</label>
@@ -149,7 +152,6 @@ export default function App() {
                 onChange={(e) => setFontSize(parseInt(e.target.value))}
               />
             </div>
-
             {/* Background color */}
             <div className="settings-item">
               <label>Background Color:</label>
@@ -171,7 +173,6 @@ export default function App() {
                 ></div>
               </Tippy>
             </div>
-
             {/* Blocks customization */}
             {editorMode === "Blocks" && (
               <div className="settings-blocks">
@@ -302,6 +303,9 @@ export default function App() {
                 )}
               </div>
             )}
+            
+            {/* Text color customization */}
+            {editorMode === "Text" && <div className="d"></div>}
           </div>
         </div>
       </>
@@ -329,7 +333,12 @@ export default function App() {
           <TextEditor
             blocks={blocksRef.current}
             textRef={textRef}
-            customization={{ fontFamily, backgroundColor, fontSize, textWordStyles }}
+            customization={{
+              fontFamily,
+              backgroundColor,
+              fontSize,
+              textWordStyles,
+            }}
           />
         )}
       </div>

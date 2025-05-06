@@ -43,21 +43,6 @@ export default function TextEditor({
   const highlightedWords = highlightWords(words);
   applyEarstestColors();
 
-  // Adds styles of 
-  function applyEarstestColors() {
-    const styleTag = document.createElement('style');
-    let css = '';
-  
-    const styles = customization.textWordStyles;
-  
-    for (const [wordType, { color }] of Object.entries(styles)) {
-      css += `.${wordType} { color: ${color}; }\n`;
-    }
-  
-    styleTag.innerHTML = css;
-    document.head.appendChild(styleTag);
-  }
-
   // On first render -> transform BLOCKS to TEXT, set caret to end
   useEffect(() => {
     if (editableRef.current) {
@@ -91,6 +76,27 @@ export default function TextEditor({
     sel!.removeAllRanges();
     sel!.addRange(range);
   }
+
+  // Adds styles of
+  function applyEarstestColors() {
+    const styleTag = document.createElement("style");
+    let css = "";
+
+    const styles = customization.textWordStyles;
+
+    for (const [wordType, { color }] of Object.entries(styles)) {
+      css += `.${wordType} { color: ${color}; }\n`;
+    }
+
+    styleTag.innerHTML = css;
+    document.head.appendChild(styleTag);
+  }
+
+  // Removes . , ' from string
+  function sanitizeBlock(word: string) {
+    return word.replace(/[.,']/g, "");
+  }
+
 
   // For first render
   function convertForRef(blockArray: BlockType[]) {
@@ -145,15 +151,13 @@ export default function TextEditor({
   }
 
   function getWordTypes() {
-    const helperArray = Array(words.length).fill(null);
-console.log("tu");
+    const helperArray = Array(words.length).fill("other");
 
     // If first could be multi word
     for (let wordsIndex = 0; wordsIndex < words.length; wordsIndex++) {
-      const word = words[wordsIndex];
+      const word = sanitizeBlock(words[wordsIndex]);
 
       if (languageWordsWithSpacesConnected.has(word)) {
-        
         const possibleMatches = languageWordsWithSpaces.filter((w) =>
           w.startsWith(word)
         );
@@ -179,13 +183,13 @@ console.log("tu");
             const spaceIndex = wordIndex + 1;
 
             // Check word
-            if (words[wordIndex] !== split[i]) {
+            if (sanitizeBlock(words[wordIndex]) !== split[i]) {
               match = false;
               break;
             }
 
             // Check space (except after last word)
-            if (i < split.length - 1 && words[spaceIndex] !== " ") {
+            if (i < split.length - 1 && sanitizeBlock(words[spaceIndex]) !== " ") {
               match = false;
               break;
             }
@@ -283,6 +287,8 @@ console.log("tu");
         <div
           className="editor-layer"
           contentEditable
+          spellCheck={false}
+          autoCorrect="off"
           onInput={handleInput}
           style={{
             fontFamily: customization.fontFamily,
