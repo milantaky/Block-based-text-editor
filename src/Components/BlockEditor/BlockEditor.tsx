@@ -869,7 +869,6 @@ export default function BlockEditor({
     }
   }
 
-  // Todo vyresit inputtext?
   function findPositionOfClickOnLine(
     clickX: number,
     clickY: number,
