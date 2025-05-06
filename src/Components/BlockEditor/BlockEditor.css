@@ -55,3 +55,7 @@
 .block.selected {
   border: 2px solid red !important;
 }
+
+.block.type--1 {
+  border: 2px solid purple;
+}

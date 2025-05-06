@@ -336,7 +336,7 @@ export default function BlockEditor({
     }
 
     console.log(`"${word}" not found in any category.`);
-    return 0;
+    return -1;
   }
 
   // Adds new line to WHERE position

@@ -29,13 +29,14 @@ export default function App() {
   const [backgroundColor, setBackgroundColor] = useState("#ffffff");
   const [fontFamily, setFontFamily] = useState("serif");
   const [fontSize, setFontSize] = useState(16);
-  const [selectedBlockType, setSelectedBlockType] = useState<string | null>(
+  const [selectedBlockType, setSelectedBlockType] = useState<string>(
     blockTypes[0]
   );
   const [blockStyles, setBlockStyles] = useState<BlockStylesMap>(
     generateBlockStyles(language)
   );
-  const [selectedWordType, setSelectedWordType] = useState<string | null>(
+
+  const [selectedWordType, setSelectedWordType] = useState<string>(
     blockTypes[0]
   );
   const [textWordStyles, setTextWordStyles] = useState<TextWordStylesMap>(
@@ -303,9 +304,58 @@ export default function App() {
                 )}
               </div>
             )}
-            
+
             {/* Text color customization */}
-            {editorMode === "Text" && <div className="d"></div>}
+            {editorMode === "Text" && (
+              <div className="settings-blocks">
+                <h4>Text Customization:</h4>
+
+                <div className="blocks-selection">
+                  {blockTypes.map((type) => (
+                    <button
+                      key={type}
+                      className={`${
+                        selectedWordType === type ? "selected" : ""
+                      } customize-button`}
+                      onClick={() => setSelectedWordType(type)}
+                      style={textWordStyles[type]}
+                    >
+                      {type}
+                    </button>
+                  ))}
+                </div>
+
+                {/* Type Text Color */}
+                <div className="text-selection-item">
+                  <label>Text Color:</label>
+                  <Tippy
+                    interactive={true}
+                    trigger="click"
+                    content={
+                      <SwatchesPicker
+                        color={textWordStyles[selectedWordType].color}
+                        onChangeComplete={(colour: ColorResult) =>
+                          setTextWordStyles((prev) => ({
+                            ...prev,
+                            [selectedWordType]: {
+                              ...prev[selectedWordType],
+                              color: colour.hex,
+                            },
+                          }))
+                        }
+                      />
+                    }
+                  >
+                    <div
+                      className="color-div"
+                      style={{
+                        backgroundColor: textWordStyles[selectedWordType].color,
+                      }}
+                    ></div>
+                  </Tippy>
+                </div>
+              </div>
+            )}
           </div>
         </div>
       </>

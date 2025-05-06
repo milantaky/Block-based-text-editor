@@ -14,22 +14,31 @@ export default function SortableBlock({
   lineIndex: number;
   indexOnLine: number;
   isSelected: boolean;
-  onBlockDoubleClick: (blockIndex: number, content: string, blockLine: number, blockIndexOnLine: number) => void;
-  customization: BlockStyle
+  onBlockDoubleClick: (
+    blockIndex: number,
+    content: string,
+    blockLine: number,
+    blockIndexOnLine: number
+  ) => void;
+  customization: BlockStyle;
 }) {
   const { attributes, listeners, setNodeRef, transform, transition } =
     useSortable({ id: block.index });
 
-  const style = {
-    transform: CSS.Transform.toString(transform),
-    transition,
-    color: customization.color,
-    backgroundColor: customization.backgroundColor,
-    borderColor: customization.borderColor
-    // boxShadow: showShadows
-    // ? "rgba(0, 0, 0, 0.15) 1px 1px 2px;"
-    // : "none",
-  };
+    //TODO uprav tu -1 styly
+  const style =
+    block.wordType === -1
+      ? {
+          transform: CSS.Transform.toString(transform),
+          transition,
+        }
+      : {
+          transform: CSS.Transform.toString(transform),
+          transition,
+          color: customization.color,
+          backgroundColor: customization.backgroundColor,
+          borderColor: customization.borderColor,
+        };
 
   return (
     <div
@@ -41,7 +50,9 @@ export default function SortableBlock({
       style={style}
       {...attributes}
       {...listeners}
-      onDoubleClick={() => onBlockDoubleClick(block.index, block.content, lineIndex, indexOnLine)}
+      onDoubleClick={() =>
+        onBlockDoubleClick(block.index, block.content, lineIndex, indexOnLine)
+      }
     >
       {block.content}
     </div>
