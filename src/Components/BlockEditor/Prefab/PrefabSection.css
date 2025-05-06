@@ -37,6 +37,7 @@ h4 {
 .prefab-block-button {
   padding: 0.1em 0.5em;
   border: 1px solid yellowgreen;
+  background-color: white;
 }
 
 .create-prefab button {
@@ -47,9 +48,17 @@ h4 {
   border: none;
 }
 
+.create-prefab .cancel-button:hover {
+  background-color: rgb(251, 78, 78);
+}
+
 .create-prefab .cancel-button {
   background-color: rgb(255, 100, 100);
   margin-right: 0;
+}
+
+button:hover, .prefab-block-button:hover {
+  background-color: #c9c9c9;
 }
 
 .create-prefab input {

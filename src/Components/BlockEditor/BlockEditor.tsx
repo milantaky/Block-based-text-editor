@@ -87,10 +87,7 @@ export default function BlockEditor({
   const [selectedBlocks, setSelectedBlocks] = useState<BlockType[]>([]);
   const [firstSelectedBlockIndex, setFirstSelectedBlockIndex] = useState<
     [number, number]
-  >([-1, -1]); // [inputIndex, inputLineIndex]
-  console.log(text);
-  
-  
+  >([-1, -1]); // [inputIndex, inputLineIndex]  
 
   // When first rendered, check for line height and set input on end
   useEffect(() => {
@@ -404,7 +401,6 @@ export default function BlockEditor({
     return newBlock;
   }
 
-  // TODO: handle inputText?
   function moveInputUp() {
     const domLines = document.getElementsByClassName("line-content");
     const lineItems = domLines[inputLineIndex].children;
@@ -455,7 +451,6 @@ export default function BlockEditor({
     }
   }
 
-  // TODO: handle inputText?
   function moveInputDown() {
     const domLines = document.getElementsByClassName("line-content");
     const lineItems = domLines[inputLineIndex].children;
@@ -466,7 +461,7 @@ export default function BlockEditor({
     const inputOffset = currentLineInput.offsetLeft;
 
     const lineWrapped =
-      domLines[inputLineIndex].clientHeight !== baseLineHeight.current &&
+      domLines[inputLineIndex].clientHeight > baseLineHeight.current - 1 &&
       inputLine !== splitLine.length - 1;
 
     if (lineWrapped) {
@@ -480,6 +475,7 @@ export default function BlockEditor({
       setInputIndex(targetIndex);
     } else {
       // Move input down
+
       if (inputText === "" && inputLineIndex !== lines.length - 1) {
         if (lines[inputLineIndex + 1].length === 0) {
           setInputLineIndex(inputLineIndex + 1);
@@ -557,7 +553,6 @@ export default function BlockEditor({
       }
     }
 
-    console.log(values, closestIndex);
     return closestIndex;
   }
 
@@ -594,7 +589,6 @@ export default function BlockEditor({
       if (block.className === "input-box") {
         inputLine = lineNumber;
         inputIndexOnLine = indexOnLine;
-        console.log("here2", inputIndexOnLine);
         continue;
       }
 
@@ -602,8 +596,6 @@ export default function BlockEditor({
 
       returnArray[lineNumber].push((block as HTMLElement).offsetLeft);
     }
-
-    console.log(inputIndexOnLine);
 
     return [returnArray, inputLine, inputIndexOnLine];
   }
@@ -1236,7 +1228,7 @@ export default function BlockEditor({
 
   return (
     <>
-      {prefabVisible && <PrefabSection onClick={handleClickPrefab} />}
+      {prefabVisible && <PrefabSection onClick={handleClickPrefab} customization={customization.backgroundColor}/>}
 
       <div
         className="blockEditor-container"

@@ -8,8 +8,10 @@ const language = earsTest;
 // Section with prefabricates
 export default function PrefabSection({
   onClick,
+  customization
 }: {
   onClick: (content: string, wordType: number) => void;
+  customization: string;
 }) {
   const [customBlocks, setCustomBlocks] = useState({
     type: -2,
@@ -37,7 +39,8 @@ export default function PrefabSection({
         <h3>Prefabricated Blocks</h3>
       </div>
 
-      <div className="prefab-category-list">
+      <div className="prefab-category-list"
+      style={{backgroundColor: customization}}>
         {filteredCategories.map(([category, data]) => (
           <PrefabBlockCategory
             key={category}

@@ -102,7 +102,7 @@ export default function App() {
 
   function SettingsButton() {
     return (
-      <button className="settings-window-button" onClick={toggleSettings}>
+      <button className={`settings-window-button ${settingsVisible && 'settings-visible'}`} onClick={toggleSettings}>
         Settings
       </button>
     );

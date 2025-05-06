@@ -39,6 +39,10 @@ body,
   border: 1px solid lightgray;
 }
 
+.settings-visible, .settings-window-button:hover, .mode-switch-button:hover {
+  background-color: #c9c9c9;
+}
+
 .settings-window {
   background-color: #eeeeee;
   width: 300px;
