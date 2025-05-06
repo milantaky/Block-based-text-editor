@@ -62,7 +62,7 @@ export default function TextEditor({
     
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [text]);
-  
+
   function handleInput() {
     if (editableRef.current) {
       const content = editableRef.current.innerText;
@@ -98,7 +98,6 @@ export default function TextEditor({
   function sanitizeBlock(word: string) {
     return word.replace(/[.,']/g, "");
   }
-
 
   // For first render
   function convertForRef(blockArray: BlockType[]) {
@@ -286,11 +285,11 @@ export default function TextEditor({
       <div className="textEditor-container">
         <div
           className="highlighted-layer"
-          // style={{
-          //   fontFamily: customization.fontFamily,
-          //   backgroundColor: customization.backgroundColor,
-          //   fontSize: customization.fontSize,
-          // }}
+          style={{
+            fontFamily: customization.fontFamily,
+            backgroundColor: customization.backgroundColor,
+            fontSize: customization.fontSize,
+          }}
         >
           {highlightedWords}
         </div>
