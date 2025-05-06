@@ -34,7 +34,7 @@ h4 {
   gap: 0.3em;
 }
 
-.prefab-block-button {
+.prefab-block-button, .delete-custom-button {
   padding: 0.1em 0.5em;
   border: 1px solid yellowgreen;
   background-color: white;
@@ -66,4 +66,19 @@ button:hover, .prefab-block-button:hover {
   border-radius: 0.3em;
   border: 1px solid lightgray;
   margin-right: 0.5em;
+}
+
+.custom-block {
+  display: flex;
+  flex-direction: row;
+  align-items: flex-start;
+}
+
+.delete-custom-button {
+  font-size: 8px;
+  padding: 0.1em;
+}
+
+.delete-custom-button:hover {
+  background-color: red;
 }

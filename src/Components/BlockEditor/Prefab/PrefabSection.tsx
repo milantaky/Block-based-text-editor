@@ -41,6 +41,22 @@ export default function PrefabSection({
     });
   }
 
+
+  function onDelete(newBlock: string) {
+    setCustomBlocks((prev) => {
+      const updatedItems = new Set(prev.items);
+      updatedItems.delete(newBlock);
+      
+      // Save custom blocks in browser
+      localStorage.setItem("customBlocks", JSON.stringify([...updatedItems]));
+  
+      return {
+        type: -2,
+        items: updatedItems,
+      };
+    });
+  }
+
   return (
     <div className="prefab-container">
       <div className="prefab-header">
@@ -56,6 +72,7 @@ export default function PrefabSection({
             data={data}
             onClick={onClick}
             onCreate={onCreate}
+            onDelete={onDelete}
           />
         ))}
 
@@ -65,6 +82,7 @@ export default function PrefabSection({
           data={customBlocks}
           onClick={onClick}
           onCreate={onCreate}
+          onDelete={onDelete}
         />
 
       </div>
