@@ -58,8 +58,7 @@ export default function TextEditor({
   // Sets current text to ref for parent (App) to see
   useEffect(() => {
     textRef.current = editableRef.current!.innerText;
-    console.log(editableRef.current!.innerText);
-    
+
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [text]);
 
@@ -103,42 +102,30 @@ export default function TextEditor({
   function convertForRef(blockArray: BlockType[]) {
     let result = "";
     let firstLine = true;
-    let index = 0;
     let lineContent = [];
 
     for (const block of blockArray) {
       if (firstLine) {
         if (block.content === "\n") {
           firstLine = false;
-          index++;
           continue;
         }
 
         if (result === "") result += block.content;
         else result += " " + block.content;
 
-        index++;
       } else {
         if (block.content === "\n") {
-          if(lineContent.length !== 0) {
+          if (lineContent.length !== 0) {
             result += `<div>${lineContent.join(" ")}</div>`;
             lineContent = [];
-          }
-
-          if (
-            index + 1 < blockArray.length &&
-            blockArray[index + 1].content === "\n"
-          ) {
-            result += `<div><br></div>`;
-          }
-        // } else result += `<div class="first">${block.content}</div>`;
+          } else result += `<div><br></div>`;
         } else lineContent.push(block.content);
-
-        index++;
       }
     }
 
-    if(lineContent.length !== 0) result += `<div>${lineContent.join(" ")}</div>`;
+    if (lineContent.length !== 0)
+      result += `<div>${lineContent.join(" ")}</div>`;
 
     return result;
   }
@@ -157,6 +144,7 @@ export default function TextEditor({
       result += block.content;
       prevWasNewline = isNewline;
     }
+
     return result;
   }
 
@@ -198,7 +186,10 @@ export default function TextEditor({
             }
 
             // Check space (except after last word)
-            if (i < split.length - 1 && sanitizeBlock(words[spaceIndex]) !== " ") {
+            if (
+              i < split.length - 1 &&
+              sanitizeBlock(words[spaceIndex]) !== " "
+            ) {
               match = false;
               break;
             }

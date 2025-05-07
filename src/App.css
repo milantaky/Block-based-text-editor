@@ -144,3 +144,7 @@ body,
   align-items: center;
   justify-content: space-between;
 }
+
+.selected {
+  border-right: 2px solid red !important;
+}
