@@ -25,19 +25,15 @@ export default function SortableBlock({
   const { attributes, listeners, setNodeRef, transform, transition } =
     useSortable({ id: block.index });
 
-  const style =
-    block.wordType === -1 || block.wordType === -3
-      ? {
-          transform: CSS.Transform.toString(transform),
-          transition,
-        }
-      : {
-          transform: CSS.Transform.toString(transform),
-          transition,
-          color: customization.color,
-          backgroundColor: customization.backgroundColor,
-          borderColor: customization.borderColor,
-        };
+    const style = {
+      transform: CSS.Transform.toString(transform),
+      transition,
+      ...(block.wordType !== -1 && block.wordType !== -3 && {
+        color: customization.color,
+        backgroundColor: customization.backgroundColor,
+        borderColor: customization.borderColor,
+      }),
+    };
 
   return (
     <div

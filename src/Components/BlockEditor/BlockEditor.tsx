@@ -73,21 +73,30 @@ export default function BlockEditor({
     fontSize: number;
   };
 }) {
+  // Blocks
   const [blocks, setBlocks] = useState<BlockType[]>(convertToBlocks(text));
   const [nextBlockIndex, setNextBlockIndex] = useState(text.split("").length);
+  const lines = splitLines(blocks); // Blocks converted into lines of blocks based on \n
+
+  // Input 
   const [inputText, setInputText] = useState("");
   const [inputIndex, setInputIndex] = useState(0); // This index says before which block the input is
   const [inputLineIndex, setInputLineIndex] = useState(0); // Which line the input is on (0 = first line)
   const inputRef = useRef<HTMLDivElement>(null);
-  const editorRef = useRef<HTMLDivElement>(null);
-  const changeBlockRef = useRef(false);
-  const lines = splitLines(blocks); // Blocks converted into lines of blocks based on \n
-  const setFirstRef = useRef(false);
+  
+  // Drag and Drop
   const [activeBlock, setActiveBlock] = useState<BlockType | null>(null);
+  
+  // Block Selection
   const [selectedBlocks, setSelectedBlocks] = useState<BlockType[]>([]);
   const [firstSelectedBlockIndex, setFirstSelectedBlockIndex] = useState<
-    [number, number]
+  [number, number]
   >([-1, -1]); // [inputIndex, inputLineIndex]
+  
+  // Helpers
+  const editorRef = useRef<HTMLDivElement>(null);
+  const changeBlockRef = useRef(false);
+  const setFirstRef = useRef(false);
 
   // When first rendered, check for line height and set input on end
   useEffect(() => {

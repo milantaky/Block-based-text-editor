@@ -36,12 +36,14 @@ export default function TextEditor({
   };
 }) {
   const [text, setText] = useState(convertToText(blocks));
-  // const [text, setText] = useState(convertToText(blocks));
   const editableRef = useRef<HTMLDivElement>(null);
-  const firstRender = useRef(true);
   const words = text.split(/(\s+)/);
-  const typeArray = getWordTypes();
   const highlightedWords = highlightWords(words);
+
+  // Helpers
+  const firstRender = useRef(true);
+  const typeArray = getWordTypes();
+
   applyEarstestColors();
 
   // On first render -> transform BLOCKS to TEXT, set caret to end
@@ -113,7 +115,6 @@ export default function TextEditor({
 
         if (result === "") result += block.content;
         else result += " " + block.content;
-
       } else {
         if (block.content === "\n") {
           if (lineContent.length !== 0) {
@@ -199,9 +200,7 @@ export default function TextEditor({
             // Find category name
             let type = "";
             for (const [categoryKey, category] of Object.entries(language)) {
-              if (category.items.has(fullWord)) {
-                type = categoryKey; // např. "keywords"
-              }
+              if (category.items.has(fullWord)) type = categoryKey;
             }
 
             // Set helper
@@ -209,8 +208,8 @@ export default function TextEditor({
               const wordIndex = wordsIndex + i * 2;
               helperArray[wordIndex] = type;
             }
-            wordsIndex += split.length * 2 - 1;
 
+            wordsIndex += split.length * 2 - 1;
             continue;
           }
         }
@@ -224,9 +223,8 @@ export default function TextEditor({
             break;
           }
         }
-        if (!set) {
-          helperArray[wordsIndex] = "other";
-        }
+        
+        if (!set) helperArray[wordsIndex] = "other";
       }
     }
 

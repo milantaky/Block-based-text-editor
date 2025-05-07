@@ -22,6 +22,7 @@ export default function App() {
   const baseLineHeight = useRef<number>(0); // Height of line on first render to compare if other lines have overflown
   const blhSet = useRef<boolean>(false);
 
+  // Settings & Prefab
   const [settingsVisible, setSettingsVisible] = useState(false);
   const [prefabVisible, setPrefabVisible] = useState(true);
 
