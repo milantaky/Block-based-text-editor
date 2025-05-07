@@ -87,11 +87,7 @@ export default function BlockEditor({
   const [selectedBlocks, setSelectedBlocks] = useState<BlockType[]>([]);
   const [firstSelectedBlockIndex, setFirstSelectedBlockIndex] = useState<
     [number, number]
-  >([-1, -1]); // [inputIndex, inputLineIndex] 
-
-  console.log("IT:",inputText);
-  console.log("Ref",inputRef.current?.textContent);
-   
+  >([-1, -1]); // [inputIndex, inputLineIndex]
 
   // When first rendered, check for line height and set input on end
   useEffect(() => {
@@ -129,7 +125,6 @@ export default function BlockEditor({
         inputRef.current!.textContent = inputText;
         setCaretToEnd();
       }
-      
     }, 0);
   }, [blocks, inputIndex, inputLineIndex, inputText, selectedBlocks]);
 
@@ -325,9 +320,8 @@ export default function BlockEditor({
     let returnIndex = 0;
 
     for (let i = 0; i < lines.length; i++) {
-      if (i < inputLineIndex) {
-        returnIndex += lines[i].length + 1; // + \n
-      } else break;
+      if (i < inputLineIndex) returnIndex += lines[i].length + 1; // + \n
+      else break;
     }
 
     return returnIndex + inputIndex; // Current input index on line
@@ -338,9 +332,7 @@ export default function BlockEditor({
     if (!isNaN(Number(word))) return 0;
 
     for (const [, data] of Object.entries(language)) {
-      if (data.items.has(sanitizeBlock(word))) {
-        return data.type;
-      }
+      if (data.items.has(sanitizeBlock(word))) return data.type;
     }
 
     return -1;
@@ -684,7 +676,7 @@ export default function BlockEditor({
             const insertIndex = countInsertIndex();
 
             // Shift -> delete block
-            if (e.shiftKey) { 
+            if (e.shiftKey) {
               // Blocks are selected -> delete them
               if (selectedBlocks.length !== 0) {
                 setBlocks(
@@ -749,13 +741,13 @@ export default function BlockEditor({
         if (inputText === "") {
           e.preventDefault();
 
-          if(inputIndex > 0){
+          if (inputIndex > 0) {
             setInputIndex(inputIndex - 1);
             break;
           }
 
           // On beginning of line
-          if(inputLineIndex > 0){
+          if (inputLineIndex > 0) {
             setInputLineIndex(inputLineIndex - 1);
             setInputIndex(lines[inputLineIndex - 1].length);
           }
@@ -765,12 +757,12 @@ export default function BlockEditor({
       case "ArrowRight":
         if (inputText === "") {
           e.preventDefault();
-          if(inputIndex < lines[inputLineIndex].length){
+          if (inputIndex < lines[inputLineIndex].length) {
             setInputIndex(inputIndex + 1);
             break;
           }
 
-          if(inputLineIndex < lines.length - 1){
+          if (inputLineIndex < lines.length - 1) {
             setInputLineIndex(inputLineIndex + 1);
             setInputIndex(0);
           }
@@ -912,16 +904,12 @@ export default function BlockEditor({
           continue;
         } else {
           // Correct line, find place to fit input based on offsetLeft
-          if (reference === -1) {
-            reference = currentBlockOffset;
-          }
+          if (reference === -1) reference = currentBlockOffset;
 
           // Did we move to next line? Return last index (clicked on end of line)
-          if (currentBlockOffset === reference) {
+          if (currentBlockOffset === reference)
             blockOffsetArray.push((items[i] as HTMLElement).offsetLeft);
-          } else {
-            break;
-          }
+          else break;
         }
       }
 
@@ -962,9 +950,8 @@ export default function BlockEditor({
       const end = Math.max(existingIndex, currentIndex);
 
       // Clicked before the already selected block, update future input in case of deleting
-      if (currentIndex < existingIndex) {
+      if (currentIndex < existingIndex)
         setFirstSelectedBlockIndex([indexOnLine, lineIndex]);
-      }
 
       const newSelectedBlocks = blocks.slice(start, end + 1);
 
@@ -1047,9 +1034,7 @@ export default function BlockEditor({
 
     const foundBlock = blocks.find((block) => block.index === activeId);
 
-    if (foundBlock) {
-      setActiveBlock(foundBlock);
-    }
+    if (foundBlock) setActiveBlock(foundBlock);
   }
 
   // DnD ended (dropped)
@@ -1131,11 +1116,9 @@ export default function BlockEditor({
     }
 
     // Set new blocks
-    if (isMultipleDrag) {
-      newBlocks.splice(targetIndex, 0, ...selectedBlocks);
-    } else {
-      newBlocks.splice(targetIndex, 0, activeBlock);
-    }
+    if (isMultipleDrag) newBlocks.splice(targetIndex, 0, ...selectedBlocks);
+    else newBlocks.splice(targetIndex, 0, activeBlock);
+
     setBlocks(newBlocks);
   }
 
@@ -1262,7 +1245,12 @@ export default function BlockEditor({
 
   return (
     <>
-      {prefabVisible && <PrefabSection onClick={handleClickPrefab} customization={customization.backgroundColor}/>}
+      {prefabVisible && (
+        <PrefabSection
+          onClick={handleClickPrefab}
+          customization={customization.backgroundColor}
+        />
+      )}
 
       <div
         className="blockEditor-container"
