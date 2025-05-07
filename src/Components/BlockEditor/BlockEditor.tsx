@@ -121,7 +121,7 @@ export default function BlockEditor({
     setTimeout(() => {
       if (inputRef.current) {
         inputRef.current.focus();
-        inputRef.current.textContent = inputText;
+        // inputRef.current.textContent = inputText;
       }
       if (changeBlockRef.current) setCaretToEnd();
     }, 0);
@@ -662,6 +662,7 @@ export default function BlockEditor({
           }
           setInputText("");
           setInputIndex(inputIndex + 1);
+          inputRef.current!.textContent = "";
         }
         break;
 
@@ -731,8 +732,8 @@ export default function BlockEditor({
         break;
 
       case "ArrowLeft":
-        e.preventDefault();
         if (inputText === "") {
+          e.preventDefault();
 
           if(inputIndex > 0){
             setInputIndex(inputIndex - 1);
@@ -748,8 +749,8 @@ export default function BlockEditor({
         break;
 
       case "ArrowRight":
-        e.preventDefault();
         if (inputText === "") {
+          e.preventDefault();
           if(inputIndex < lines[inputLineIndex].length){
             setInputIndex(inputIndex + 1);
             break;
