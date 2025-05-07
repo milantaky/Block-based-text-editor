@@ -35,7 +35,7 @@ body,
   border-radius: 0.5em;
   background-color: #eeeeee;
   border: none;
-  box-shadow: rgba(149, 157, 165, 0.2) 0px 8px 24px;
+  box-shadow: rgba(0, 0, 0, 0.16) 0px 1px 4px;
   border: 1px solid lightgray;
 }
 
@@ -52,7 +52,7 @@ body,
   padding: 1em;
   border-radius: 20px;
   z-index: 3;
-  box-shadow: rgba(149, 157, 165, 0.2) 0px 8px 24px;
+  box-shadow: rgba(0, 0, 0, 0.16) 0px 1px 4px;
 }
 
 .settings-header {
@@ -98,6 +98,10 @@ body,
   height: 1.5em;
 }
 
+.customization {
+  padding-top: 0.5em;
+}
+
 .settings-blocks {
   display: flex;
   flex-direction: column;
@@ -105,6 +109,7 @@ body,
   background-color: white;
   padding: 0.5em;
   border-radius: 0.5em;
+  box-shadow: rgba(0, 0, 0, 0.16) 0px 1px 4px;
 }
 
 .selection-categories {
