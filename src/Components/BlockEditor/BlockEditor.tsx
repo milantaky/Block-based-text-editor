@@ -123,7 +123,7 @@ export default function BlockEditor({
         inputRef.current.focus();
         inputRef.current.textContent = inputText;
       }
-      if (changeBlockRef) setCaretToEnd();
+      if (changeBlockRef.current) setCaretToEnd();
     }, 0);
   }, [blocks, inputIndex, inputLineIndex, inputText, selectedBlocks]);
 
