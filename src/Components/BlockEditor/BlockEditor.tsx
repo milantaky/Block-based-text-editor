@@ -123,11 +123,13 @@ export default function BlockEditor({
   // Focuses editor, and sets caret on end of input when editing it
   useEffect(() => {
     setTimeout(() => {
-      if (inputRef.current) {
-        inputRef.current.focus();
-        // inputRef.current.textContent = inputText;
+      if (inputRef.current) inputRef.current.focus();
+
+      if (changeBlockRef.current) {
+        inputRef.current!.textContent = inputText;
+        setCaretToEnd();
       }
-      if (changeBlockRef.current) setCaretToEnd();
+      
     }, 0);
   }, [blocks, inputIndex, inputLineIndex, inputText, selectedBlocks]);
 
@@ -634,6 +636,8 @@ export default function BlockEditor({
       setInputIndex(blockIndexOnLine);
       setInputLineIndex(blockLine);
       setInputText(content);
+      inputRef.current!.textContent = content;
+      changeBlockRef.current = true;
     }
   }
 
@@ -671,7 +675,7 @@ export default function BlockEditor({
         break;
 
       // With shift key -> deletes block
-      case "Backspace":        
+      case "Backspace":
         if (inputText === "") {
           e.preventDefault();
 
@@ -716,8 +720,10 @@ export default function BlockEditor({
               setInputIndex(lines[inputLineIndex - 1].length);
               setInputLineIndex(inputLineIndex - 1);
             } else {
-              const content = blocks[insertIndex - 1].content
+              const content = blocks[insertIndex - 1].content;
               inputRef.current!.textContent = content;
+              console.log("back");
+              
               setInputText(content);
               setInputIndex(inputIndex - 1 >= 0 ? inputIndex - 1 : 0);
 
@@ -733,8 +739,6 @@ export default function BlockEditor({
             }
           }
         } else {
-          console.log("tu");
-          
           if (e.shiftKey) {
             setInputText("");
             inputRef.current!.textContent = "";
