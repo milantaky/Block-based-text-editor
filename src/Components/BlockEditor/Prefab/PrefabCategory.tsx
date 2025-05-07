@@ -6,6 +6,7 @@ export default function PrefabBlockCategory({
   data,
   onClick,
   onCreate,
+  onDelete
 }: {
   category: string;
   data: {
@@ -14,6 +15,7 @@ export default function PrefabBlockCategory({
   };
   onClick: (content: string, wordType: number) => void;
   onCreate: (newBlock: string) => void;
+  onDelete: (newBlock: string) => void;
 }) {
   return (
     <div key={category} className="prefab-category">
@@ -26,10 +28,11 @@ export default function PrefabBlockCategory({
             content={item}
             wordType={data.type}
             onClick={onClick}
+            onDelete={onDelete}
           />
         ))}
 
-        {category === "custom" && <CreatePrefab onCreate={onCreate} />}
+        {category === "custom" && <CreatePrefab onCreate={onCreate}/>}
       </div>
     </div>
   );

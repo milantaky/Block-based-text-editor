@@ -21,6 +21,13 @@ h4 {
   padding: 1em;
 }
 
+.prefab-category {
+  border: 1px solid lightgray;
+  padding: 0.5em;
+  border-radius: 0.5em;
+  box-shadow: rgba(0, 0, 0, 0.16) 0px 1px 4px;
+}
+
 .prefab-category span {
   text-transform: capitalize;
   font-weight: bold;
@@ -34,10 +41,12 @@ h4 {
   gap: 0.3em;
 }
 
-.prefab-block-button {
+.prefab-block-button,
+.delete-custom-button {
   padding: 0.1em 0.5em;
   border: 1px solid yellowgreen;
   background-color: white;
+  box-shadow: rgba(0, 0, 0, 0.16) 0px 1px 4px;
 }
 
 .create-prefab button {
@@ -45,7 +54,8 @@ h4 {
   margin-right: 0.5em;
   border-radius: 0.3em;
   background-color: #eeeeee;
-  border: none;
+  border: 1px solid lightgray;
+  box-shadow: rgba(0, 0, 0, 0.16) 0px 1px 4px;
 }
 
 .create-prefab .cancel-button:hover {
@@ -57,13 +67,31 @@ h4 {
   margin-right: 0;
 }
 
-button:hover, .prefab-block-button:hover {
+button:hover,
+.prefab-block-button:hover {
   background-color: #c9c9c9;
 }
 
 .create-prefab input {
-  padding: 0.2em 0.7em;
+  padding: 0.32em 0.7em;
   border-radius: 0.3em;
   border: 1px solid lightgray;
   margin-right: 0.5em;
+  box-shadow: rgba(0, 0, 0, 0.16) 0px 1px 4px;
+}
+
+.custom-block {
+  display: flex;
+  flex-direction: row;
+  align-items: flex-start;
+}
+
+.delete-custom-button {
+  font-size: 8px;
+  padding: 0.1em;
+  border: 1px solid red;
+}
+
+.delete-custom-button:hover {
+  background-color: red;
 }

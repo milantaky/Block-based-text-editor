@@ -8,7 +8,6 @@
   justify-content: center;
   min-width: 32px;
   padding-top: 0.2em;
-  /* border-right: 1px solid lightgray; */
 }
 
 .line-content {
@@ -25,6 +24,7 @@
 .block {
   border: 2px solid black;
   padding: 0.1em 0.5em;
+  box-shadow: rgba(0, 0, 0, 0.16) 0px 1px 4px;
 }
 
 .input-box {
@@ -58,7 +58,8 @@
 }
 
 .block.type--1 {
-  border: 2px solid purple;
+  border: 1px dashed red;
+  border-bottom: 2px dashed red;
 }
 
 /* Requirement */

@@ -13,9 +13,13 @@ export default function PrefabSection({
   onClick: (content: string, wordType: number) => void;
   customization: string;
 }) {
-  const [customBlocks, setCustomBlocks] = useState({
-    type: -2,
-    items: new Set<string>([]),
+  const [customBlocks, setCustomBlocks] = useState(() => {
+    const saved = localStorage.getItem("customBlocks");
+    const items = saved ? new Set<string>(JSON.parse(saved)) : new Set<string>();
+    return {
+      type: -2,
+      items,
+    };
   });
 
   const filteredCategories = Object.entries(language).filter(
@@ -26,6 +30,25 @@ export default function PrefabSection({
     setCustomBlocks((prev) => {
       const updatedItems = new Set(prev.items);
       updatedItems.add(newBlock);
+      
+      // Save custom blocks in browser
+      localStorage.setItem("customBlocks", JSON.stringify([...updatedItems]));
+  
+      return {
+        type: -2,
+        items: updatedItems,
+      };
+    });
+  }
+
+  function onDelete(newBlock: string) {
+    setCustomBlocks((prev) => {
+      const updatedItems = new Set(prev.items);
+      updatedItems.delete(newBlock);
+      
+      // Save custom blocks in browser
+      localStorage.setItem("customBlocks", JSON.stringify([...updatedItems]));
+  
       return {
         type: -2,
         items: updatedItems,
@@ -48,6 +71,7 @@ export default function PrefabSection({
             data={data}
             onClick={onClick}
             onCreate={onCreate}
+            onDelete={onDelete}
           />
         ))}
 
@@ -57,6 +81,7 @@ export default function PrefabSection({
           data={customBlocks}
           onClick={onClick}
           onCreate={onCreate}
+          onDelete={onDelete}
         />
 
       </div>

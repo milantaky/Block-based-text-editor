@@ -73,21 +73,30 @@ export default function BlockEditor({
     fontSize: number;
   };
 }) {
+  // Blocks
   const [blocks, setBlocks] = useState<BlockType[]>(convertToBlocks(text));
   const [nextBlockIndex, setNextBlockIndex] = useState(text.split("").length);
+  const lines = splitLines(blocks); // Blocks converted into lines of blocks based on \n
+
+  // Input 
   const [inputText, setInputText] = useState("");
   const [inputIndex, setInputIndex] = useState(0); // This index says before which block the input is
   const [inputLineIndex, setInputLineIndex] = useState(0); // Which line the input is on (0 = first line)
   const inputRef = useRef<HTMLDivElement>(null);
-  const editorRef = useRef<HTMLDivElement>(null);
-  const changeBlockRef = useRef(false);
-  const lines = splitLines(blocks); // Blocks converted into lines of blocks based on \n
-  const setFirstRef = useRef(false);
+  
+  // Drag and Drop
   const [activeBlock, setActiveBlock] = useState<BlockType | null>(null);
+  
+  // Block Selection
   const [selectedBlocks, setSelectedBlocks] = useState<BlockType[]>([]);
   const [firstSelectedBlockIndex, setFirstSelectedBlockIndex] = useState<
-    [number, number]
-  >([-1, -1]); // [inputIndex, inputLineIndex]  
+  [number, number]
+  >([-1, -1]); // [inputIndex, inputLineIndex]
+  
+  // Helpers
+  const editorRef = useRef<HTMLDivElement>(null);
+  const changeBlockRef = useRef(false);
+  const setFirstRef = useRef(false);
 
   // When first rendered, check for line height and set input on end
   useEffect(() => {
@@ -119,11 +128,12 @@ export default function BlockEditor({
   // Focuses editor, and sets caret on end of input when editing it
   useEffect(() => {
     setTimeout(() => {
-      if (inputRef.current) {
-        inputRef.current.focus();
-        inputRef.current.textContent = inputText;
+      if (inputRef.current) inputRef.current.focus();
+
+      if (changeBlockRef.current) {
+        inputRef.current!.textContent = inputText;
+        setCaretToEnd();
       }
-      if (changeBlockRef) setCaretToEnd();
     }, 0);
   }, [blocks, inputIndex, inputLineIndex, inputText, selectedBlocks]);
 
@@ -319,9 +329,8 @@ export default function BlockEditor({
     let returnIndex = 0;
 
     for (let i = 0; i < lines.length; i++) {
-      if (i < inputLineIndex) {
-        returnIndex += lines[i].length + 1; // + \n
-      } else break;
+      if (i < inputLineIndex) returnIndex += lines[i].length + 1; // + \n
+      else break;
     }
 
     return returnIndex + inputIndex; // Current input index on line
@@ -332,9 +341,7 @@ export default function BlockEditor({
     if (!isNaN(Number(word))) return 0;
 
     for (const [, data] of Object.entries(language)) {
-      if (data.items.has(sanitizeBlock(word))) {
-        return data.type;
-      }
+      if (data.items.has(sanitizeBlock(word))) return data.type;
     }
 
     return -1;
@@ -355,6 +362,7 @@ export default function BlockEditor({
         wordType: 0,
       });
       setInputText("");
+      inputRef.current!.textContent = "";
     } else {
       newBlocks.splice(where, 0, {
         index: nextBlockIndex + 1,
@@ -475,7 +483,6 @@ export default function BlockEditor({
       setInputIndex(targetIndex);
     } else {
       // Move input down
-
       if (inputText === "" && inputLineIndex !== lines.length - 1) {
         if (lines[inputLineIndex + 1].length === 0) {
           setInputLineIndex(inputLineIndex + 1);
@@ -524,7 +531,6 @@ export default function BlockEditor({
       inputIndexOnLine > 0 && splitLine[inputLine - 1].length > 0
         ? findClosestIndex(splitLine[inputLine - 1], inputOffset)
         : 0;
-    console.log(targetIndex, splitLine, inputLine, inputIndexOnLine);
 
     // Count all blocks before
     if (inputLine > 0) {
@@ -569,19 +575,12 @@ export default function BlockEditor({
     let indexOnLine = 0;
 
     for (const block of blocks) {
-      // New Line?
-      if (lastLineOffset < (block as HTMLElement).offsetTop) {
+      const isNewLine = lastLineOffset < (block as HTMLElement).offsetTop;
+
+      if (isNewLine) {
         lineNumber++;
         indexOnLine = 0;
         lastLineOffset = (block as HTMLElement).offsetTop;
-
-        // Is it input?
-        if (block.className === "input-box") {
-          inputLine = lineNumber;
-          inputIndexOnLine = indexOnLine;
-          // returnArray[lineNumber] = [];
-          continue;
-        }
 
         returnArray[lineNumber] = [];
       }
@@ -610,9 +609,7 @@ export default function BlockEditor({
       if (block.content === "\n") {
         index++;
         lines[index] = [];
-      } else {
-        lines[index].push(block);
-      }
+      } else lines[index].push(block);
     });
 
     return lines;
@@ -630,8 +627,19 @@ export default function BlockEditor({
       setInputIndex(blockIndexOnLine);
       setInputLineIndex(blockLine);
       setInputText(content);
+      inputRef.current!.textContent = content;
+      changeBlockRef.current = true;
     }
   }
+
+  // Returns caret position from input on space
+  function getCaretPosition() {
+    const selection = window.getSelection();
+    if (!selection || selection.rangeCount === 0) return null;
+  
+    const range = selection.getRangeAt(0);
+    return range.startOffset
+  };
 
   // Handles pressed keys
   function handleKeyDown(e: React.KeyboardEvent<HTMLDivElement>) {
@@ -639,29 +647,29 @@ export default function BlockEditor({
       case " ":
         e.preventDefault();
         if (inputText.trim() !== "") {
-          // First Block
-          if (blocks.length === 0) {
-            setBlocks([makeBlock(inputText.trim())]);
-          } else {
-            // Input on end
-            if (
-              inputIndex === lines[inputLineIndex].length &&
-              inputLineIndex === lines.length - 1
-            ) {
-              setBlocks((prev) => [...prev, makeBlock(inputText.trim())]);
-            }
-            // Input not on end
-            else {
-              const insertIndex = countInsertIndex();
-              setBlocks((prevBlocks) => [
-                ...prevBlocks.slice(0, insertIndex),
-                makeBlock(inputText.trim()),
-                ...prevBlocks.slice(insertIndex),
-              ]);
-            }
-          }
+          let content = inputText.trim();
+          const insertIndex = countInsertIndex();
+          const caretPosition = getCaretPosition();
+          const isDividedInMiddle = caretPosition! < content.length
+
+          if(isDividedInMiddle)
+            content = content.slice(0, caretPosition!) + " " + content.slice(caretPosition!);
+
+          // Works for a single word and content with spaces
+          const newContent = content.split(" ").filter(word => word !== "");          
+
+          setBlocks((prevBlocks) => [
+            ...prevBlocks.slice(0, insertIndex),
+            ...newContent.map((word) => makeBlock(word)),
+            ...prevBlocks.slice(insertIndex),
+          ]);
+
+          let newInputIndex = inputIndex + newContent.length;
+          if(isDividedInMiddle) newInputIndex -= 1;
+
+          setInputIndex(newInputIndex);
           setInputText("");
-          setInputIndex(inputIndex + 1);
+          inputRef.current!.textContent = "";
         }
         break;
 
@@ -695,8 +703,10 @@ export default function BlockEditor({
 
               if (inputIndex !== 0) {
                 setInputIndex(inputIndex - 1);
+
+                const inputIndexInEditor = countInsertIndex() - 1;
                 setBlocks(
-                  blocks.filter((block) => block.index !== insertIndex - 1)
+                  blocks.filter((_, index) => index !== inputIndexInEditor)
                 );
 
                 return;
@@ -709,7 +719,9 @@ export default function BlockEditor({
               setInputIndex(lines[inputLineIndex - 1].length);
               setInputLineIndex(inputLineIndex - 1);
             } else {
-              setInputText(blocks[insertIndex - 1].content);
+              const content = blocks[insertIndex - 1].content;
+              inputRef.current!.textContent = content;
+              setInputText(content);
               setInputIndex(inputIndex - 1 >= 0 ? inputIndex - 1 : 0);
 
               setBlocks(
@@ -724,21 +736,42 @@ export default function BlockEditor({
             }
           }
         } else {
-          if (e.shiftKey) setInputText("");
+          if (e.shiftKey) {
+            setInputText("");
+            inputRef.current!.textContent = "";
+          }
         }
         break;
 
       case "ArrowLeft":
-        e.preventDefault();
-        if (inputText === "" && inputIndex > 0) {
-          setInputIndex(inputIndex - 1);
+        if (inputText === "") {
+          e.preventDefault();
+
+          if (inputIndex > 0) {
+            setInputIndex(inputIndex - 1);
+            break;
+          }
+
+          // On beginning of line
+          if (inputLineIndex > 0) {
+            setInputLineIndex(inputLineIndex - 1);
+            setInputIndex(lines[inputLineIndex - 1].length);
+          }
         }
         break;
 
       case "ArrowRight":
-        e.preventDefault();
-        if (inputText === "" && inputIndex < lines[inputLineIndex].length) {
-          setInputIndex(inputIndex + 1);
+        if (inputText === "") {
+          e.preventDefault();
+          if (inputIndex < lines[inputLineIndex].length) {
+            setInputIndex(inputIndex + 1);
+            break;
+          }
+
+          if (inputLineIndex < lines.length - 1) {
+            setInputLineIndex(inputLineIndex + 1);
+            setInputIndex(0);
+          }
         }
         break;
 
@@ -755,11 +788,8 @@ export default function BlockEditor({
       case "Enter":
         e.preventDefault();
 
-        if (inputText !== "") {
-          addNewLine(countInsertIndex(), true);
-        } else {
-          addNewLine(countInsertIndex());
-        }
+        if (inputText !== "") addNewLine(countInsertIndex(), true);
+        else addNewLine(countInsertIndex());
 
         setInputLineIndex(inputLineIndex + 1);
         setInputIndex(0);
@@ -795,9 +825,8 @@ export default function BlockEditor({
     const joinedBlocks = checkForWordWithSpaces(newBlocks);
 
     // Did some blocks join?
-    if (!joinedBlocks) {
-      setBlocks(newBlocks);
-    } else {
+    if (!joinedBlocks) setBlocks(newBlocks);
+    else {
       setBlocks(joinedBlocks);
       newBlocks = joinedBlocks;
     }
@@ -831,9 +860,7 @@ export default function BlockEditor({
     for (const block of blockArray) {
       const isNewline = block.content === "\n";
 
-      if (!isNewline && result && !prevWasNewline) {
-        result += " ";
-      }
+      if (!isNewline && result && !prevWasNewline) result += " ";
 
       result += block.content;
       prevWasNewline = isNewline;
@@ -849,7 +876,6 @@ export default function BlockEditor({
     }
   }
 
-  // Todo vyresit inputtext?
   function findPositionOfClickOnLine(
     clickX: number,
     clickY: number,
@@ -861,6 +887,7 @@ export default function BlockEditor({
       const offsetArray = Array.from(items).map(
         (item) => (item as HTMLElement).offsetLeft
       );
+
       return findClosestIndex(offsetArray, clickX);
     } else {
       const blockOffsetArray: number[] = [];
@@ -878,16 +905,12 @@ export default function BlockEditor({
           continue;
         } else {
           // Correct line, find place to fit input based on offsetLeft
-          if (reference === -1) {
-            reference = currentBlockOffset;
-          }
+          if (reference === -1) reference = currentBlockOffset;
 
           // Did we move to next line? Return last index (clicked on end of line)
-          if (currentBlockOffset === reference) {
+          if (currentBlockOffset === reference)
             blockOffsetArray.push((items[i] as HTMLElement).offsetLeft);
-          } else {
-            break;
-          }
+          else break;
         }
       }
 
@@ -905,6 +928,7 @@ export default function BlockEditor({
     if (selectedBlocks.length === 0) {
       setSelectedBlocks([blocks.find((block) => block.index === blockIndex)!]);
       setFirstSelectedBlockIndex([-1, -1]);
+      return;
     }
 
     // Selected one block already -> if not clicked on the same, select all blocks in between
@@ -928,9 +952,8 @@ export default function BlockEditor({
       const end = Math.max(existingIndex, currentIndex);
 
       // Clicked before the already selected block, update future input in case of deleting
-      if (currentIndex < existingIndex) {
+      if (currentIndex < existingIndex)
         setFirstSelectedBlockIndex([indexOnLine, lineIndex]);
-      }
 
       const newSelectedBlocks = blocks.slice(start, end + 1);
 
@@ -1013,9 +1036,7 @@ export default function BlockEditor({
 
     const foundBlock = blocks.find((block) => block.index === activeId);
 
-    if (foundBlock) {
-      setActiveBlock(foundBlock);
-    }
+    if (foundBlock) setActiveBlock(foundBlock);
   }
 
   // DnD ended (dropped)
@@ -1097,11 +1118,9 @@ export default function BlockEditor({
     }
 
     // Set new blocks
-    if (isMultipleDrag) {
-      newBlocks.splice(targetIndex, 0, ...selectedBlocks);
-    } else {
-      newBlocks.splice(targetIndex, 0, activeBlock);
-    }
+    if (isMultipleDrag) newBlocks.splice(targetIndex, 0, ...selectedBlocks);
+    else newBlocks.splice(targetIndex, 0, activeBlock);
+
     setBlocks(newBlocks);
   }
 
@@ -1132,9 +1151,7 @@ export default function BlockEditor({
 
         i++;
       }
-    } else {
-      targetIndex = lines[0].length;
-    }
+    } else targetIndex = lines[0].length;
 
     // If it was on last line (no \n on end)
     if (i === blocks.length) targetIndex = i;
@@ -1228,7 +1245,12 @@ export default function BlockEditor({
 
   return (
     <>
-      {prefabVisible && <PrefabSection onClick={handleClickPrefab} customization={customization.backgroundColor}/>}
+      {prefabVisible && (
+        <PrefabSection
+          onClick={handleClickPrefab}
+          customization={customization.backgroundColor}
+        />
+      )}
 
       <div
         className="blockEditor-container"
