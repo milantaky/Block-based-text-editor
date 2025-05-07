@@ -87,7 +87,11 @@ export default function BlockEditor({
   const [selectedBlocks, setSelectedBlocks] = useState<BlockType[]>([]);
   const [firstSelectedBlockIndex, setFirstSelectedBlockIndex] = useState<
     [number, number]
-  >([-1, -1]); // [inputIndex, inputLineIndex]  
+  >([-1, -1]); // [inputIndex, inputLineIndex] 
+
+  console.log("IT:",inputText);
+  console.log("Ref",inputRef.current?.textContent);
+   
 
   // When first rendered, check for line height and set input on end
   useEffect(() => {
@@ -667,7 +671,7 @@ export default function BlockEditor({
         break;
 
       // With shift key -> deletes block
-      case "Backspace":
+      case "Backspace":        
         if (inputText === "") {
           e.preventDefault();
 
@@ -675,7 +679,7 @@ export default function BlockEditor({
             const insertIndex = countInsertIndex();
 
             // Shift -> delete block
-            if (e.shiftKey) {
+            if (e.shiftKey) { 
               // Blocks are selected -> delete them
               if (selectedBlocks.length !== 0) {
                 setBlocks(
@@ -712,7 +716,9 @@ export default function BlockEditor({
               setInputIndex(lines[inputLineIndex - 1].length);
               setInputLineIndex(inputLineIndex - 1);
             } else {
-              setInputText(blocks[insertIndex - 1].content);
+              const content = blocks[insertIndex - 1].content
+              inputRef.current!.textContent = content;
+              setInputText(content);
               setInputIndex(inputIndex - 1 >= 0 ? inputIndex - 1 : 0);
 
               setBlocks(
@@ -727,7 +733,12 @@ export default function BlockEditor({
             }
           }
         } else {
-          if (e.shiftKey) setInputText("");
+          console.log("tu");
+          
+          if (e.shiftKey) {
+            setInputText("");
+            inputRef.current!.textContent = "";
+          }
         }
         break;
 
