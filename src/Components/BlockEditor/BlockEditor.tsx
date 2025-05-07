@@ -623,17 +623,31 @@ export default function BlockEditor({
     }
   }
 
+  // Returns caret position from input on space
+  function getCaretPosition() {
+    const selection = window.getSelection();
+    if (!selection || selection.rangeCount === 0) return null;
+  
+    const range = selection.getRangeAt(0);
+    return range.startOffset
+  };
+
   // Handles pressed keys
   function handleKeyDown(e: React.KeyboardEvent<HTMLDivElement>) {
     switch (e.key) {
       case " ":
         e.preventDefault();
         if (inputText.trim() !== "") {
-          const content = inputText.trim();
+          let content = inputText.trim();
           const insertIndex = countInsertIndex();
+          const caretPosition = getCaretPosition();
+          const isDividedInMiddle = caretPosition! < content.length
+
+          if(isDividedInMiddle)
+            content = content.slice(0, caretPosition!) + " " + content.slice(caretPosition!);
 
           // Works for a single word and content with spaces
-          const newContent = content.split(" ");
+          const newContent = content.split(" ").filter(word => word !== "");          
 
           setBlocks((prevBlocks) => [
             ...prevBlocks.slice(0, insertIndex),
@@ -641,7 +655,10 @@ export default function BlockEditor({
             ...prevBlocks.slice(insertIndex),
           ]);
 
-          setInputIndex(inputIndex + newContent.length);
+          let newInputIndex = inputIndex + newContent.length;
+          if(isDividedInMiddle) newInputIndex -= 1;
+
+          setInputIndex(newInputIndex);
           setInputText("");
           inputRef.current!.textContent = "";
         }
@@ -902,6 +919,7 @@ export default function BlockEditor({
     if (selectedBlocks.length === 0) {
       setSelectedBlocks([blocks.find((block) => block.index === blockIndex)!]);
       setFirstSelectedBlockIndex([-1, -1]);
+      return;
     }
 
     // Selected one block already -> if not clicked on the same, select all blocks in between
