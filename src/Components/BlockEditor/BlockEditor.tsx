@@ -640,15 +640,20 @@ export default function BlockEditor({
       case " ":
         e.preventDefault();
         if (inputText.trim() !== "") {
+          const content = inputText.trim();
           const insertIndex = countInsertIndex();
+
+          // Works for a single word and content with spaces
+          const newContent = content.split(" ");
+          
           setBlocks((prevBlocks) => [
             ...prevBlocks.slice(0, insertIndex),
-            makeBlock(inputText.trim()),
+            ...newContent.map((word) => makeBlock(word)),
             ...prevBlocks.slice(insertIndex),
           ]);
 
+          setInputIndex(inputIndex + newContent.length);
           setInputText("");
-          setInputIndex(inputIndex + 1);
           inputRef.current!.textContent = "";
         }
         break;
