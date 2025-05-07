@@ -474,7 +474,6 @@ export default function BlockEditor({
       setInputIndex(targetIndex);
     } else {
       // Move input down
-
       if (inputText === "" && inputLineIndex !== lines.length - 1) {
         if (lines[inputLineIndex + 1].length === 0) {
           setInputLineIndex(inputLineIndex + 1);
@@ -523,7 +522,6 @@ export default function BlockEditor({
       inputIndexOnLine > 0 && splitLine[inputLine - 1].length > 0
         ? findClosestIndex(splitLine[inputLine - 1], inputOffset)
         : 0;
-    console.log(targetIndex, splitLine, inputLine, inputIndexOnLine);
 
     // Count all blocks before
     if (inputLine > 0) {
@@ -568,19 +566,12 @@ export default function BlockEditor({
     let indexOnLine = 0;
 
     for (const block of blocks) {
-      // New Line?
-      if (lastLineOffset < (block as HTMLElement).offsetTop) {
+      const isNewLine = lastLineOffset < (block as HTMLElement).offsetTop;
+
+      if (isNewLine) {
         lineNumber++;
         indexOnLine = 0;
         lastLineOffset = (block as HTMLElement).offsetTop;
-
-        // Is it input?
-        if (block.className === "input-box") {
-          inputLine = lineNumber;
-          inputIndexOnLine = indexOnLine;
-          // returnArray[lineNumber] = [];
-          continue;
-        }
 
         returnArray[lineNumber] = [];
       }
@@ -609,9 +600,7 @@ export default function BlockEditor({
       if (block.content === "\n") {
         index++;
         lines[index] = [];
-      } else {
-        lines[index].push(block);
-      }
+      } else lines[index].push(block);
     });
 
     return lines;
@@ -645,7 +634,7 @@ export default function BlockEditor({
 
           // Works for a single word and content with spaces
           const newContent = content.split(" ");
-          
+
           setBlocks((prevBlocks) => [
             ...prevBlocks.slice(0, insertIndex),
             ...newContent.map((word) => makeBlock(word)),
@@ -773,11 +762,8 @@ export default function BlockEditor({
       case "Enter":
         e.preventDefault();
 
-        if (inputText !== "") {
-          addNewLine(countInsertIndex(), true);
-        } else {
-          addNewLine(countInsertIndex());
-        }
+        if (inputText !== "") addNewLine(countInsertIndex(), true);
+        else addNewLine(countInsertIndex());
 
         setInputLineIndex(inputLineIndex + 1);
         setInputIndex(0);
@@ -813,9 +799,8 @@ export default function BlockEditor({
     const joinedBlocks = checkForWordWithSpaces(newBlocks);
 
     // Did some blocks join?
-    if (!joinedBlocks) {
-      setBlocks(newBlocks);
-    } else {
+    if (!joinedBlocks) setBlocks(newBlocks);
+    else {
       setBlocks(joinedBlocks);
       newBlocks = joinedBlocks;
     }
@@ -849,9 +834,7 @@ export default function BlockEditor({
     for (const block of blockArray) {
       const isNewline = block.content === "\n";
 
-      if (!isNewline && result && !prevWasNewline) {
-        result += " ";
-      }
+      if (!isNewline && result && !prevWasNewline) result += " ";
 
       result += block.content;
       prevWasNewline = isNewline;
@@ -878,6 +861,7 @@ export default function BlockEditor({
       const offsetArray = Array.from(items).map(
         (item) => (item as HTMLElement).offsetLeft
       );
+
       return findClosestIndex(offsetArray, clickX);
     } else {
       const blockOffsetArray: number[] = [];
@@ -1140,9 +1124,7 @@ export default function BlockEditor({
 
         i++;
       }
-    } else {
-      targetIndex = lines[0].length;
-    }
+    } else targetIndex = lines[0].length;
 
     // If it was on last line (no \n on end)
     if (i === blocks.length) targetIndex = i;

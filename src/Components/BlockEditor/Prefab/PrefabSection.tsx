@@ -41,7 +41,6 @@ export default function PrefabSection({
     });
   }
 
-
   function onDelete(newBlock: string) {
     setCustomBlocks((prev) => {
       const updatedItems = new Set(prev.items);

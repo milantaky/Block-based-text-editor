@@ -1,7 +1,9 @@
 import { useState, useRef } from "react";
+import { earsTest } from "./wordCategories.tsx";
 import TextEditor from "./Components/TextEditor/TextEditor.tsx";
 import BlockEditor from "./Components/BlockEditor/BlockEditor.tsx";
-import { earsTest } from "./wordCategories.tsx";
+import { SwatchesPicker, ColorResult } from "react-color";
+import Tippy from "@tippyjs/react";
 import type {
   BlockStylesMap,
   BlockType,
@@ -9,8 +11,6 @@ import type {
   TextWordStylesMap,
 } from "./types";
 import "./App.css";
-import Tippy from "@tippyjs/react";
-import { SwatchesPicker, ColorResult } from "react-color";
 
 const blockTypes = Object.keys(earsTest);
 const language = earsTest;
@@ -81,11 +81,8 @@ export default function App() {
   }
 
   function toggleEditorMode() {
-    if (editorMode === "Text") {
-      setEditorMode("Blocks");
-    } else {
-      setEditorMode("Text");
-    }
+    if (editorMode === "Text") setEditorMode("Blocks");
+    else setEditorMode("Text");
   }
 
   function SwitchButton() {
@@ -102,7 +99,12 @@ export default function App() {
 
   function SettingsButton() {
     return (
-      <button className={`settings-window-button ${settingsVisible && 'settings-visible'}`} onClick={toggleSettings}>
+      <button
+        className={`settings-window-button ${
+          settingsVisible && "settings-visible"
+        }`}
+        onClick={toggleSettings}
+      >
         Settings
       </button>
     );
@@ -110,6 +112,10 @@ export default function App() {
 
   function togglePrefab() {
     setPrefabVisible(!prefabVisible);
+  }
+
+  function ColorPreview({ color }: { color: string }) {
+    return <div className="color-div" style={{ backgroundColor: color }} />;
   }
 
   function SettingsWindow() {
@@ -168,10 +174,7 @@ export default function App() {
                   />
                 }
               >
-                <div
-                  className="color-div"
-                  style={{ backgroundColor: backgroundColor }}
-                ></div>
+                <ColorPreview color={backgroundColor} />
               </Tippy>
             </div>
             {/* Blocks customization */}
@@ -222,13 +225,9 @@ export default function App() {
                           />
                         }
                       >
-                        <div
-                          className="color-div"
-                          style={{
-                            backgroundColor:
-                              blockStyles[selectedBlockType].backgroundColor,
-                          }}
-                        ></div>
+                        <ColorPreview
+                          color={blockStyles[selectedBlockType].backgroundColor}
+                        />
                       </Tippy>
                     </div>
 
@@ -257,13 +256,9 @@ export default function App() {
                           />
                         }
                       >
-                        <div
-                          className="color-div"
-                          style={{
-                            backgroundColor:
-                              blockStyles[selectedBlockType].color,
-                          }}
-                        ></div>
+                        <ColorPreview
+                          color={blockStyles[selectedBlockType].color}
+                        />
                       </Tippy>
                     </div>
 
@@ -291,13 +286,9 @@ export default function App() {
                           />
                         }
                       >
-                        <div
-                          className="color-div"
-                          style={{
-                            backgroundColor:
-                              blockStyles[selectedBlockType].borderColor,
-                          }}
-                        ></div>
+                        <ColorPreview
+                          color={blockStyles[selectedBlockType].borderColor}
+                        />
                       </Tippy>
                     </div>
                   </div>
@@ -346,12 +337,9 @@ export default function App() {
                       />
                     }
                   >
-                    <div
-                      className="color-div"
-                      style={{
-                        backgroundColor: textWordStyles[selectedWordType].color,
-                      }}
-                    ></div>
+                    <ColorPreview
+                      color={textWordStyles[selectedWordType].color}
+                    />
                   </Tippy>
                 </div>
               </div>
