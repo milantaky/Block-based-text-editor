@@ -640,27 +640,13 @@ export default function BlockEditor({
       case " ":
         e.preventDefault();
         if (inputText.trim() !== "") {
-          // First Block
-          if (blocks.length === 0) {
-            setBlocks([makeBlock(inputText.trim())]);
-          } else {
-            // Input on end
-            if (
-              inputIndex === lines[inputLineIndex].length &&
-              inputLineIndex === lines.length - 1
-            ) {
-              setBlocks((prev) => [...prev, makeBlock(inputText.trim())]);
-            }
-            // Input not on end
-            else {
-              const insertIndex = countInsertIndex();
-              setBlocks((prevBlocks) => [
-                ...prevBlocks.slice(0, insertIndex),
-                makeBlock(inputText.trim()),
-                ...prevBlocks.slice(insertIndex),
-              ]);
-            }
-          }
+          const insertIndex = countInsertIndex();
+          setBlocks((prevBlocks) => [
+            ...prevBlocks.slice(0, insertIndex),
+            makeBlock(inputText.trim()),
+            ...prevBlocks.slice(insertIndex),
+          ]);
+
           setInputText("");
           setInputIndex(inputIndex + 1);
           inputRef.current!.textContent = "";
