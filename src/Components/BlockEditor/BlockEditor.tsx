@@ -361,6 +361,7 @@ export default function BlockEditor({
         wordType: 0,
       });
       setInputText("");
+      inputRef.current!.textContent = "";
     } else {
       newBlocks.splice(where, 0, {
         index: nextBlockIndex + 1,
@@ -722,8 +723,6 @@ export default function BlockEditor({
             } else {
               const content = blocks[insertIndex - 1].content;
               inputRef.current!.textContent = content;
-              console.log("back");
-              
               setInputText(content);
               setInputIndex(inputIndex - 1 >= 0 ? inputIndex - 1 : 0);
 

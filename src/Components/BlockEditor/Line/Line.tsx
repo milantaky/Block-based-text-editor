@@ -18,8 +18,7 @@ export default function Line({
     },
   });
 
-  // ! pak jak se oddelaji ramecky, upravit!!!
-  const minHeight = baseLineHeight + 1; // Base line height - 16px top, bottom padding
+  const minHeight = baseLineHeight - 9; // Base line height - 8px bottom padding - 1px bottom border
 
   const childrenArray = Children.toArray(children);
   const isEmpty = childrenArray.length === 0;
