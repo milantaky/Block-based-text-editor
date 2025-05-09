@@ -74,9 +74,6 @@ export default function BlockEditor({
   };
 }) {
   // Blocks
-  // const savedBlocks = localStorage.getItem("blocks");
-  // const initialBlocks: BlockType[] = savedBlocks ? JSON.parse(savedBlocks) : convertToBlocks(text);
-  // const [blocks, setBlocks] = useState<BlockType[]>(initialBlocks);
   const [blocks, setBlocks] = useState<BlockType[]>(convertToBlocks(text));
   const [nextBlockIndex, setNextBlockIndex] = useState(text.split("").length);
   const lines = splitLines(blocks); // Blocks converted into lines of blocks based on \n
@@ -1285,7 +1282,10 @@ export default function BlockEditor({
       {prefabVisible && (
         <PrefabSection
           onClick={handleClickPrefab}
-          customization={customization.backgroundColor}
+          customization={{
+            backgroundColor: customization.backgroundColor,
+            blockStyles: customization.blockStyles,
+          }}
         />
       )}
 

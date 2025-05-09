@@ -1,9 +1,11 @@
+import { BlockStylesMap } from "../../../types";
 import CreatePrefab from "./CreatePrefab";
 import PrefabBlockButton from "./PrefabBlockButton";
 
 export default function PrefabBlockCategory({
   category,
   data,
+  customization,
   onClick,
   onCreate,
   onDelete
@@ -12,6 +14,9 @@ export default function PrefabBlockCategory({
   data: {
     type: number;
     items: Set<string>;
+  };
+  customization: {
+    blockStyles: BlockStylesMap;
   };
   onClick: (content: string, wordType: number) => void;
   onCreate: (newBlock: string) => void;
@@ -29,6 +34,7 @@ export default function PrefabBlockCategory({
             wordType={data.type}
             onClick={onClick}
             onDelete={onDelete}
+            customization={customization}
           />
         ))}
 
