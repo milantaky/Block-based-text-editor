@@ -115,9 +115,9 @@ export default function App() {
     setPrefabVisible(!prefabVisible);
   }
 
-  function ColorPreview({ color }: { color: string }) {
-    return <div className="color-div" style={{ backgroundColor: color }} />;
-  }
+  // function ColorPreview({ color }: { color: string }) {
+  //   return <div className="color-div" style={{ backgroundColor: color }} />;
+  // }
 
   function SettingsWindow() {
     return (
@@ -175,7 +175,10 @@ export default function App() {
                   />
                 }
               >
-                <ColorPreview color={backgroundColor} />
+                <div
+                  className="color-div"
+                  style={{ backgroundColor: backgroundColor }}
+                />
               </Tippy>
             </div>
             {/* Blocks customization */}
@@ -226,10 +229,12 @@ export default function App() {
                             />
                           }
                         >
-                          <ColorPreview
-                            color={
-                              blockStyles[selectedBlockType].backgroundColor
-                            }
+                          <div
+                            className="color-div"
+                            style={{
+                              backgroundColor:
+                                blockStyles[selectedBlockType].backgroundColor,
+                            }}
                           />
                         </Tippy>
                       </div>
@@ -259,8 +264,12 @@ export default function App() {
                             />
                           }
                         >
-                          <ColorPreview
-                            color={blockStyles[selectedBlockType].color}
+                          <div
+                            className="color-div"
+                            style={{
+                              backgroundColor:
+                                blockStyles[selectedBlockType].color,
+                            }}
                           />
                         </Tippy>
                       </div>
@@ -289,8 +298,12 @@ export default function App() {
                             />
                           }
                         >
-                          <ColorPreview
-                            color={blockStyles[selectedBlockType].borderColor}
+                          <div
+                            className="color-div"
+                            style={{
+                              backgroundColor:
+                                blockStyles[selectedBlockType].borderColor,
+                            }}
                           />
                         </Tippy>
                       </div>
@@ -341,8 +354,12 @@ export default function App() {
                         />
                       }
                     >
-                      <ColorPreview
-                        color={textWordStyles[selectedWordType].color}
+                      <div
+                        className="color-div"
+                        style={{
+                          backgroundColor:
+                            textWordStyles[selectedWordType].color,
+                        }}
                       />
                     </Tippy>
                   </div>
@@ -360,6 +377,7 @@ export default function App() {
       <div className="editable-area">
         {editorMode === "Blocks" ? (
           <BlockEditor
+            key={0}
             text={textRef.current}
             blocksRef={blocksRef}
             baseLineHeight={baseLineHeight}
@@ -374,6 +392,7 @@ export default function App() {
           />
         ) : (
           <TextEditor
+            key={0}
             blocks={blocksRef.current}
             textRef={textRef}
             customization={{

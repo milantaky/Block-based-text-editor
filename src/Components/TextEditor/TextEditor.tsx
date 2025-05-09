@@ -38,11 +38,9 @@ export default function TextEditor({
   const [text, setText] = useState(convertToText(blocks));
   const editableRef = useRef<HTMLDivElement>(null);
   const words = text.split(/(\s+)/);
-  const highlightedWords = highlightWords(words);
-
-  // Helpers
   const firstRender = useRef(true);
   const typeArray = getWordTypes();
+  const highlightedWords = highlightWords(words);
 
   applyEarstestColors();
 
