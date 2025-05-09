@@ -373,7 +373,7 @@ export default function App() {
       <div className="editable-area">
         {editorMode === "Blocks" ? (
           <BlockEditor
-            key={0}
+            key="BE"
             text={textRef.current}
             blocksRef={blocksRef}
             baseLineHeight={baseLineHeight}
@@ -388,7 +388,7 @@ export default function App() {
           />
         ) : (
           <TextEditor
-            key={0}
+            key="TE"
             blocks={blocksRef.current}
             textRef={textRef}
             customization={{

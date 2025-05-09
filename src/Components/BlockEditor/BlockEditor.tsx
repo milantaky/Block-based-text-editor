@@ -74,6 +74,9 @@ export default function BlockEditor({
   };
 }) {
   // Blocks
+  // const savedBlocks = localStorage.getItem("blocks");
+  // const initialBlocks: BlockType[] = savedBlocks ? JSON.parse(savedBlocks) : convertToBlocks(text);
+  // const [blocks, setBlocks] = useState<BlockType[]>(initialBlocks);
   const [blocks, setBlocks] = useState<BlockType[]>(convertToBlocks(text));
   const [nextBlockIndex, setNextBlockIndex] = useState(text.split("").length);
   const lines = splitLines(blocks); // Blocks converted into lines of blocks based on \n
@@ -293,9 +296,9 @@ export default function BlockEditor({
     return changed ? newBlocks : false;
   }
 
-  // Removes . , ' from string
+  // Removes . , ' " from string
   function sanitizeBlock(word: string) {
-    return word.replace(/[.,']/g, "");
+    return word.replace(/[.,'"]/g, "");
   }
 
   // Merges blocks from start to end indices, uses index of last block as new index and sets new blocks

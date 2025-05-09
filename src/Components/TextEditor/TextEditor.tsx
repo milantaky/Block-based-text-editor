@@ -93,9 +93,9 @@ export default function TextEditor({
     document.head.appendChild(styleTag);
   }
 
-  // Removes . , ' from string
+  // Removes . , ' " from string
   function sanitizeBlock(word: string) {
-    return word.replace(/[.,']/g, "");
+    return word.replace(/[.,'"]/g, "");
   }
 
   // For first render
