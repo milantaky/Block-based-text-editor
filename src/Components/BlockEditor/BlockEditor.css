@@ -68,3 +68,12 @@
   background-color: orange;
 }
   
+.multiword-dnd-preview {
+  display: flex;
+  flex-direction: row;
+  gap: 0.5em;
+}
+
+.multiword-dnd-preview .block {
+  white-space: nowrap;
+}
