@@ -97,8 +97,6 @@ export default function BlockEditor({
   const editorRef = useRef<HTMLDivElement>(null);
   const changeBlockRef = useRef(false);
   const setFirstRef = useRef(false);
-  console.log("FSBI:", firstSelectedBlockIndex[0],firstSelectedBlockIndex[1]);
-  
 
   // When first rendered, check for line height and set input on end
   useEffect(() => {
@@ -995,6 +993,8 @@ export default function BlockEditor({
 
       setInputIndex(blockIndexOnLine + 1);
       setInputLineIndex(lineIndex);
+      changeBlockRef.current = true;
+
       setTimeout(() => inputRef.current?.focus(), 0);
 
       return;
@@ -1025,6 +1025,7 @@ export default function BlockEditor({
       setInputLineIndex(lines.length - 1);
     }
 
+    changeBlockRef.current = true;
     setTimeout(() => inputRef.current?.focus(), 0);
   }
 
