@@ -115,10 +115,6 @@ export default function App() {
     setPrefabVisible(!prefabVisible);
   }
 
-  // function ColorPreview({ color }: { color: string }) {
-  //   return <div className="color-div" style={{ backgroundColor: color }} />;
-  // }
-
   function SettingsWindow() {
     return (
       <>
