@@ -129,7 +129,7 @@ export default function BlockEditor({
   useEffect(() => {
     setTimeout(() => {
       if (inputRef.current) inputRef.current.focus();
-
+      
       if (changeBlockRef.current) {
         inputRef.current!.textContent = inputText;
         setCaretToEnd();
@@ -635,9 +635,12 @@ export default function BlockEditor({
   // Returns caret position from input on space
   function getCaretPosition() {
     const selection = window.getSelection();
+    
     if (!selection || selection.rangeCount === 0) return null;
 
     const range = selection.getRangeAt(0);
+    
+    if (range.commonAncestorContainer instanceof HTMLElement) return inputText.length;
     return range.startOffset;
   }
 
@@ -650,6 +653,7 @@ export default function BlockEditor({
           let content = inputText.trim();
           const insertIndex = countInsertIndex();
           const caretPosition = getCaretPosition();
+
           const isDividedInMiddle = caretPosition! < content.length;
 
           if (isDividedInMiddle)
