@@ -97,6 +97,8 @@ export default function BlockEditor({
   const editorRef = useRef<HTMLDivElement>(null);
   const changeBlockRef = useRef(false);
   const setFirstRef = useRef(false);
+  console.log("FSBI:", firstSelectedBlockIndex[0],firstSelectedBlockIndex[1]);
+  
 
   // When first rendered, check for line height and set input on end
   useEffect(() => {
@@ -930,7 +932,7 @@ export default function BlockEditor({
     // Empty -> select block
     if (selectedBlocks.length === 0) {
       setSelectedBlocks([blocks.find((block) => block.index === blockIndex)!]);
-      setFirstSelectedBlockIndex([-1, -1]);
+      setFirstSelectedBlockIndex([indexOnLine, lineIndex]);
       return;
     }
 

@@ -17,13 +17,9 @@ export default function PrefabSection({
     blockStyles: BlockStylesMap;
   };
 }) {
-  const [customBlocks, setCustomBlocks] = useState(() => {
-    const saved = localStorage.getItem("customBlocks");
-    const items = saved ? new Set<string>(JSON.parse(saved)) : new Set<string>();
-    return {
-      type: -2,
-      items,
-    };
+  const [customBlocks, setCustomBlocks] = useState({
+    type: -2,
+    items: new Set<string>([]),
   });
 
   const filteredCategories = Object.entries(language).filter(
