@@ -97,6 +97,8 @@ export default function BlockEditor({
   const editorRef = useRef<HTMLDivElement>(null);
   const changeBlockRef = useRef(false);
   const setFirstRef = useRef(false);
+  console.log(blocks);
+  
 
   // When first rendered, check for line height and set input on end
   useEffect(() => {
@@ -823,6 +825,8 @@ export default function BlockEditor({
 
     // Inserts pasted blocks into blocks state
     const insertIndex = countInsertIndex();
+    const newBlocksLength = newBlocks.length;
+    
     newBlocks = [
       ...blocks.slice(0, insertIndex),
       ...newBlocks,
@@ -854,8 +858,8 @@ export default function BlockEditor({
       setInputIndex(index - 1);
       setInputLineIndex(inputLineIndex + newLineCount);
     }
-
-    setNextBlockIndex(nextBlockIndex + newBlocks.length);
+    
+    setNextBlockIndex(nextBlockIndex + newBlocksLength);
   }
 
   // Converts blocks to text
