@@ -260,7 +260,6 @@ export default function TextEditor({
 
         // No empty lines -> space (     \n)
         return word;
-        // } else return <span className="word">{word}</span>;
       } else return <span className={typeArray[index]}>{word}</span>;
     });
 
