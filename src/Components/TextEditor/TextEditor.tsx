@@ -93,9 +93,9 @@ export default function TextEditor({
     document.head.appendChild(styleTag);
   }
 
-  // Removes . , ' from string
+  // Removes . , ' " from string
   function sanitizeBlock(word: string) {
-    return word.replace(/[.,']/g, "");
+    return word.replace(/[.,'"]/g, "");
   }
 
   // For first render
@@ -260,7 +260,6 @@ export default function TextEditor({
 
         // No empty lines -> space (     \n)
         return word;
-        // } else return <span className="word">{word}</span>;
       } else return <span className={typeArray[index]}>{word}</span>;
     });
 

@@ -28,8 +28,7 @@
 }
 
 .input-box {
-  padding: 0.2em 0;
-  border: 1px solid blue;
+  padding: 0.2em 0.1em;
 }
 
 .blockEditor-container {
@@ -58,7 +57,7 @@
 }
 
 .block.type--1 {
-  border: 1px dashed red;
+  border: 2px dashed red;
   border-bottom: 2px dashed red;
 }
 
@@ -68,3 +67,12 @@
   background-color: orange;
 }
   
+.multiword-dnd-preview {
+  display: flex;
+  flex-direction: row;
+  gap: 0.5em;
+}
+
+.multiword-dnd-preview .block {
+  white-space: nowrap;
+}

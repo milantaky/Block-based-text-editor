@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { earsTest } from "../../../wordCategories.tsx";
+import { BlockStylesMap } from "../../../types.tsx";
 import PrefabBlockCategory from "./PrefabCategory.tsx";
 import "./PrefabSection.css";
 
@@ -11,15 +12,14 @@ export default function PrefabSection({
   customization
 }: {
   onClick: (content: string, wordType: number) => void;
-  customization: string;
+  customization: {
+    backgroundColor: string;
+    blockStyles: BlockStylesMap;
+  };
 }) {
-  const [customBlocks, setCustomBlocks] = useState(() => {
-    const saved = localStorage.getItem("customBlocks");
-    const items = saved ? new Set<string>(JSON.parse(saved)) : new Set<string>();
-    return {
-      type: -2,
-      items,
-    };
+  const [customBlocks, setCustomBlocks] = useState({
+    type: -2,
+    items: new Set<string>([]),
   });
 
   const filteredCategories = Object.entries(language).filter(
@@ -30,9 +30,6 @@ export default function PrefabSection({
     setCustomBlocks((prev) => {
       const updatedItems = new Set(prev.items);
       updatedItems.add(newBlock);
-      
-      // Save custom blocks in browser
-      localStorage.setItem("customBlocks", JSON.stringify([...updatedItems]));
   
       return {
         type: -2,
@@ -45,9 +42,6 @@ export default function PrefabSection({
     setCustomBlocks((prev) => {
       const updatedItems = new Set(prev.items);
       updatedItems.delete(newBlock);
-      
-      // Save custom blocks in browser
-      localStorage.setItem("customBlocks", JSON.stringify([...updatedItems]));
   
       return {
         type: -2,
@@ -63,12 +57,13 @@ export default function PrefabSection({
       </div>
 
       <div className="prefab-category-list"
-      style={{backgroundColor: customization}}>
+      style={{backgroundColor: customization.backgroundColor}}>
         {filteredCategories.map(([category, data]) => (
           <PrefabBlockCategory
             key={category}
             category={category}
             data={data}
+            customization={customization}
             onClick={onClick}
             onCreate={onCreate}
             onDelete={onDelete}
@@ -79,6 +74,7 @@ export default function PrefabSection({
           key="custom"
           category="custom"
           data={customBlocks}
+          customization={customization}
           onClick={onClick}
           onCreate={onCreate}
           onDelete={onDelete}

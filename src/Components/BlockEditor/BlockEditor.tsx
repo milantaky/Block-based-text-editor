@@ -78,25 +78,27 @@ export default function BlockEditor({
   const [nextBlockIndex, setNextBlockIndex] = useState(text.split("").length);
   const lines = splitLines(blocks); // Blocks converted into lines of blocks based on \n
 
-  // Input 
+  // Input
   const [inputText, setInputText] = useState("");
   const [inputIndex, setInputIndex] = useState(0); // This index says before which block the input is
   const [inputLineIndex, setInputLineIndex] = useState(0); // Which line the input is on (0 = first line)
   const inputRef = useRef<HTMLDivElement>(null);
-  
+
   // Drag and Drop
   const [activeBlock, setActiveBlock] = useState<BlockType | null>(null);
-  
+
   // Block Selection
   const [selectedBlocks, setSelectedBlocks] = useState<BlockType[]>([]);
   const [firstSelectedBlockIndex, setFirstSelectedBlockIndex] = useState<
-  [number, number]
+    [number, number]
   >([-1, -1]); // [inputIndex, inputLineIndex]
-  
+
   // Helpers
   const editorRef = useRef<HTMLDivElement>(null);
   const changeBlockRef = useRef(false);
   const setFirstRef = useRef(false);
+  console.log(blocks);
+  
 
   // When first rendered, check for line height and set input on end
   useEffect(() => {
@@ -129,7 +131,7 @@ export default function BlockEditor({
   useEffect(() => {
     setTimeout(() => {
       if (inputRef.current) inputRef.current.focus();
-
+      
       if (changeBlockRef.current) {
         inputRef.current!.textContent = inputText;
         setCaretToEnd();
@@ -293,9 +295,9 @@ export default function BlockEditor({
     return changed ? newBlocks : false;
   }
 
-  // Removes . , ' from string
+  // Removes . , ' " from string
   function sanitizeBlock(word: string) {
-    return word.replace(/[.,']/g, "");
+    return word.replace(/[.,'"]/g, "");
   }
 
   // Merges blocks from start to end indices, uses index of last block as new index and sets new blocks
@@ -635,11 +637,14 @@ export default function BlockEditor({
   // Returns caret position from input on space
   function getCaretPosition() {
     const selection = window.getSelection();
+    
     if (!selection || selection.rangeCount === 0) return null;
-  
+
     const range = selection.getRangeAt(0);
-    return range.startOffset
-  };
+    
+    if (range.commonAncestorContainer instanceof HTMLElement) return inputText.length;
+    return range.startOffset;
+  }
 
   // Handles pressed keys
   function handleKeyDown(e: React.KeyboardEvent<HTMLDivElement>) {
@@ -650,13 +655,17 @@ export default function BlockEditor({
           let content = inputText.trim();
           const insertIndex = countInsertIndex();
           const caretPosition = getCaretPosition();
-          const isDividedInMiddle = caretPosition! < content.length
 
-          if(isDividedInMiddle)
-            content = content.slice(0, caretPosition!) + " " + content.slice(caretPosition!);
+          const isDividedInMiddle = caretPosition! < content.length;
+
+          if (isDividedInMiddle)
+            content =
+              content.slice(0, caretPosition!) +
+              " " +
+              content.slice(caretPosition!);
 
           // Works for a single word and content with spaces
-          const newContent = content.split(" ").filter(word => word !== "");          
+          const newContent = content.split(" ").filter((word) => word !== "");
 
           setBlocks((prevBlocks) => [
             ...prevBlocks.slice(0, insertIndex),
@@ -665,7 +674,7 @@ export default function BlockEditor({
           ]);
 
           let newInputIndex = inputIndex + newContent.length;
-          if(isDividedInMiddle) newInputIndex -= 1;
+          if (isDividedInMiddle) newInputIndex -= 1;
 
           setInputIndex(newInputIndex);
           setInputText("");
@@ -816,6 +825,8 @@ export default function BlockEditor({
 
     // Inserts pasted blocks into blocks state
     const insertIndex = countInsertIndex();
+    const newBlocksLength = newBlocks.length;
+    
     newBlocks = [
       ...blocks.slice(0, insertIndex),
       ...newBlocks,
@@ -847,8 +858,8 @@ export default function BlockEditor({
       setInputIndex(index - 1);
       setInputLineIndex(inputLineIndex + newLineCount);
     }
-
-    setNextBlockIndex(nextBlockIndex + newBlocks.length);
+    
+    setNextBlockIndex(nextBlockIndex + newBlocksLength);
   }
 
   // Converts blocks to text
@@ -927,7 +938,7 @@ export default function BlockEditor({
     // Empty -> select block
     if (selectedBlocks.length === 0) {
       setSelectedBlocks([blocks.find((block) => block.index === blockIndex)!]);
-      setFirstSelectedBlockIndex([-1, -1]);
+      setFirstSelectedBlockIndex([indexOnLine, lineIndex]);
       return;
     }
 
@@ -990,6 +1001,8 @@ export default function BlockEditor({
 
       setInputIndex(blockIndexOnLine + 1);
       setInputLineIndex(lineIndex);
+      changeBlockRef.current = true;
+
       setTimeout(() => inputRef.current?.focus(), 0);
 
       return;
@@ -1020,6 +1033,7 @@ export default function BlockEditor({
       setInputLineIndex(lines.length - 1);
     }
 
+    changeBlockRef.current = true;
     setTimeout(() => inputRef.current?.focus(), 0);
   }
 
@@ -1072,24 +1086,18 @@ export default function BlockEditor({
       newBlocks = newBlocks.filter(
         (block) =>
           !selectedBlocks.some(
-            (selectedBlock) =>
-              selectedBlock.index === block.index &&
-              selectedBlock.content !== "\n"
+            (selectedBlock) => selectedBlock.index === block.index
           )
       );
-    } else {
-      newBlocks = newBlocks.filter((block) => block.index !== activeId);
-    }
+    } else newBlocks = newBlocks.filter((block) => block.index !== activeId);
 
     // Is dropped on line, or block
     if (overId.startsWith("line-")) {
       targetLineIndex = parseInt(overId.replace("line-", ""), 10);
 
-      // If not found
       if (sourceLineIndex === -1 || targetLineIndex === -1 || !activeBlock)
-        return;
+        return; // Not found
 
-      // Find insert index -> count \n in blocks, if empty, put it there, if not, put it on end
       targetIndex = findDragOnLineIndex(newBlocks, targetLineIndex);
     } else {
       // Find line where target is
@@ -1124,7 +1132,7 @@ export default function BlockEditor({
     setBlocks(newBlocks);
   }
 
-  // Finds index for dropping block when DnD
+  // Finds index for dropping block when DnD ->  count \n in blocks, if empty, put it there, if not, put it on end
   function findDragOnLineIndex(blocks: BlockType[], targetLineIndex: number) {
     // Find insert index -> count \n in blocks, if empty, put it there, if not, put it on end
     let targetIndex = -1;
@@ -1235,6 +1243,43 @@ export default function BlockEditor({
     );
   }
 
+  function DNDPreview() {
+    return (
+      <>
+        {selectedBlocks.length > 1 ? (
+          <div className="multiword-dnd-preview">
+            {selectedBlocks
+              .filter((block) => block.content !== "\n")
+              .map((block) => (
+                <SortableBlock
+                  key={block.index} // přidání klíče je důležité
+                  block={block}
+                  lineIndex={2}
+                  indexOnLine={-1}
+                  isSelected={false}
+                  onBlockDoubleClick={handleBlockDoubleClick}
+                  customization={
+                    customization.blockStyles[typeKeyMap[block.wordType]]
+                  }
+                />
+              ))}
+          </div>
+        ) : (
+          <SortableBlock
+            block={activeBlock!}
+            lineIndex={2}
+            indexOnLine={-1}
+            isSelected={false}
+            onBlockDoubleClick={handleBlockDoubleClick}
+            customization={
+              customization.blockStyles[typeKeyMap[activeBlock!.wordType]]
+            }
+          />
+        )}
+      </>
+    );
+  }
+
   const sensors = useSensors(
     useSensor(PointerSensor, {
       activationConstraint: {
@@ -1248,7 +1293,10 @@ export default function BlockEditor({
       {prefabVisible && (
         <PrefabSection
           onClick={handleClickPrefab}
-          customization={customization.backgroundColor}
+          customization={{
+            backgroundColor: customization.backgroundColor,
+            blockStyles: customization.blockStyles,
+          }}
         />
       )}
 
@@ -1277,20 +1325,7 @@ export default function BlockEditor({
             return collisions;
           }}
         >
-          <DragOverlay>
-            {activeBlock && (
-              <SortableBlock
-                block={activeBlock}
-                lineIndex={2}
-                indexOnLine={-1}
-                isSelected={false}
-                onBlockDoubleClick={handleBlockDoubleClick}
-                customization={
-                  customization.blockStyles[typeKeyMap[activeBlock.wordType]]
-                }
-              />
-            )}
-          </DragOverlay>
+          <DragOverlay>{activeBlock && <DNDPreview />}</DragOverlay>
           {lines.map((line, lineIndex) => renderLine(line, lineIndex))}
         </DndContext>
       </div>
